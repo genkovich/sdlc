@@ -9,10 +9,7 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/genkovich/sdlc",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/genkovich/sdlc.git"
-  },
+  "repository": "https://github.com/genkovich/sdlc",
   "keywords": [
     "sdlc",
     "claude-code",
