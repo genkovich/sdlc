@@ -104,7 +104,7 @@ OWNER=$(gh api user -q .login 2>/dev/null || echo example)
 
 `scaffold.sh` сам: копіює tracked-файли темплейта, вирізає невибрані батарейки за
 маркерами `battery:<name>`, перейменовує бренд (`myapp` → slug, `MyApp` → Display,
-`example/myapp` → owner/slug), копіює `api/.env.docker.example` → `api/.env.docker`,
+`example/myapp` → owner/slug), копіює `api/.env.example` → `api/.env`,
 кладе brief у `docs/idea-brief.md` і робить `git init` + t0-коміт.
 
 ### 5. Freshness (якщо обрано)
@@ -131,7 +131,7 @@ OWNER=$(gh api user -q .login 2>/dev/null || echo example)
   з контекстом проєкту (`api/CLAUDE.md`, `web/CLAUDE.md` і path-rules приїхали з темплейтом).
 - `make check` — наскрізна перевірка.
 - `make up` → повний локальний стек (порти — у README проєкту).
-- Google-логін потребує реальних `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` в `api/.env.docker`.
+- Google-логін потребує реальних `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` в `api/.env` (одна env-пара: закомічений `api/.env.example` → gitignored `api/.env`, його читає і локальний дев-цикл, і compose).
 - Далі по SDLC: фічі через `/sdlc-interview <slug>` (feature mode) у новому репо.
 
 ## Поширені помилки

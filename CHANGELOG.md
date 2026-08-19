@@ -4,6 +4,16 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.1] — 2026-08-19
+
+### Changed — scaffold: єдина env-пара `api/.env.example` → `api/.env`
+
+- base-tpl (a0ce095) схлопнув дві env-пари в одну: docker-специфіка (POSTGRES_*, PGDATA-пін,
+  DATABASE_URL з хостом `postgres`) переїхала інлайном у `docker-compose.yml`, а `api/.env`
+  тепер читають і локальний `make -C api run`, і compose (`env_file` + `environment`-override).
+- Що зробити після оновлення: у своїх проєктах-нащадках нічого — конвенція набирає чинності
+  для нових скафолдів; згадки `api/.env.docker` у скілі виправлені на `api/.env`.
+
 ## [4.2.0] — 2026-06-01
 
 ### Added — `verify-ui` skill (the live browser feedback channel)
