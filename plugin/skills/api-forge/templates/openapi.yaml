@@ -1,0 +1,152 @@
+# Template for api-forge — copied to docs/features/<slug>/contracts/openapi.yaml, then DERIVED:
+#   fields + constraints  ← data-model.md (every field traces to a column; copy maxLength/pattern/enum)
+#   error responses       ← sad.md §6 sequence alt-branches (one response per branch)
+#   endpoint list + shape ← PRD.md §4 user stories / §5 acceptance criteria
+# Replace every <...>. Keep the conventions baked in below (3.1, BearerAuth, cursor page,
+# {code,message,details?} envelope). Schema NAMES use the domain language from data-model.md —
+# never a Go/TS/Python idiom, never a driver's error type.
+openapi: 3.1.0
+
+info:
+  title: <Feature> API
+  version: 0.1.0
+  # One paragraph from PRD.md §1 — WHY this API exists, so a consumer (another team, an AI) reads
+  # purpose, not just shape. Bump `version` only with an explicit CHANGELOG line — never silently.
+  description: |
+    <why this API exists — one paragraph from PRD.md §1>
+
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: http://localhost
+    description: Local
+
+# Global default — every operation requires a bearer token unless it overrides with `security: []`.
+security:
+  - BearerAuth: []
+
+paths:
+  # One block per endpoint, one (or more) endpoint per PRD §4 user story. Cursor pagination on lists.
+  /api/v1/<resources>:
+    get:
+      summary: <list ...>
+      operationId: list<Resources>
+      parameters:
+        - in: query
+          name: after
+          description: cursor — id of the last item seen; the page starts after it
+          schema: { type: string, format: uuid }
+        - in: query
+          name: before
+          schema: { type: string, format: uuid }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/<Resource>Page" }
+        # One response per error branch in this flow's sad.md §6 alt-block (e.g. 401 from BearerAuth).
+        "401":
+          $ref: "#/components/responses/Error"
+
+    post:
+      summary: <create ...>
+      operationId: create<Resource>
+      parameters:
+        # Mutating + retriable (a §6 flow shows a retry note / async actor) ⇒ Idempotency-Key required.
+        - in: header
+          name: Idempotency-Key
+          required: true
+          description: client-generated key; the server returns the first result on retry (TTL <N>h)
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/<Resource>Create" }
+            example:
+              # placeholder data only — never real PII
+              title: "Test <Resource>"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/<Resource>" }
+        # Each remaining response = one alt-branch from sad.md §6 (validation / authorization / conflict).
+        "409":
+          description: <conflict — name the invariant, e.g. duplicate slug>
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                code: "<module>.<error_name>"   # neutral snake_case convention
+                message: "<human-readable reason>"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Error:
+      description: Error — unified envelope
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    # Unified error envelope. `code` is the neutral `module.error_name` convention (a naming rule,
+    # not a language artifact) — it must exist in the repo's error definitions (drift point 2).
+    Error:
+      type: object
+      required: [code, message]
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          pattern: "^[a-z_]+\\.[a-z_]+$"
+          example: "<module>.<error_name>"
+        message: { type: string }
+        details:
+          type: object
+          description: optional structured context (field errors, conflicting id, …)
+
+    # One schema per data-model.md entity. Every property traces to a column; copy its constraints.
+    <Resource>:
+      type: object
+      required: [id]
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid }
+        # Bounded text → maxLength from the model's varchar(N); nullable → type: [string, null].
+        title: { type: string, maxLength: 200 }
+        # Closed set → enum from the model's enumerated type.
+        status: { type: string, enum: [<value_a>, <value_b>] }
+        # Nullable column — 3.1 style, NOT `nullable: true`.
+        description: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }
+
+    <Resource>Create:
+      type: object
+      required: [title]
+      additionalProperties: false
+      properties:
+        title: { type: string, maxLength: 200 }
+
+    # Cursor page wrapper for every list response — never offset.
+    <Resource>Page:
+      type: object
+      required: [items, has_next, has_prev]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/<Resource>" }
+        has_next: { type: boolean }
+        has_prev: { type: boolean }
+        next_cursor: { type: [string, "null"], format: uuid }

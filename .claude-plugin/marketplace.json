@@ -1,0 +1,21 @@
+{
+  "name": "sdlc",
+  "owner": {
+    "name": "Kyrylo Genkov",
+    "email": "genkovi4@gmail.com",
+    "url": "https://github.com/genkovich"
+  },
+  "description": "SDLC toolkit for Claude Code: idea-to-ship pipeline skills, greenfield scaffold from base-tpl, UI verification, user documentation.",
+  "plugins": [
+    {
+      "name": "sdlc",
+      "source": "./plugin",
+      "description": "Full Claude Code SDLC pipeline with 21 skills: a 12-stage map-architecture to ship backbone, interview ideation (feature and greenfield project modes with an easy/medium/hard depth regulator), a scaffold skill that materializes a new project from the base-tpl template with subtractive batteries, and 7 cross-cutting utilities. Includes prepare-design-spec for one repository-aware UI design spec with an embedded Definition of Done, verify-ui for live browser evidence, and user-documentation for end-user docs generated from a live app (playwright-cli walks, per-flow doc-flow subagents, screenshots and optional screencast replays). Per-feature artifacts live under docs/features/<slug>/; skills own their templates and end with explicit stage handoffs.",
+      "version": "4.5.0",
+      "author": {
+        "name": "Kyrylo Genkov"
+      },
+      "license": "MIT"
+    }
+  ]
+}

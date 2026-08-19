@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Design Spec"
+  short_description: "Turn a UI idea into an implementation-ready spec"
+  default_prompt: "Use $prepare-design-spec to inspect this repository and create an implementation-ready UI design spec with a Definition of Done."
