@@ -6,14 +6,14 @@ agents: []
 description: >-
   Use to classify a feature into XS/S/M/L/XL and write docs/features/{slug}/.size so
   later skills know how much of each artifact to produce. Triggers on "classify size",
-  "feature size", "is this XS or M for {slug}", "size {slug}", "/sdlc-classify-size {slug}",
+  "feature size", "is this XS or M for {slug}", "size {slug}", "/sdlc:classify-size {slug}",
   "класифікуй розмір {slug}", "який розмір фічі", "XS чи M". Asks four AskUserQuestion
   (PR count / time / new module-API-migration / breaking changes), maps to a size class via
   the shared size matrix, confirms with the user, and writes the one-line .size file. Syncs
   with PRD.md frontmatter feature_size: if present (warns on conflict). Output:
   docs/features/{slug}/.size + (opt.) PRD frontmatter update.
 triggers:
-  - /sdlc-classify-size
+  - /sdlc:classify-size
   - classify size
   - feature size
   - is this XS or M
@@ -52,7 +52,7 @@ PM or Tech Lead (driver of the intake phase). An architect may escalate S → M 
 4. **Confirm with the user.** `AskUserQuestion`: «Classifying as `<size>` (<one-line rationale>). Lock it in?» — `Yes` / `No, I want <X>` / `Reclassify`.
 5. **Write `.size`.** One line, plain text, only `XS`/`S`/`M`/`L`/`XL` — no comments, no frontmatter. `docs/features/<slug>/.size`.
 6. **Sync with PRD frontmatter (if present).** If `docs/features/<slug>/PRD.md` exists, check its `feature_size:` field. Same value → OK. Conflict → WARN and resolve with the user (update one side). Missing → suggest adding `feature_size: <size>`.
-7. **Propose commit + handoff.** `size: <slug> classified as <size>` (or fold into the intake commit if a wrapper called this). Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) (utility variant) — *What I did* + *Review* (`.size`) + *Run next*: resume your backbone stage (e.g. `/sdlc-write-prd <slug>`); `/clear` optional.
+7. **Propose commit + handoff.** `size: <slug> classified as <size>` (or fold into the intake commit if a wrapper called this). Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) (utility variant) — *What I did* + *Review* (`.size`) + *Run next*: resume your backbone stage (e.g. `/sdlc:write-prd <slug>`); `/clear` optional.
 
 ## Definition of Done
 

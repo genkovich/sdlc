@@ -111,7 +111,7 @@ After `Save as Open Question`, the follow-up `AskUserQuestion`:
 ```
 Question:
   Module-integration decision is migrating to §11 Open Decisions. Provide owner and due
-  (YYYY-MM-DD or stage trigger like «before `/sdlc-break-tasks`»). Both mandatory.
+  (YYYY-MM-DD or stage trigger like «before `/sdlc:break-tasks`»). Both mandatory.
 
 Options:
   - label: "Provide owner + due"
@@ -173,7 +173,7 @@ Options:
   - label: "Edit verification method"
     description: "You type the new How-verify (e.g. «load test with k6 — 10k RPS for 5 min»); skill regenerates QG-1 and asks once more (single-iteration cap)."
   - label: "Save as Open Question"
-    description: "Skill removes QG-1 scenario from §10 and adds a §11 row: «Open architectural decision: QG-1 verification method — Open question — owner: SRE, due: before `/sdlc-plan-tests`». Skill asks owner+due next."
+    description: "Skill removes QG-1 scenario from §10 and adds a §11 row: «Open architectural decision: QG-1 verification method — Open question — owner: SRE, due: before `/sdlc:plan-tests`». Skill asks owner+due next."
   - label: "Drop"
     description: "Skill removes QG-1 from §10 and re-prompts you to pick a replacement Quality Goal from PRD NFR. §1 Top-3 must remain ≥3 — this is a coverage-floor case."
 ```

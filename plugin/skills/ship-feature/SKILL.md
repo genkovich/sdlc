@@ -6,7 +6,7 @@ agents: []
 description: >-
   Use to close the loop after review — verify the feature actually works, write the changelog,
   and open the pull request. Triggers on "ship {slug}", "open a PR for {slug}", "changelog for
-  {slug}", "prepare {slug} for merge", "/sdlc-ship-feature {slug}", "відправ фічу {slug}",
+  {slug}", "prepare {slug} for merge", "/sdlc:ship-feature {slug}", "відправ фічу {slug}",
   "створи PR для {slug}", "changelog для {slug}". Gate: refuses if
   docs/features/{slug}/_review/review-<date>.md does not show PASS (produced by review-feature).
   Runs the feature end-to-end to confirm it actually works (not just green tests), drafts a
@@ -15,7 +15,7 @@ description: >-
   feature to Shipped in docs/roadmap.md. Never auto-merges to main — merging is the user's call.
   Output: docs/features/{slug}/CHANGELOG.md + PR body (proposed command or URL).
 triggers:
-  - /sdlc-ship-feature
+  - /sdlc:ship-feature
   - "ship "
   - "open a PR for"
   - "changelog for"
@@ -39,7 +39,7 @@ The implementer (drives) + the reviewer who signed off in `review-feature`.
 ## Inputs
 
 - `<slug>` — feature slug (same one used by every upstream stage).
-- **Gate (hard refuse):** `docs/features/<slug>/_review/review-<date>.md` showing `PASS`. If missing or showing `CHANGES REQUESTED` → refuse with: «run `/sdlc-review-feature <slug>` first — ship-feature requires a PASS verdict».
+- **Gate (hard refuse):** `docs/features/<slug>/_review/review-<date>.md` showing `PASS`. If missing or showing `CHANGES REQUESTED` → refuse with: «run `/sdlc:review-feature <slug>` first — ship-feature requires a PASS verdict».
 - Read: `docs/features/<slug>/PRD.md` (what to claim in the changelog), `docs/features/<slug>/adr/` (decisions worth recording), the feature's commits (`SDLC-Task` trailer history via `git log --grep SDLC-Task`).
 
 ## Protocol
@@ -60,7 +60,7 @@ The implementer (drives) + the reviewer who signed off in `review-feature`.
 
 6. **Update the roadmap → Shipped.** Move this feature's item from **Now** to **Shipped** in `docs/roadmap.md`: add the date, the outcome one-liner, a link to `docs/features/<slug>/`, and the PR link/command. Remove the item from the Now table. If `docs/roadmap.md` does not exist → skip and note it (roadmap is optional at this stage).
 
-7. **Terminal handoff.** Emit the **stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — terminal variant. *What I did* (verification result: verified-working / what was deferred and why; the roadmap update). *Review* (the changelog path + the PR body path). *Run next* = **Done** — the PR command (or URL if the user already ran it); «merging to main is your call». There is no `/sdlc-` successor.
+7. **Terminal handoff.** Emit the **stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — terminal variant. *What I did* (verification result: verified-working / what was deferred and why; the roadmap update). *Review* (the changelog path + the PR body path). *Run next* = **Done** — the PR command (or URL if the user already ran it); «merging to main is your call». There is no `/sdlc:` successor.
 
 ## Definition of Done
 

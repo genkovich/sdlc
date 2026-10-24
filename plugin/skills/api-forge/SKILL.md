@@ -9,7 +9,7 @@ description: >
   HTTP path, first run only — a baseline .claude/rules/openapi.md so later code
   follows the same API conventions. Triggers on "api for {slug}", "openapi for {slug}",
   "API contract for {slug}", "lock the interface for {slug}", "events for {slug}",
-  "/sdlc-api-forge {slug}", "контракт API для {slug}", "OpenAPI для {slug}", "опиши ендпоінти".
+  "/sdlc:api-forge {slug}", "контракт API для {slug}", "OpenAPI для {slug}", "опиши ендпоінти".
   The contract is never hand-written: it is a derived function of data-model.md (typed
   fields + constraints), sad.md §6 sequence diagrams (error branches, async actors), and
   PRD.md acceptance criteria.
@@ -18,7 +18,7 @@ description: >
   unresolved_origins in the sync report.
   Renamed from define-api in v3.3.0; the legacy name is kept as a deprecation wrapper.
 triggers:
-  - /sdlc-api-forge
+  - /sdlc:api-forge
 stage: "10"
 ---
 
@@ -44,7 +44,7 @@ Backend Lead (drives the interface). The PM confirms each endpoint maps to a rea
 ## Inputs
 
 - `<slug>` — same feature slug used by every earlier stage.
-- **Gate (hard-refuse if missing):** `docs/features/<slug>/PRD.md`. It is the source of user stories and acceptance criteria; without it the endpoint list would be invented. If absent → STOP and point: «run `/sdlc-write-prd <slug>` first».
+- **Gate (hard-refuse if missing):** `docs/features/<slug>/PRD.md`. It is the source of user stories and acceptance criteria; without it the endpoint list would be invented. If absent → STOP and point: «run `/sdlc:write-prd <slug>` first».
 - **Recommended (presence determines scenario A vs B):**
   - `docs/features/<slug>/data-model.md` — strongest source of typed fields and constraints. Presence triggers scenario A (typed contract). Absence triggers scenario B (PRD/sequence-derived contract with `unresolved_origins` block).
   - `docs/features/<slug>/sad.md` §6 — the Mermaid `sequenceDiagram` blocks. Their `alt`/`else` branches become error `responses`; an async participant (`<message-bus>` / `<external-system>`) on a mutating flow marks its endpoint `Idempotency-Key`-required and seeds `events.md`. Absent → note the gap and still generate.
@@ -121,11 +121,11 @@ Fixed minimum, not invented per feature; an `adr/*.md` overrides any of them and
    - **back-feed (coverage cross-check)** — points 4–5, *supporting*: **4** every `data-model.md` entity is surfaced by ≥1 operation or marked intentionally internal, every PRD §5 AC maps to ≥1 operation/response, every operation maps to a §4 user story + ≥1 AC; **5** OpenAPI↔sequence — every `sad.md` §6 `alt`-branch has a response, and any error/authorization response the contract needs but no §6 flow shows is a **sequence gap**. A gap here is not an api bug — it's a hole upstream: surface it and offer **Fix-the-source-first**, which re-opens `write-prd` (add the missing AC) or `complete-sequence-diagrams` (draw the missing branch) before the contract is finalized.
    A **core** finding failing (or ≥3 flags total) pauses the run — resolve each via the 4-state actions: Accept-as-is / Fix-the-contract / Save-as-OQ / Fix-the-source-first. Never silently edit the sources — surface the mismatch and let the human pick the right artifact (the contract, the PRD's AC, or the sequence). Then set the verdict from what is left: all 5 ✓ and nothing parked → `PASS`; core 1–3 ✓ but something consciously parked (scenario B, a deferred supporting point, a Save-as-OQ, a sequence gap) → `PASS (with deferrals)`; a core point still ✗, ≥3 open flags, or a field with no origin → `FAIL`. **The report is written on every run, FAIL included** — a FAIL that lives only in the chat is lost by the next `/clear`.
 
-9. **Lint + write + commit.** Suggest `spectral lint contracts/openapi.yaml` (add it to the project's check target if not yet wired). Write the files, propose commit `api: <slug> contract`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (incl. the verdict and whether `.claude/rules/openapi.md` was bootstrapped) + *Review* (`contracts/openapi.yaml`, `api-sync-report.md`, + `events.md` if async, + `cli.md` if CLI, + `public-api.md` if library) + *Run next*: on `PASS` / `PASS (with deferrals)` → `/clear`, then `/sdlc-break-tasks <slug>`; on `FAIL` → the fix-the-source command the report names (`/sdlc-write-prd`, `/sdlc-complete-sequence-diagrams` or `/sdlc-generate-data-model <slug>`), then `/sdlc-api-forge <slug> --reconcile`. A `FAIL` never hands off to `break-tasks`.
+9. **Lint + write + commit.** Suggest `spectral lint contracts/openapi.yaml` (add it to the project's check target if not yet wired). Write the files, propose commit `api: <slug> contract`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (incl. the verdict and whether `.claude/rules/openapi.md` was bootstrapped) + *Review* (`contracts/openapi.yaml`, `api-sync-report.md`, + `events.md` if async, + `cli.md` if CLI, + `public-api.md` if library) + *Run next*: on `PASS` / `PASS (with deferrals)` → `/clear`, then `/sdlc:break-tasks <slug>`; on `FAIL` → the fix-the-source command the report names (`/sdlc:write-prd`, `/sdlc:complete-sequence-diagrams` or `/sdlc:generate-data-model <slug>`), then `/sdlc:api-forge <slug> --reconcile`. A `FAIL` never hands off to `break-tasks`.
 
 ### Reconcile mode
 
-`/sdlc-api-forge <slug> --reconcile`. Re-derives after an upstream artifact changed (typically `data-model.md` arrived or was tightened after a thinner first pass). It re-reads inputs, tightens loose types where the model now has a constraint, refreshes the field-origins confidence column, and — the load-bearing part — surfaces any field that **had** an inferred origin but **now disagrees** with the model. That disagreement is real drift, not stale incompleteness.
+`/sdlc:api-forge <slug> --reconcile`. Re-derives after an upstream artifact changed (typically `data-model.md` arrived or was tightened after a thinner first pass). It re-reads inputs, tightens loose types where the model now has a constraint, refreshes the field-origins confidence column, and — the load-bearing part — surfaces any field that **had** an inferred origin but **now disagrees** with the model. That disagreement is real drift, not stale incompleteness.
 
 ## Definition of Done
 

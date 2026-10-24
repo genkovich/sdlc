@@ -2,19 +2,24 @@
 
 ## Hard gate
 
-`docs/features/<slug>/tasks/tasks.json` must exist and parse as JSON. Missing or malformed → refuse: «run `/sdlc-break-tasks <slug>` first (it emits tasks.json)». Do not try to reconstruct tasks from the markdown — `docs/features/<slug>/tasks/tasks.json` is the contract.
+Resolve the plan path in this order and use the **first** that exists:
+
+1. `docs/features/<slug>/tasks/tasks.json` — the canonical location (`break-tasks` writes it; `map-architecture` greenfield writes `docs/features/_scaffold/tasks/tasks.json`).
+2. `docs/features/<slug>/tasks.json` — **legacy fallback** for plans written before v4.6.1 (an older `map-architecture` put the scaffold plan at `docs/features/_scaffold/tasks.json`). Use it only when (1) is absent, print `using legacy plan path docs/features/<slug>/tasks.json`, and offer to `git mv` it to `tasks/tasks.json`. If both exist, (1) wins.
+
+Print the resolved path. The file must parse as JSON. Neither found, or malformed → refuse: «run `/sdlc:break-tasks <slug>` first (it emits tasks.json)». Do not try to reconstruct tasks from the markdown — the resolved `tasks.json` is the contract; every later mention of `tasks/tasks.json` means the resolved path.
 
 ## Validate the contract
 
 The loaded `tasks.json` must satisfy the shape from the `break-tasks` skill:
 
 - top-level `{ slug, tasks: [...] }`.
-- each task: `id` (unique), `title`, `layer` (`migration|domain|infra|app|ports|ui|tests|wiring|docs`), `deps` (array of existing ids), `acs` (array of PRD §5 AC ids), `dod` (one testable sentence), `files_hint` (array of paths/dirs).
+- each task: `id` (unique), `title`, `layer` (`migration|domain|infra|app|ports|ui|tests|wiring|docs`; `scaffold` only in a `_scaffold` set, below), `deps` (array of existing ids), `acs` (array of PRD §5 AC ids), `dod` (one testable sentence), `files_hint` (array of paths/dirs).
 - `deps` forms a DAG (no cycles) — verified in step 4. A cycle is a hard error: report the cycle and stop (it is a `break-tasks` bug, not an `implement-tasks` one).
 
 ## Scaffold task sets (from `map-architecture` greenfield)
 
-A `tasks.json` with `slug: "_scaffold"` and `layer: scaffold` tasks comes from `map-architecture`'s greenfield foundation (not from `break-tasks`). These tasks have **no feature `acs`** — they create the project skeleton (structure, baseline module, test harness, migration tooling, CI, conventions doc). Handle them specially:
+A `tasks.json` with `slug: "_scaffold"` and `layer: scaffold` tasks comes from `map-architecture`'s greenfield foundation (not from `break-tasks`), at `docs/features/_scaffold/tasks/tasks.json`; run it as `/sdlc:implement-tasks _scaffold`. There is no `PRD.md`, `sad.md`, `test-plan.md` or `tasks/tracker.md` for `_scaffold` — don't refuse over them; report task status in the summary. These tasks have **no feature `acs`** — they create the project skeleton (structure, baseline module, test harness, migration tooling, CI, conventions doc). Handle them specially:
 
 - **The skeleton smoke test is the red→green anchor**, not a feature AC: RED = «the project does not build / boot / the tooling doesn't run»; GREEN = «build + boot + the empty test suite + the migration tool all succeed». Write that smoke test as part of the scaffold (task S2 in the foundation contract) and drive the skeleton to make it pass — no per-folder TDD theatre.
 - Read `docs/architecture-map.md` (`mode: greenfield-bootstrap`) for the exact stack + conventions to scaffold to.

@@ -10,10 +10,10 @@ description: >-
   Detects the target automatically (Obsidian vault → wikilink embeds, repo docs/ → markdown
   embeds). Triggers on "generate user documentation", "document the app flows", "user guide from
   the live app", "згенеруй користувацьку документацію", "задокументуй флоу застосунку",
-  "юзер-гайд по застосунку", "/sdlc-user-documentation <target-dir>". Hard-refuses if no dev
+  "юзер-гайд по застосунку", "/sdlc:user-documentation <target-dir>". Hard-refuses if no dev
   server is reachable or playwright-cli is not installed.
 triggers:
-  - /sdlc-user-documentation
+  - /sdlc:user-documentation
   - "generate user documentation"
   - "document the app flows"
   - "user guide from the live app"
@@ -47,7 +47,7 @@ clean-context агент пише один flow-документ строго з
 ## Inputs
 
 ```
-/sdlc-user-documentation <target-dir> [--flows a,b,c] [--video] [--base-url URL] [--embed wikilink|markdown]
+/sdlc:user-documentation <target-dir> [--flows a,b,c] [--video] [--base-url URL] [--embed wikilink|markdown]
 ```
 
 - `<target-dir>` — тека, куди лягають документи (vault-тека або `docs/user-guide/` репо).
@@ -205,7 +205,7 @@ clean-context агент пише один flow-документ строго з
 ## Example invocation
 
 ```
-/sdlc-user-documentation "~/vault/Beer-LMS-docs" --flows create-session,authentication --video
+/sdlc:user-documentation "~/vault/Beer-LMS-docs" --flows create-session,authentication --video
 ```
 
 Приклад диспатчу одного флоу (крок 6):
@@ -228,5 +228,5 @@ Task(subagent_type="sdlc:doc-flow", prompt="
 > **user-documentation → (utility, ad-hoc).** Наприкінці друкується stage-handoff блок за
 > [`../_shared/handoff.md`](../_shared/handoff.md): *What I did* — скільки флоу OK/failed, шлях
 > до індексу й доків, запропонований коміт (для git-цілі); *Review* — індекс + кожен flow-док +
-> звіт валідатора; *Run next* — resume your backbone stage (напр. `/sdlc-ship-feature <slug>`)
+> звіт валідатора; *Run next* — resume your backbone stage (напр. `/sdlc:ship-feature <slug>`)
 > або повторний виклик із `--video` / рештою флоу. `/clear` опційний (utility-варіант).

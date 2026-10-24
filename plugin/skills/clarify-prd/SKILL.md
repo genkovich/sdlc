@@ -6,7 +6,7 @@ agents: [devils-advocate]
 description: >-
   Use to run an ambiguity sweep over a written PRD.md and close every under-specified
   point before glossary or architecture proceeds — so two engineers can't reasonably build
-  different things from the same PRD. Triggers on "/sdlc-clarify-prd {slug}",
+  different things from the same PRD. Triggers on "/sdlc:clarify-prd {slug}",
   "clarify {slug}", "find ambiguities in {slug}", "is the PRD ready",
   "sharpen the PRD", "прояснити PRD", "знайди неоднозначності {slug}", "чи готова специфікація".
   Re-reads the PRD, dispatches a clean-context devil's-advocate subagent to list where the
@@ -15,7 +15,7 @@ description: >-
   docs/features/{slug}/PRD.md with every ambiguity resolved or deferred — none dangling.
   Hard-refuse if PRD.md is missing.
 triggers:
-  - /sdlc-clarify-prd
+  - /sdlc:clarify-prd
   - "clarify"
   - "find ambiguities in"
   - "is the PRD ready"
@@ -39,7 +39,7 @@ PM + Tech Lead (the PRD's co-authors resolve their own ambiguities). PM owns vag
 ## Inputs
 
 - `<slug>` — same feature slug used by `write-prd`.
-- **Gate (hard-refuse if missing):** `docs/features/<slug>/PRD.md`. Absent → STOP and point: «run `/sdlc-write-prd <slug>` first — clarify-prd sharpens an existing PRD, it does not write one».
+- **Gate (hard-refuse if missing):** `docs/features/<slug>/PRD.md`. Absent → STOP and point: «run `/sdlc:write-prd <slug>` first — clarify-prd sharpens an existing PRD, it does not write one».
 - (Optional) `docs/features/<slug>/CONTEXT.md` — if present, its `## Glossary` is canonical; an "undefined-term" finding for a word already glossed there is a false positive (drop it).
 
 ## Protocol
@@ -55,9 +55,9 @@ PM + Tech Lead (the PRD's co-authors resolve their own ambiguities). PM owns vag
 5. **Resolve or defer, per finding.** For each finding, one `AskUserQuestion` phrased per [`../_shared/ask-style.md`](../_shared/ask-style.md), offering: **Resolve now** (user picks/dictates the tightening) · **Defer to §8** (→ Open-Questions row, owner + due captured in a follow-up; missing either = stays unresolved, re-ask once) · **Not an ambiguity** (false positive — drop it, e.g. a term already in CONTEXT). Every finding ends Resolved or Deferred — none dangling. **Depth tunes the question volume, not the floor:** at `easy`, the skill resolves the unambiguous, low-stakes findings itself with sensible tightenings and lists them in a stated-assumptions ledger for a batch veto, asking only the behavioral/high-stakes forks; at `hard`, it asks every finding. The «zero dangling» rule holds at every level.
 
 6. **Write resolutions back.** Apply Resolve edits in the PRD's native section (tighten the §5 AC into business-observable form, replace a §6 adjective with a numeric target + measurement, fix a §1 term, add a missing §4 actor/US, cut a §3 scope-creep line). Append every Defer as a §8 checkbox row `- [ ] <question>? Default now: <X>. — owner: <name/role>, due: <date or stage>`. Keep a short edits-log (one line per finding: `class · §ref · resolved|deferred · before→after`).
-   - **Undefined-term findings reconcile the glossary in-flow (a hard rule, at every depth).** When an `undefined-term` finding is Resolved, immediately invoke `/sdlc-fix-term <slug>` for that term — compare it against `CONTEXT.md` and add/update the definition **now**, not as a deferred note. clarify-prd never resolves a term by inventing a meaning inline; the canonical definition lands in `CONTEXT.md` so `architecture-design` / downstream stages read one source.
+   - **Undefined-term findings reconcile the glossary in-flow (a hard rule, at every depth).** When an `undefined-term` finding is Resolved, immediately invoke `/sdlc:fix-term <slug>` for that term — compare it against `CONTEXT.md` and add/update the definition **now**, not as a deferred note. clarify-prd never resolves a term by inventing a meaning inline; the canonical definition lands in `CONTEXT.md` so `architecture-design` / downstream stages read one source.
 
-7. **Stamp + commit.** Set `updated_at: <today>` in the frontmatter. Re-respect `write-prd`'s invariants when tightening (§5 AC stays free of HTTP/status/error-code/SQL tokens; §6 numbers carry a measurement; §4 roles only from the glossary). Propose `clarify-prd: <slug> — N resolved, M deferred`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (tightened `PRD.md`) + *Run next* (`/clear`, then `/sdlc-fix-term <slug>`, or `/sdlc-architecture-design <slug>` to skip the glossary).
+7. **Stamp + commit.** Set `updated_at: <today>` in the frontmatter. Re-respect `write-prd`'s invariants when tightening (§5 AC stays free of HTTP/status/error-code/SQL tokens; §6 numbers carry a measurement; §4 roles only from the glossary). Propose `clarify-prd: <slug> — N resolved, M deferred`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (tightened `PRD.md`) + *Run next* (`/clear`, then `/sdlc:fix-term <slug>`, or `/sdlc:architecture-design <slug>` to skip the glossary).
 
 ## Definition of Done
 

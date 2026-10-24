@@ -42,7 +42,7 @@ On-disk artifacts are **not touched** until step 5. Everything before that is in
   | Open decision: <headline> | Open question | Resolve before <stage trigger or YYYY-MM-DD>; <inline rationale> | <owner> |
   ```
 
-  Owner + due (a date OR a stage trigger like «before `/sdlc-break-tasks`») are **mandatory** — issue a follow-up `AskUserQuestion` to capture both. If either is left blank, **downgrade to `Drop`** with an explicit warning. Log entry `action: "save_as_oq"`. **No gate** — a defer is not an accepted decision.
+  Owner + due (a date OR a stage trigger like «before `/sdlc:break-tasks`») are **mandatory** — issue a follow-up `AskUserQuestion` to capture both. If either is left blank, **downgrade to `Drop`** with an explicit warning. Log entry `action: "save_as_oq"`. **No gate** — a defer is not an accepted decision.
 - **`Drop`** → decision is removed. Two sub-paths:
   - **Mandatory decision** (e.g. a module boundary that every feature must have) → re-ask **once** with a reframed option set. Second drop → escalate to `Save as Open Question` with a skill-suggested owner + due and a warning.
   - **Optional decision** → leave it out, no replacement.

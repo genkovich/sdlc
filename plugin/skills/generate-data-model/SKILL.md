@@ -15,12 +15,12 @@ description: >-
   no CHECK/TRIGGER/business-default, SQL-first, timestamp-named idempotent migrations,
   "DB as dumb storage"). Hard-refuse if PRD.md or sad.md is missing. Triggers on
   "data model for {slug}", "schema for {slug}", "generate migrations for {slug}",
-  "DB design + migration", "/sdlc-generate-data-model {slug}", "модель даних для {slug}",
+  "DB design + migration", "/sdlc:generate-data-model {slug}", "модель даних для {slug}",
   "схема для {slug}", "згенеруй міграції".
-  Triggers: /sdlc-generate-data-model {slug}. Output: docs/features/{slug}/data-model.md
+  Triggers: /sdlc:generate-data-model {slug}. Output: docs/features/{slug}/data-model.md
   + staged docs/features/{slug}/migrations/.
 triggers:
-  - /sdlc-generate-data-model
+  - /sdlc:generate-data-model
   - "data model for"
   - "schema for"
   - "generate migrations for"
@@ -47,9 +47,9 @@ Backend Lead.
 
 - "data model for <slug>", "schema for <slug>", "generate migrations for <slug>".
 - After PRD + sad.md §6.4 (ER stub) + at least the critical sequences exist. Run after `complete-sequence-diagrams` so the skill knows every table the runtime needs.
-- `/sdlc-generate-data-model <slug>` — explicit invocation.
-- `/sdlc-generate-data-model <slug> --mode brownfield` — analyze existing `migrations/` and propose a delta.
-- `/sdlc-generate-data-model <slug> --drift-only` — just compare the domain layer against the current schema; no generation.
+- `/sdlc:generate-data-model <slug>` — explicit invocation.
+- `/sdlc:generate-data-model <slug> --mode brownfield` — analyze existing `migrations/` and propose a delta.
+- `/sdlc:generate-data-model <slug> --drift-only` — just compare the domain layer against the current schema; no generation.
 - Skip if `data-model.md` exists AND every entity in it has a corresponding pair of staged migration files.
 
 ## Inputs
@@ -154,7 +154,7 @@ These defaults are baked into the skill and into the baseline `.claude/rules/mig
     - **Breaking changes decomposed:** any 3-step sequence generated.
     - **TBDs:** every `<!-- TBD -->` in `data-model.md` with file:line.
 
-16. **Propose commit + handoff.** Commit `feat(<slug>): data-model.md + staged migrations`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (the design doc + the staged migration pairs, plus the staged-not-live note) + *Review* (`docs/features/<slug>/data-model.md`, staged `docs/features/<slug>/migrations/`) + *Run next* (`/clear`, then `/sdlc-api-forge <slug>`).
+16. **Propose commit + handoff.** Commit `feat(<slug>): data-model.md + staged migrations`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (the design doc + the staged migration pairs, plus the staged-not-live note) + *Review* (`docs/features/<slug>/data-model.md`, staged `docs/features/<slug>/migrations/`) + *Run next* (`/clear`, then `/sdlc:api-forge <slug>`).
 
 ## Questions for discussion
 
@@ -216,4 +216,4 @@ These defaults are baked into the skill and into the baseline `.claude/rules/mig
 > 13. No breaking changes (greenfield).
 > 14. Self-check: 4/4 pass — naming OK, every `.down` reverses its `.up`, FK indexes present (`idx_blocks_lesson_id`), no forbidden features.
 > 15. Audit report `_audit/data-model-2026-05-23.md`: lists the **staged** migration paths; notes «staged, not live — `implement-tasks` promotes»; flags «timestamp naming differs from the repo's existing sequential `000003_seed_admin.up.sql` — course default, see Defaults table»; no drift; 1 TBD (`block.payload` marked `<!-- TBD: lock with ADR-0001 -->`).
-> 16. Commit `feat(course-lesson-mvp): data-model.md + staged migrations`; emits the stage-handoff block → next `/sdlc-api-forge course-lesson-mvp`.
+> 16. Commit `feat(course-lesson-mvp): data-model.md + staged migrations`; emits the stage-handoff block → next `/sdlc:api-forge course-lesson-mvp`.

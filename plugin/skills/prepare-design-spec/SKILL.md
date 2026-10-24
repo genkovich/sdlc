@@ -4,7 +4,7 @@ description: >
   Turn a raw UI request or confirmed product idea into a repository-aware design spec and a
   testable Definition of Done before opening Figma, Pencil, or another design tool. Use when the
   user asks for a "design spec", "UI spec", "design spec for Figma or Pencil", "Definition of Done
-  for a screen", "design-to-code handoff", or invokes "/sdlc-prepare-design-spec SLUG". Reads
+  for a screen", "design-to-code handoff", or invokes "/sdlc:prepare-design-spec SLUG". Reads
   the real repository and existing SDLC artifacts, then writes one
   docs/features/SLUG/design-spec.md that contains the specification and an embedded, traced Definition of
   Done. Do not use for broad product discovery, architecture design, implementation, or browser
@@ -164,7 +164,7 @@ Use these only when the answer is not already in the repository or upstream arti
 ## Example invocation
 
 ```text
-/sdlc-prepare-design-spec meme-editor
+/sdlc:prepare-design-spec meme-editor
 
 Raw request: Improve the current meme generator so a person can edit both captions,
 preview the result, and save it without breaking the existing gallery.

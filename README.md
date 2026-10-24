@@ -23,9 +23,9 @@ mkdir my-app && cd my-app && claude
 
 Then inside Claude Code:
 
-1. `/sdlc-interview` — greenfield mode interviews the idea and writes `docs/idea-brief.md`
+1. `/sdlc:interview` — greenfield mode interviews the idea and writes `docs/idea-brief.md`
    (pick **easy** depth for a quick pass).
-2. `/sdlc-scaffold` — asks stack + battery questions (frontend, deploy, CI,
+2. `/sdlc:scaffold` — asks stack + battery questions (frontend, deploy, CI,
    Prometheus+Grafana, freshness pin bump) and materializes the project from base-tpl.
    Unselected batteries are physically absent; "yes to everything" reproduces the
    template byte-for-byte.
@@ -33,7 +33,7 @@ Then inside Claude Code:
 
 ## Feature flow (inside an existing repo)
 
-`/sdlc-interview <slug>` → `write-prd` → `clarify-prd` → `architecture-design` →
+`/sdlc:interview <slug>` → `write-prd` → `clarify-prd` → `architecture-design` →
 `break-tasks` → `plan-tests` → `implement-tasks` → `review-feature` → `ship-feature`,
 with `classify-size` gating how much ceremony each feature size gets.
 

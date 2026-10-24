@@ -161,7 +161,7 @@ What to include:
 
 <!-- Skill instruction: 2-4 open questions from `save_as_oq` resolutions in step 7 + any un-resolved questions from the interview. Format:
 
-`- [ ] <question>? Default now: <X>. — owner: <name/role>, due: <YYYY-MM-DD or stage trigger like "before /sdlc-break-tasks">`
+`- [ ] <question>? Default now: <X>. — owner: <name/role>, due: <YYYY-MM-DD or stage trigger like "before /sdlc:break-tasks">`
 
 Every question has owner + due — a lone «TBD» without both is an anti-pattern (downgraded to Drop if either is missing). The skill MUST ask for owner + due immediately after the user picks Save-as-OQ. -->
 

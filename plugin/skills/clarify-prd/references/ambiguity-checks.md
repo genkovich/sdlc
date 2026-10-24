@@ -28,7 +28,7 @@ Priority for the step-4 merge (highest-impact first): **conflicting-requirement 
 
 ### 6. undefined-term
 - **Spot it:** a domain noun used as if its meaning is settled but never defined and **not** in `CONTEXT.md` `## Glossary` — «active member», «published», «owner», «verified». A homonym waiting to fork. *(If it IS already in the glossary → false positive, drop it.)*
-- **Resolve it:** this is a glossary job — capture the one-sentence definition (and a NOT-reference) and hand the term to `/sdlc-fix-term <slug>` for `CONTEXT.md`; reference the agreed sense inline in the PRD where it first appears. Do not invent the definition.
+- **Resolve it:** this is a glossary job — capture the one-sentence definition (and a NOT-reference) and hand the term to `/sdlc:fix-term <slug>` for `CONTEXT.md`; reference the agreed sense inline in the PRD where it first appears. Do not invent the definition.
 
 ### 7. missing-actor
 - **Spot it:** an AC or flow implies a role that has no §4 user story, or a §4 role from the glossary appears in no AC — an actor the PRD half-acknowledges. Also: «the system does X» with no actor who triggers X.
@@ -36,12 +36,12 @@ Priority for the step-4 merge (highest-impact first): **conflicting-requirement 
 
 ### 8. scope-creep
 - **Spot it:** an AC, goal, or open question that quietly exceeds the feature's declared size — a second subsystem, an extra integration, a "while we're here" capability the §3 non-goals don't fence off. Two engineers would disagree on whether it's in.
-- **Resolve it:** ask in-or-out. In → it must trace to a §2 goal (and may warrant re-running `/sdlc-classify-size <slug>`). Out → add an explicit §3 non-goal so it stops resurfacing. Never silently in.
+- **Resolve it:** ask in-or-out. In → it must trace to a §2 goal (and may warrant re-running `/sdlc:classify-size <slug>`). Out → add an explicit §3 non-goal so it stops resurfacing. Never silently in.
 
 ## A finding is closed two ways (mirror of the shared 4-state machine)
 
 - **Resolve now** → the PRD is edited in its native section; record `before→after` in the edits-log.
-- **Defer to §8** → a checkbox row `- [ ] <question>? Default now: <X>. — owner: <name/role>, due: <date or stage trigger like "before /sdlc-architecture-design">`. Owner + due are mandatory (same rule as `write-prd`'s §8); missing either → re-ask once, else the finding stays unresolved (never silently dropped).
+- **Defer to §8** → a checkbox row `- [ ] <question>? Default now: <X>. — owner: <name/role>, due: <date or stage trigger like "before /sdlc:architecture-design">`. Owner + due are mandatory (same rule as `write-prd`'s §8); missing either → re-ask once, else the finding stays unresolved (never silently dropped).
 - **Not an ambiguity** (false positive, e.g. a term already in CONTEXT, or a number already present that the sweep misread) → drop it, no edit.
 
 ---

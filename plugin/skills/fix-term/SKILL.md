@@ -6,7 +6,7 @@ description: >-
   you want one canonical definition plus a NOT-reference so a homonym can't
   bite you in six months.
   Triggers on "add term {X}", "what is {X} in our domain", "add to CONTEXT",
-  "fix the glossary", "define {X}", "/sdlc-fix-term {term}", "fix term {X}",
+  "fix the glossary", "define {X}", "/sdlc:fix-term {term}", "fix term {X}",
   "додай термін", "онови глосарій", "що означає {X}".
   Lazy-bootstraps docs/features/{slug}/CONTEXT.md (or repo-root CONTEXT.md;
   multi-context repos also get CONTEXT-MAP.md updated) from a template, checks
@@ -17,7 +17,7 @@ description: >-
   Runs anytime, no input gate; write-prd and architecture-design read its
   ## Glossary as the canonical source of role and domain-term names.
 triggers:
-  - /sdlc-fix-term
+  - /sdlc:fix-term
   - "fix term"
   - "add term"
   - "what is X in our domain"
@@ -63,7 +63,7 @@ Whoever drives the conversation — anyone who spots ambiguity. Tech Lead approv
 7. **Compose one line.** `- <term> — <one-sentence definition>. NOT <confused concept + how it differs>.` — or, when step 6 = None, `- <term> — <definition>.`
 8. **Append under `## Glossary`.** Read the file, insert the line in `## Glossary` (alphabetical if the section is already sorted, else at the end). Never rewrite existing entries.
 9. **Prune empty H2s.** On a fresh bootstrap, delete `## Invariants` / `## Out of scope` if they hold no real content — only `## Glossary` is mandatory. (A genuine invariant or out-of-scope note goes in its section, never as implementation detail.)
-10. **Stamp + commit + handoff.** Set `updated_at: <today>` in the frontmatter. Propose `context: + <term>` (or `context: + <term>, <term2>` for a batch). May fold into the caller's intake/PRD commit. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) (utility variant) — *What I did* + *Review* (`CONTEXT.md`) + *Run next*: resume your backbone stage (e.g. `/sdlc-architecture-design <slug>`); `/clear` optional.
+10. **Stamp + commit + handoff.** Set `updated_at: <today>` in the frontmatter. Propose `context: + <term>` (or `context: + <term>, <term2>` for a batch). May fold into the caller's intake/PRD commit. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) (utility variant) — *What I did* + *Review* (`CONTEXT.md`) + *Run next*: resume your backbone stage (e.g. `/sdlc:architecture-design <slug>`); `/clear` optional.
 
 ## Definition of Done
 
@@ -95,4 +95,4 @@ Whoever drives the conversation — anyone who spots ambiguity. Tech Lead approv
 ## Example invocation
 
 > **User:** «add term tenant for rate-limiting-per-user»
-> **Skill:** `test -f CONTEXT-MAP.md` → not exists. Single-context. `<slug>` = `rate-limiting-per-user` → target `docs/features/rate-limiting-per-user/CONTEXT.md`. Generic filter: `tenant` is domain → continue. File missing → copy template. `grep "^- tenant"` → not found. Definition Q → «a billable customer organisation owning 1+ users». NOT-reference Q → «NOT user — a user is one person inside a tenant». Compose `- tenant — a billable customer organisation owning 1+ users. NOT user (a user is one person inside a tenant).` → append under `## Glossary` → prune empty `## Invariants`/`## Out of scope` → `updated_at: 2026-05-29` → commit `context: + tenant`. Emit handoff block (utility variant): *What I did* — appended `tenant` to `docs/features/rate-limiting-per-user/CONTEXT.md`; *Run next* — resume `/sdlc-architecture-design rate-limiting-per-user`.
+> **Skill:** `test -f CONTEXT-MAP.md` → not exists. Single-context. `<slug>` = `rate-limiting-per-user` → target `docs/features/rate-limiting-per-user/CONTEXT.md`. Generic filter: `tenant` is domain → continue. File missing → copy template. `grep "^- tenant"` → not found. Definition Q → «a billable customer organisation owning 1+ users». NOT-reference Q → «NOT user — a user is one person inside a tenant». Compose `- tenant — a billable customer organisation owning 1+ users. NOT user (a user is one person inside a tenant).` → append under `## Glossary` → prune empty `## Invariants`/`## Out of scope` → `updated_at: 2026-05-29` → commit `context: + tenant`. Emit handoff block (utility variant): *What I did* — appended `tenant` to `docs/features/rate-limiting-per-user/CONTEXT.md`; *Run next* — resume `/sdlc:architecture-design rate-limiting-per-user`.

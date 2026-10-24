@@ -20,7 +20,7 @@ ln -s "$(pwd)/sdlc/plugin" ~/.claude/local-plugins/sdlc
 claude /plugin install ./sdlc/plugin
 ```
 
-Verify: `claude /plugin list` shows `sdlc`; `/sdlc-interview` (or any other slash-trigger below) appears in the slash menu.
+Verify: `claude /plugin list` shows `sdlc`; `/sdlc:interview` (or any other slash-trigger below) appears in the slash menu.
 
 ## Skill order — full backbone (12 stages)
 
@@ -28,18 +28,18 @@ Verify: `claude /plugin list` shows `sdlc`; `/sdlc-interview` (or any other slas
 
 | Stage | Skill | Command | Output |
 |------:|-------|---------|--------|
-| 00 | [`map-architecture`](skills/map-architecture/SKILL.md) | `/sdlc-map-architecture` | `docs/architecture-map.md` (repo-root); greenfield → scaffold `tasks.json` |
-| 03 | [`write-prd`](skills/write-prd/SKILL.md) 🚪 | `/sdlc-write-prd` | `docs/features/<slug>/PRD.md` |
-| 03 | [`clarify-prd`](skills/clarify-prd/SKILL.md) | `/sdlc-clarify-prd` | tightens `PRD.md` in place (ambiguity sweep) |
-| 04–05 | [`architecture-design`](skills/architecture-design/SKILL.md) 🚪 | `/sdlc-architecture-design` | `docs/features/<slug>/sad.md` (Arc42 + C4 L1/L2 + `target_surfaces` frontmatter) + `adr/NNNN-*.md` |
-| 05 | [`complete-sequence-diagrams`](skills/complete-sequence-diagrams/SKILL.md) | `/sdlc-complete-sequence-diagrams` | `sad.md §6` flows (generic participants, surface-gated UI legs) |
-| 07 | [`generate-data-model`](skills/generate-data-model/SKILL.md) | `/sdlc-generate-data-model` | `docs/features/<slug>/data-model.md` + **staged** `docs/features/<slug>/migrations/` (promoted by implement-tasks) |
-| 10 | [`api-forge`](skills/api-forge/SKILL.md) | `/sdlc-api-forge` | `docs/features/<slug>/contracts/openapi.yaml` (+ events.md / cli.md / public-api.md per surface) + `api-sync-report.md` (`**Verdict:**` PASS / PASS (with deferrals) / FAIL, 5-point drift checklist); bootstraps `.claude/rules/openapi.md` on the first HTTP run |
-| 13 | [`break-tasks`](skills/break-tasks/SKILL.md) | `/sdlc-break-tasks` | `docs/features/<slug>/tasks/_epic.md` + `tracker.md` + `<task>.md` + **`tasks/tasks.json`** (machine DAG) |
-| 15 | [`plan-tests`](skills/plan-tests/SKILL.md) | `/sdlc-plan-tests` | `docs/features/<slug>/test-plan.md` (surface-gated tiers; generic, no hardcoded tools) |
-| 17 | [`implement-tasks`](skills/implement-tasks/SKILL.md) | `/sdlc-implement-tasks` | committed TDD code + tests + updated `tracker.md`; promotes staged migrations |
-| 17 | [`review-feature`](skills/review-feature/SKILL.md) 🚪 | `/sdlc-review-feature` | `docs/features/<slug>/_review/review-<date>.md` (PASS / CHANGES REQUESTED) |
-| 18 | [`ship-feature`](skills/ship-feature/SKILL.md) 🚪 | `/sdlc-ship-feature` | `CHANGELOG.md` + PR body; moves feature to `docs/roadmap.md` Shipped |
+| 00 | [`map-architecture`](skills/map-architecture/SKILL.md) | `/sdlc:map-architecture` | `docs/architecture-map.md` (repo-root); greenfield → scaffold plan `docs/features/_scaffold/tasks/tasks.json` |
+| 03 | [`write-prd`](skills/write-prd/SKILL.md) 🚪 | `/sdlc:write-prd` | `docs/features/<slug>/PRD.md` |
+| 03 | [`clarify-prd`](skills/clarify-prd/SKILL.md) | `/sdlc:clarify-prd` | tightens `PRD.md` in place (ambiguity sweep) |
+| 04–05 | [`architecture-design`](skills/architecture-design/SKILL.md) 🚪 | `/sdlc:architecture-design` | `docs/features/<slug>/sad.md` (Arc42 + C4 L1/L2 + `target_surfaces` frontmatter) + `adr/NNNN-*.md` |
+| 05 | [`complete-sequence-diagrams`](skills/complete-sequence-diagrams/SKILL.md) | `/sdlc:complete-sequence-diagrams` | `sad.md §6` flows (generic participants, surface-gated UI legs) |
+| 07 | [`generate-data-model`](skills/generate-data-model/SKILL.md) | `/sdlc:generate-data-model` | `docs/features/<slug>/data-model.md` + **staged** `docs/features/<slug>/migrations/` (promoted by implement-tasks) |
+| 10 | [`api-forge`](skills/api-forge/SKILL.md) | `/sdlc:api-forge` | `docs/features/<slug>/contracts/openapi.yaml` (+ events.md / cli.md / public-api.md per surface) + `api-sync-report.md` (`**Verdict:**` PASS / PASS (with deferrals) / FAIL, 5-point drift checklist); bootstraps `.claude/rules/openapi.md` on the first HTTP run |
+| 13 | [`break-tasks`](skills/break-tasks/SKILL.md) | `/sdlc:break-tasks` | `docs/features/<slug>/tasks/_epic.md` + `tracker.md` + `<task>.md` + **`tasks/tasks.json`** (machine DAG) |
+| 15 | [`plan-tests`](skills/plan-tests/SKILL.md) | `/sdlc:plan-tests` | `docs/features/<slug>/test-plan.md` (surface-gated tiers; generic, no hardcoded tools) |
+| 17 | [`implement-tasks`](skills/implement-tasks/SKILL.md) | `/sdlc:implement-tasks` | committed TDD code + tests + updated `tracker.md`; promotes staged migrations |
+| 17 | [`review-feature`](skills/review-feature/SKILL.md) 🚪 | `/sdlc:review-feature` | `docs/features/<slug>/_review/review-<date>.md` (PASS / CHANGES REQUESTED) |
+| 18 | [`ship-feature`](skills/ship-feature/SKILL.md) 🚪 | `/sdlc:ship-feature` | `CHANGELOG.md` + PR body; moves feature to `docs/roadmap.md` Shipped |
 
 🚪 = hard refuse if prereq is missing.
 
@@ -47,14 +47,14 @@ Verify: `claude /plugin list` shows `sdlc`; `/sdlc-interview` (or any other slas
 
 | Skill | Command | Output |
 |-------|---------|--------|
-| [`interview`](skills/interview/SKILL.md) | `/sdlc-interview` | `docs/features/<slug>/idea-brief.md` (ideation suite — researcher / strategist / analyst / devils-advocate) |
-| [`classify-size`](skills/classify-size/SKILL.md) | `/sdlc-classify-size` | `docs/features/<slug>/.size` (XS/S/M/L/XL; matrix in `_shared/size-matrix.md`) |
-| [`fix-term`](skills/fix-term/SKILL.md) | `/sdlc-fix-term` | `CONTEXT.md` glossary (+ multi-context `CONTEXT-MAP.md`) |
-| [`decide-adr`](skills/decide-adr/SKILL.md) 🚪 | `/sdlc-decide-adr` | standalone `adr/NNNN-*.md` (blast-radius worthiness gate, Proposed → Accepted) |
-| [`roadmap`](skills/roadmap/SKILL.md) | `/sdlc-roadmap` | `docs/roadmap.md` (Now / Next / Later / Shipped tables) |
-| [`prepare-design-spec`](skills/prepare-design-spec/SKILL.md) | `/sdlc-prepare-design-spec` | `docs/features/<slug>/design-spec.md` |
-| [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc-verify-ui` | per-AC live browser verdict + screenshot evidence |
-| [`user-documentation`](skills/user-documentation/SKILL.md) | `/sdlc-user-documentation` | end-user flow docs + linked User Guide index from a live app (screenshots, optional screencasts) |
+| [`interview`](skills/interview/SKILL.md) | `/sdlc:interview` | `docs/features/<slug>/idea-brief.md` (ideation suite — researcher / strategist / analyst / devils-advocate) |
+| [`classify-size`](skills/classify-size/SKILL.md) | `/sdlc:classify-size` | `docs/features/<slug>/.size` (XS/S/M/L/XL; matrix in `_shared/size-matrix.md`) |
+| [`fix-term`](skills/fix-term/SKILL.md) | `/sdlc:fix-term` | `CONTEXT.md` glossary (+ multi-context `CONTEXT-MAP.md`) |
+| [`decide-adr`](skills/decide-adr/SKILL.md) 🚪 | `/sdlc:decide-adr` | standalone `adr/NNNN-*.md` (blast-radius worthiness gate, Proposed → Accepted) |
+| [`roadmap`](skills/roadmap/SKILL.md) | `/sdlc:roadmap` | `docs/roadmap.md` (Now / Next / Later / Shipped tables) |
+| [`prepare-design-spec`](skills/prepare-design-spec/SKILL.md) | `/sdlc:prepare-design-spec` | `docs/features/<slug>/design-spec.md` |
+| [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc:verify-ui` | per-AC live browser verdict + screenshot evidence |
+| [`user-documentation`](skills/user-documentation/SKILL.md) | `/sdlc:user-documentation` | end-user flow docs + linked User Guide index from a live app (screenshots, optional screencasts) |
 
 ## Agents
 

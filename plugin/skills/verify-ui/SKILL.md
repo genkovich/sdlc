@@ -9,13 +9,13 @@ description: >-
   and return a per-AC pass/fail with evidence. This is the browser feedback channel: it catches
   what compiles and "passes the logic" but is visually or behaviourally broken. Triggers on
   "verify ui for {slug}", "verify {story} in the browser", "перевір UI {story}",
-  "прокликай {story} у браузері", "verify AC through the UI", "/sdlc-verify-ui {slug-or-story}".
+  "прокликай {story} у браузері", "verify AC through the UI", "/sdlc:verify-ui {slug-or-story}".
   CLI-first (token-efficient `playwright-cli` in bash, the default for loops/CI); Playwright MCP
   stays available for live stateful debugging. Reads the AC from the feature/story file, never
   invents criteria, never fixes code — it only renders a verdict. Hard-refuses if no dev server
   is reachable.
 triggers:
-  - /sdlc-verify-ui
+  - /sdlc:verify-ui
   - "verify ui for"
   - "verify in the browser"
   - "перевір UI"

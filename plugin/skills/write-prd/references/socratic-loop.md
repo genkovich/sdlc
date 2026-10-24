@@ -25,7 +25,7 @@ After every §5 resolution, re-check **both** floors below (OQ-migrated AC do NO
 
 `save_as_oq` rows land in **§8 Open questions** as a checkbox line:
 ```
-- [ ] <headline>? Default now: <default-if-known>. — owner: <name/role>, due: <YYYY-MM-DD or stage trigger like "before /sdlc-break-tasks">
+- [ ] <headline>? Default now: <default-if-known>. — owner: <name/role>, due: <YYYY-MM-DD or stage trigger like "before /sdlc:break-tasks">
 ```
 Owner + due are **mandatory** — skill issues a follow-up `AskUserQuestion` immediately after the user picks `Save-as-OQ` to capture both. Missing either downgrades to `Drop` with an explicit warning.
 

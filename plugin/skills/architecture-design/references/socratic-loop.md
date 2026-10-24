@@ -67,7 +67,7 @@ Each section holds a mix of these; the same 4-state machine applies to all — t
   | Open architectural decision: <headline> | Open question | Resolve before <stage trigger or YYYY-MM-DD>; <inline rationale from user> | <owner> |
   ```
 
-  Owner + due (date OR stage trigger like «before `/sdlc-break-tasks`») are **mandatory** — skill issues a follow-up `AskUserQuestion` immediately after the user picks this option to capture both. If the user leaves owner OR due blank, the resolution is **downgraded to `Drop`** with an explicit warning surfaced.
+  Owner + due (date OR stage trigger like «before `/sdlc:break-tasks`») are **mandatory** — skill issues a follow-up `AskUserQuestion` immediately after the user picks this option to capture both. If the user leaves owner OR due blank, the resolution is **downgraded to `Drop`** with an explicit warning surfaced.
 
   Severity column accepts literal `Open question` value (not Low/Medium/High) — that's the marker that distinguishes OQ rows from regular risks (used by the Step-7 critic F3 + checklist).
 
@@ -129,7 +129,7 @@ The ADR-spawns log lives **adjacent** to the edits-log (not folded in) because t
 | Open architectural decision: <headline> | Open question | Resolve before <stage trigger or YYYY-MM-DD>; <inline rationale> | <owner> |
 ```
 
-Owner + due (a date OR a stage trigger like «before `/sdlc-break-tasks`») are mandatory — capture both in the follow-up `AskUserQuestion`. Missing either downgrades to Drop with a warning. No gate — a defer is not an accepted decision.
+Owner + due (a date OR a stage trigger like «before `/sdlc:break-tasks`») are mandatory — capture both in the follow-up `AskUserQuestion`. Missing either downgrades to Drop with a warning. No gate — a defer is not an accepted decision.
 
 ## Exit condition
 

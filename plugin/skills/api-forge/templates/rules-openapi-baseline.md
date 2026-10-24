@@ -6,7 +6,7 @@
 ## Where the contract lives
 
 - `docs/features/<slug>/contracts/openapi.yaml` is the source of truth for the HTTP surface. Handlers, clients, mocks and contract tests follow it — never the other way round.
-- The contract is **derived** (`data-model.md` + `sad.md` §6 sequences + `PRD.md` AC) by `/sdlc-api-forge <slug>`. After a hand edit or an upstream change, run `/sdlc-api-forge <slug> --reconcile` so `api-sync-report.md` stays true.
+- The contract is **derived** (`data-model.md` + `sad.md` §6 sequences + `PRD.md` AC) by `/sdlc:api-forge <slug>`. After a hand edit or an upstream change, run `/sdlc:api-forge <slug> --reconcile` so `api-sync-report.md` stays true.
 - `info.version` bumps only with an explicit CHANGELOG line, never silently.
 
 ## Hard rules

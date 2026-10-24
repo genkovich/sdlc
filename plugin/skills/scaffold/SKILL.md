@@ -6,9 +6,9 @@ agents: []
 description: >-
   Use to materialize a new full-stack project from the base-tpl template with a
   subtractive battery interview. Triggers on "scaffold a new project",
-  "/sdlc-scaffold", "заскафолдь проєкт", "новий проєкт з темплейта",
+  "/sdlc:scaffold", "заскафолдь проєкт", "новий проєкт з темплейта",
   "розгорни проєкт з base-tpl", "scaffold from template" — typically right after
-  /sdlc-interview produced docs/idea-brief.md in an empty folder. Reads the brief
+  /sdlc:interview produced docs/idea-brief.md in an empty folder. Reads the brief
   (name/context), asks stack + battery questions (web frontend, deploy, CI,
   Prometheus+Grafana observability, freshness bump), then runs base-tpl's
   scaffold.sh: full template copy with unselected batteries physically removed.
@@ -16,7 +16,7 @@ description: >-
   /sdd:scaffold (which materializes a skeleton planned by /sdd:survey inside an
   SDD flow) — this one copies a ready-made template into an empty folder.
 triggers:
-  - /sdlc-scaffold
+  - /sdlc:scaffold
   - scaffold a new project
   - scaffold from template
   - заскафолдь проєкт
@@ -45,7 +45,7 @@ CI-джоби, рядки README). «Так на все» = темплейт б�
 
 ### 1. Контекст: idea-brief
 
-Якщо у поточній теці є `docs/idea-brief.md` (продукт `/sdlc-interview` у greenfield-режимі) —
+Якщо у поточній теці є `docs/idea-brief.md` (продукт `/sdlc:interview` у greenfield-режимі) —
 прочитай його: назва продукту (kebab-case slug) і суть беруться звідти, назву не питай
 (лише підтверди slug одним рядком у першому питанні кроку 2). Якщо brief-а нема —
 спитай назву проєкту (kebab-case slug) перед техінтерв'ю.
@@ -132,7 +132,7 @@ OWNER=$(gh api user -q .login 2>/dev/null || echo example)
 - `make check` — наскрізна перевірка.
 - `make up` → повний локальний стек (порти — у README проєкту).
 - Google-логін потребує реальних `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` в `api/.env` (одна env-пара: закомічений `api/.env.example` → gitignored `api/.env`, його читає і локальний дев-цикл, і compose).
-- Далі по SDLC: фічі через `/sdlc-interview <slug>` (feature mode) у новому репо.
+- Далі по SDLC: фічі через `/sdlc:interview <slug>` (feature mode) у новому репо.
 
 ## Поширені помилки
 

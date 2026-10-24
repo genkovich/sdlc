@@ -33,7 +33,7 @@ Exactly one of three values, so two people reading the same findings reach the s
 |---|---|
 | `PASS` | Scenario A. All 5 points ✓ (plain or accepted-as-is). `unresolved_origins` empty. `Deferrals`: none. |
 | `PASS (with deferrals)` | Core points 1–3 are ✓ (plain or accepted-as-is) — nothing is left open on them — but something is consciously parked and listed in `Deferrals` with a next step: scenario B (`unresolved_origins` non-empty), a supporting point 4–5 marked `✓ (deferred: …)`, any finding resolved as Save-as-OQ, a sequence gap left for `complete-sequence-diagrams`, or a default deviated from without an ADR yet. |
-| `FAIL` | Any core point 1–3 is still ✗ after the 4-state resolution (the human chose Fix-the-source-first, or an ✗ was left open), or ≥3 open flags, or the contract carries a field with no origin in any input. The contract is **not final**: the report names the artifact to fix and the command to run (`/sdlc-write-prd`, `/sdlc-complete-sequence-diagrams`, `/sdlc-generate-data-model`), then `/sdlc-api-forge <slug> --reconcile`. No handoff to `break-tasks`. |
+| `FAIL` | Any core point 1–3 is still ✗ after the 4-state resolution (the human chose Fix-the-source-first, or an ✗ was left open), or ≥3 open flags, or the contract carries a field with no origin in any input. The contract is **not final**: the report names the artifact to fix and the command to run (`/sdlc:write-prd`, `/sdlc:complete-sequence-diagrams`, `/sdlc:generate-data-model`), then `/sdlc:api-forge <slug> --reconcile`. No handoff to `break-tasks`. |
 
 Per-point marks: **✓** (holds, or Accept-as-is recorded with the reason — a conscious decision,
 nothing pending), **✓ (deferred: one line)** (holds for now, a later run tightens it — e.g.
@@ -94,8 +94,8 @@ the **back-feed** direction (every source is covered by the contract).
    have a corresponding error response. The reverse: any error/authorization response the contract
    needs but **no §6 flow shows** is a **sequence gap** — not a contract bug, a hole upstream.
    Mark the point `✓ (deferred: …)` when the team parks it, and offer **Fix-the-source-first**:
-   re-open `/sdlc-complete-sequence-diagrams <slug>` (draw the missing branch) or
-   `/sdlc-write-prd <slug>` (add the missing AC) before finalizing. Mismatch the other way
+   re-open `/sdlc:complete-sequence-diagrams <slug>` (draw the missing branch) or
+   `/sdlc:write-prd <slug>` (add the missing AC) before finalizing. Mismatch the other way
    usually means a sequence was drawn before the contract was finalized and never updated.
 
 A **core** point (1–3) failing — or **≥3 flags** of any kind in one run — pauses the run and is

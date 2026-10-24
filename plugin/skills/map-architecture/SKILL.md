@@ -10,12 +10,12 @@ description: >-
   conventions WITH you (defaults-heavy), fixes them as the foundation + foundational ADRs, and emits
   a scaffold tasks.json that implement-tasks materializes into a real skeleton. Triggers on "survey
   the codebase", "map the architecture", "set up a new project", "bootstrap the foundation",
-  "/sdlc-map-architecture", "вивчи кодову базу", "карта архітектури", "новий проєкт",
+  "/sdlc:map-architecture", "вивчи кодову базу", "карта архітектури", "новий проєкт",
   "заклади фундамент". Output: docs/architecture-map.md (+ adr/ + scaffold tasks.json on
   greenfield). Records reflects_commit for staleness; reads, never overwrites, an authored
   architecture doc.
 triggers:
-  - /sdlc-map-architecture
+  - /sdlc:map-architecture
   - "survey the codebase"
   - "map the architecture"
   - "set up a new project"
@@ -64,7 +64,7 @@ Architect / Tech Lead — they own the architecture (brownfield: confirm it refl
 
 2. **Read authored docs first.** Any hand-maintained architecture doc / root `CLAUDE.md` / ADRs → authoritative input; reconcile with it, never overwrite.
 3. **Scan via explorer.** Dispatch the `sdlc:explorer` agent (`subagent_type: "sdlc:explorer"` — `haiku`/`low`, clean-isolated per [`../_shared/agent-roster.md`](../_shared/agent-roster.md)): «Report (a) language + frameworks + versions, (b) top-level module layout + per-module layers, (c) layering / wiring conventions, (d) datastores + access, (e) inter-module comms, (f) cross-cutting conventions (errors, IDs, tests, migrations) with one cited example each, (g) 2–3 representative features as precedents, (h) **if a frontend exists** — the component library / design system, design tokens (colors/spacing/typography), styling approach (Tailwind / CSS-modules / styled-components / …), shared UI primitives, and a representative screen/component as the UI precedent to reuse.» Large repo → fan out per subtree. (Fallback `subagent_type: "Explore"` if `sdlc:explorer` is unavailable.)
-4. **Synthesize + stamp + validate + write.** Fill [`./templates/architecture-map.md`](./templates/architecture-map.md) (C4 of what exists, module inventory, cited conventions, datastores, **the Frontend / UI foundation if a frontend exists**, precedent guide, constraints) with real `file:line` anchors. Record `updated_at` + `reflects_commit: <short HEAD>`. **Validate the C4 Mermaid per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md)** (render-parse with `mmdc` if available, else the structural lint; fix before committing). Write + commit `map-architecture: architecture map (reflects <commit>)`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (`docs/architecture-map.md`) + *Run next* (`/clear`, then `/sdlc-write-prd <slug>`).
+4. **Synthesize + stamp + validate + write.** Fill [`./templates/architecture-map.md`](./templates/architecture-map.md) (C4 of what exists, module inventory, cited conventions, datastores, **the Frontend / UI foundation if a frontend exists**, precedent guide, constraints) with real `file:line` anchors. Record `updated_at` + `reflects_commit: <short HEAD>`. **Validate the C4 Mermaid per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md)** (render-parse with `mmdc` if available, else the structural lint; fix before committing). Write + commit `map-architecture: architecture map (reflects <commit>)`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (`docs/architecture-map.md`) + *Run next* (`/clear`, then `/sdlc:write-prd <slug>`).
 
 ### Greenfield path (empty repo) → [`./references/foundation.md`](./references/foundation.md)
 
@@ -72,13 +72,13 @@ G2. **Calibrate to the person.** One opening `AskUserQuestion` to gauge how the 
 G3. **Intent (short).** 1–3 questions: what the project is + the kind of capabilities it'll have (e.g. «HTTP API» / «CLI» / «web app»). Enough to choose an architecture — deliberately NOT the feature briefing (that's `write-prd`'s job, per feature).
 G4. **Pick the foundation, defaults-heavy.** At the calibrated depth, choose: stack (language/framework/datastore), architectural style (e.g. hexagonal modules), folder/module structure, data/persistence approach (migration tool, ID strategy), core conventions (errors, tests, CI). Recommend a coherent default set; the user confirms or adjusts. Choice menus + defaults → [`./references/foundation.md`](./references/foundation.md).
 G5. **Fix the foundation.** Write `docs/architecture-map.md` as the **established foundation** (mark `mode: greenfield-bootstrap`; the C4 is the *target* baseline) + spawn **foundational ADRs** in `docs/adr/` for the irreversible picks (stack, module style, persistence). Record `reflects_commit`. **Validate the C4 Mermaid per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md)** before committing.
-G6. **Emit the scaffold + hand off.** Write a scaffold `tasks.json` at `docs/features/_scaffold/tasks.json` (the skeleton: folder/module structure, a baseline module, the test harness, migration tooling, CI, a `CLAUDE.md`/rules doc) per the contract in [`./references/foundation.md`](./references/foundation.md). Each task's DoD anchors on the **skeleton smoke test** — «the project builds + boots + the empty test suite runs + the migration tool runs». Propose: «foundation fixed — run `implement-tasks` to materialize the skeleton». Commit `map-architecture: greenfield foundation + scaffold plan`.
+G6. **Emit the scaffold + hand off.** Write a scaffold `tasks.json` at `docs/features/_scaffold/tasks/tasks.json` — the same `tasks/tasks.json` location `break-tasks` uses, so `implement-tasks _scaffold` finds it (the skeleton: folder/module structure, a baseline module, the test harness, migration tooling, CI, a `CLAUDE.md`/rules doc) per the contract in [`./references/foundation.md`](./references/foundation.md). Each task's DoD anchors on the **skeleton smoke test** — «the project builds + boots + the empty test suite runs + the migration tool runs». Commit `map-architecture: greenfield foundation + scaffold plan`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (foundation fixed + the scaffold plan) + *Review* (`docs/architecture-map.md`, `docs/adr/`, `docs/features/_scaffold/tasks/tasks.json`) + *Run next* (`/clear`, then `/sdlc:implement-tasks _scaffold` to materialize the skeleton; the literal slug is `_scaffold`).
 
 ## Definition of Done
 
 - `docs/architecture-map.md` exists with `updated_at` + `reflects_commit`; an authored doc (if any) was reconciled, never overwritten.
 - **Brownfield:** C4 of what exists + module inventory + cited conventions + precedent guide, real `file:line` anchors (no placeholders).
-- **Greenfield:** foundation fixed (stack/structure/data/conventions) at the user's calibrated level + foundational ADRs in `docs/adr/` + a scaffold `tasks.json` at `docs/features/_scaffold/tasks.json` whose tasks carry the skeleton smoke-test DoD, ready for `implement-tasks`.
+- **Greenfield:** foundation fixed (stack/structure/data/conventions) at the user's calibrated level + foundational ADRs in `docs/adr/` + a scaffold `tasks.json` at `docs/features/_scaffold/tasks/tasks.json` whose tasks carry the skeleton smoke-test DoD, ready for `implement-tasks`.
 
 ## Anti-patterns
 

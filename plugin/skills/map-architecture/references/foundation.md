@@ -39,7 +39,7 @@ Write `docs/architecture-map.md` from the template with `mode: greenfield-bootst
 
 ## G6 — Scaffold `tasks.json` contract (handed to `implement-tasks`)
 
-Emit `docs/features/_scaffold/tasks.json` (a repo-level, not per-feature, task set) so `implement-tasks` can materialize the skeleton. Same shape as the `break-tasks` contract, with `layer: scaffold`:
+Emit `docs/features/_scaffold/tasks/tasks.json` (a repo-level, not per-feature, task set; the same `tasks/tasks.json` location `break-tasks` writes) so `/sdlc:implement-tasks _scaffold` can materialize the skeleton. Same shape as the `break-tasks` contract, with `layer: scaffold`:
 
 ```json
 {

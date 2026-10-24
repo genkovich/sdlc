@@ -8,9 +8,9 @@ description: >
   Produces idea-brief.md (15 sections, ≤5 pages). Triggers on "raw idea",
   "capture an idea", "interview a feature X", "brief for X", "new feature X",
   "idea brief", "intake feature X", "start new feature", "ideation for {slug}",
-  "/sdlc-interview {slug}". Also runs project-level in an empty folder
+  "/sdlc:interview {slug}". Also runs project-level in an empty folder
   (greenfield mode): "new project idea", "greenfield brief", "інтерв'ю нового
-  проєкту", "/sdlc-interview" without slug outside a repo — writes docs/idea-brief.md
+  проєкту", "/sdlc:interview" without slug outside a repo — writes docs/idea-brief.md
   for the whole product. Has a depth regulator (easy / medium / hard; easy =
   3-4 checkpoints for a quick pass). Replaces the prior intake + brainstorm + interview
   trio. ADRs are no longer part of this skill — they are spawned inline by
@@ -36,7 +36,7 @@ Idea author (PM / Eng / CTO / anyone). Tech Lead joins at multi-perspective revi
 - «capture an idea <slug>», «new brief for <feature>», «raw idea for <feature>».
 - «interview a feature <slug>», «ideation for <slug>», «brief for <feature>».
 - «intake feature <slug>», «start new feature with CONTEXT», «full intake for <slug>».
-- `/sdlc-interview <slug>` as explicit invocation.
+- `/sdlc:interview <slug>` as explicit invocation.
 - **Greenfield**: user is in an empty folder (no `.git`, no `docs/`) with a new product idea — «new project idea», «бриф нового продукту». Runs project-level, see «Greenfield mode» below.
 - User drops a raw idea in prose and asks «format this per SDLC» / «run ideation for <slug>».
 - Glossary-aware: on start the skill reads `CONTEXT.md` if it exists (repo root or `docs/features/<slug>/`), keeps the glossary as session state, and triggers `sdlc:fix-term` inline for new domain terms.

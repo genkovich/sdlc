@@ -6,16 +6,17 @@ agents: [test-author, implementer, refactor, reviewer]
 description: >
   Use to implement a feature from its tasks.json with test-driven development — writes a failing
   test first, makes it pass, refactors, gates, and commits per task. Triggers on
-  "/sdlc-implement-tasks {slug}", "implement {slug}", "build {slug}", "TDD {slug}",
+  "/sdlc:implement-tasks {slug}", "implement {slug}", "build {slug}", "TDD {slug}",
   "code up the tasks for {slug}", "імплементуй {slug}", "реалізуй фічу {slug}",
   "напиши код за задачами {slug}". Reads docs/features/{slug}/tasks/tasks.json + the upstream
   artifacts, detects the repo's test/lint/vet commands stack-agnostically, builds a dependency
   DAG, and runs one of three modes — sequential single-agent TDD, an agent team (TeamCreate), or
   a dynamic Workflow — chosen from settings + DAG shape with graceful fallback. Output: committed,
   tested code + updated tasks/tracker.md. Hard-refuses if docs/features/{slug}/tasks/tasks.json is
-  missing → run `/sdlc-break-tasks {slug}` first.
+  missing (the legacy docs/features/{slug}/tasks.json is accepted as a fallback) → run
+  `/sdlc:break-tasks {slug}` first.
 triggers:
-  - /sdlc-implement-tasks
+  - /sdlc:implement-tasks
 stage: "17"
 ---
 
@@ -32,13 +33,13 @@ Tech Lead drives; the engine runs the cycle. Four subagents ship with the plugin
 ## Inputs
 
 - `<slug>` — feature slug.
-- **Gate (hard refuse):** `docs/features/<slug>/tasks/tasks.json`. Missing → «run `/sdlc-break-tasks <slug>` first».
+- **Gate (hard refuse):** `docs/features/<slug>/tasks/tasks.json` (legacy fallback: `docs/features/<slug>/tasks.json`, used only when the first is absent). Both missing → «run `/sdlc:break-tasks <slug>` first». Greenfield skeleton: `<slug>` = `_scaffold` (written by `map-architecture`).
 - Read for context (the agents read these directly, not via paraphrase): `PRD.md` (AC), `data-model.md` + the **staged** migrations under `docs/features/<slug>/migrations/` (a `layer: migration` task **promotes** these into the live migrations tree — see [`./references/inputs.md`](./references/inputs.md)), `contracts/openapi.yaml`, `test-plan.md`, `sad.md`, Accepted `adr/`.
 - Settings: `.claude/sdlc.local.md` (auto-created with documented defaults if absent — normally by `write-prd` at the backbone start; `implement-tasks` creates it too if you jump straight here) → [`./references/settings.md`](./references/settings.md).
 
 ## Protocol
 
-1. **Preconditions.** Verify `docs/features/<slug>/tasks/tasks.json` exists and parses; load the upstream artifacts list. Detail → [`./references/inputs.md`](./references/inputs.md).
+1. **Preconditions.** Resolve the plan path — `docs/features/<slug>/tasks/tasks.json`, else the legacy `docs/features/<slug>/tasks.json` (warn that it's legacy) — verify it parses; load the upstream artifacts list. Detail → [`./references/inputs.md`](./references/inputs.md).
 2. **Settings.** Read `.claude/sdlc.local.md`; if absent, auto-create it with the documented defaults (frontmatter + the «What each key does» body, self-documenting) and patch `.gitignore` (`.claude/*.local.md`, `.worktrees/`) — the same template `write-prd` writes. → [`./references/settings.md`](./references/settings.md).
 3. **Detect commands.** Run the stack-agnostic cascade (settings override → Makefile → package scripts → language manifests → Docker probe for the integration tier) to resolve unit / integration / lint / vet commands. Print what was detected. → [`./references/command-detection.md`](./references/command-detection.md).
 4. **Build the DAG.** Parse `tasks.json`, validate `deps` is acyclic, topologically sort into phases (Kahn). Compute `task_count`, `longest_chain`, `parallel_width`. Mark serialization lanes (`layer: migration`; tasks with overlapping `files_hint`). `layer: ui` is **not** auto-serialized — UI tasks parallelize unless their `files_hint` overlaps.
@@ -47,7 +48,7 @@ Tech Lead drives; the engine runs the cycle. Four subagents ship with the plugin
 7. **Banner.** Print the active mode and the settings that drove it: `mode=<…> tdd=<…> isolation=<…> parallel=<n> integration=<…>`. The user sees exactly how the engine will behave before it acts.
 8. **Execute** in the chosen mode. Every task runs the TDD cycle → [`./references/tdd-loop.md`](./references/tdd-loop.md). A `layer: migration` task first **promotes** its staged migration(s) (`docs/features/<slug>/migrations/<NN>_*`) into the live migrations tree — assigning the real sequence number / timestamp per the repo's convention, in ordinal order — *then* applies + reverts them; detail → [`./references/inputs.md`](./references/inputs.md).
 9. **Per-task gate + commit.** RED runs in `sdlc:test-author`, GREEN in `sdlc:implementer`, REFACTOR in the isolated `sdlc:refactor` agent. After GREEN+REFACTOR the **engine** runs the gate — unit + (integration if available) + lint + vet must be clean — then commits task-scoped with trailers `SDLC-Task: <id>` and `SDLC-AC: <id>` (one per satisfied AC). GATE + COMMIT are the engine's, not any agent's. Update `tasks/tracker.md` → `done`.
-10. **Summary + hand off.** Report covered AC, commits made (with `SDLC-Task` trailers), any task dropped/blocked, and the per-task gate results. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (covered AC, commits with `SDLC-Task` trailers, gate results) + *Review* (the committed diff + `tasks/tracker.md`) + *Run next* (`/clear`, then `/sdlc-review-feature <slug>` — a clean-context pass over the whole diff), then `/sdlc-ship-feature <slug>`. In team mode the [`reviewer`](../../agents/reviewer.md) may also run per-task, but the authoritative independent review of the whole change lives in the `review-feature` skill — `implement-tasks` does not self-certify.
+10. **Summary + hand off.** Report covered AC, commits made (with `SDLC-Task` trailers), any task dropped/blocked, and the per-task gate results. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (covered AC, commits with `SDLC-Task` trailers, gate results) + *Review* (the committed diff + `tasks/tracker.md`) + *Run next* (`/clear`, then `/sdlc:review-feature <slug>` — a clean-context pass over the whole diff), then `/sdlc:ship-feature <slug>`. In team mode the [`reviewer`](../../agents/reviewer.md) may also run per-task, but the authoritative independent review of the whole change lives in the `review-feature` skill — `implement-tasks` does not self-certify.
 
 ## Decision tree (compact)
 

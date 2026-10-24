@@ -9,7 +9,7 @@ reflects_commit: "<git short sha this map reflects>"
 
 > The **current** architecture (what exists today), produced by `map-architecture` and read by
 > write-prd / architecture-design / generate-data-model / implement-tasks. Refresh with
-> `/sdlc-map-architecture` when the repo drifts past `reflects_commit`. This is generated; a
+> `/sdlc:map-architecture` when the repo drifts past `reflects_commit`. This is generated; a
 > hand-maintained `docs/architecture.md`, if present, is authoritative and reconciled below — not
 > replaced.
 

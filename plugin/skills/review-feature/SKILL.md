@@ -7,13 +7,13 @@ description: >-
   Use to run an independent, clean-context code review of an implemented feature against its
   PRD and acceptance criteria before shipping. Triggers on "review {slug}", "code review the
   changes for {slug}", "review the diff for {slug}", "is {slug} ready to ship",
-  "/sdlc-review-feature {slug}", "переглянь зміни {slug}", "код-рев'ю фічі {slug}",
+  "/sdlc:review-feature {slug}", "переглянь зміни {slug}", "код-рев'ю фічі {slug}",
   "рев'ю diff". Dispatches the sdlc:reviewer subagent over the whole feature diff (stage 1
   PRD/AC compliance end-to-end, stage 2 quality), collects cited findings, and resolves each
   with you. Hard-refuses if the feature is not implemented yet.
-  Triggers: /sdlc-review-feature {slug}. Output: docs/features/{slug}/_review/review-<date>.md.
+  Triggers: /sdlc:review-feature {slug}. Output: docs/features/{slug}/_review/review-<date>.md.
 triggers:
-  - /sdlc-review-feature
+  - /sdlc:review-feature
   - "review the diff for"
   - "code review the changes for"
   - "is ready to ship"
@@ -60,14 +60,14 @@ Tech Lead / a reviewer who did **not** write the code (independence is the point
 ## When to use
 
 - After `implement-tasks` has committed code + tests on the feature branch.
-- Before `/sdlc-ship-feature <slug>`.
-- Explicitly: `/sdlc-review-feature <slug>`.
+- Before `/sdlc:ship-feature <slug>`.
+- Explicitly: `/sdlc:review-feature <slug>`.
 
 ## Inputs
 
 - `<slug>` — feature slug, same as every upstream stage.
 - **Gate (hard refuse):** an implemented change must exist — commits on the feature branch, or a
-  non-empty working diff. If nothing is implemented → STOP: «run `/sdlc-implement-tasks <slug>`
+  non-empty working diff. If nothing is implemented → STOP: «run `/sdlc:implement-tasks <slug>`
   first — there is nothing to review».
 - **Clean-context discipline.** Recommend `/clear` before invoking this skill: the reviewer must
   come to the diff without the implementation context that wrote it. This is enforced at the agent
@@ -144,9 +144,9 @@ Tech Lead / a reviewer who did **not** write the code (independence is the point
    Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) —
    *What I did* + *Review* (`_review/review-<date>.md`) + *Run next*:
    - **PASS** → `/clear` (mandatory — ship-feature starts fresh), then
-     `/sdlc-ship-feature <slug>`.
+     `/sdlc:ship-feature <slug>`.
    - **CHANGES REQUESTED** → **no `/clear`** — stay in context to iterate; *Run next* =
-     `/sdlc-implement-tasks <slug>` (fix the open findings, then re-review the changed surface).
+     `/sdlc:implement-tasks <slug>` (fix the open findings, then re-review the changed surface).
 
 ## Definition of Done
 

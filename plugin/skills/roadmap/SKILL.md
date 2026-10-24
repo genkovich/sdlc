@@ -4,14 +4,14 @@ description: >-
   Use to keep the portfolio layer above individual features — one living docs/roadmap.md of
   outcomes, structured Now / Next / Later, that links to per-feature docs without duplicating
   them. Triggers on "roadmap", "what's next", "prioritize the roadmap", "add to the roadmap",
-  "show the roadmap", "/sdlc-roadmap", "роадмеп", "що далі", "пріоритети", "додай у roadmap".
+  "show the roadmap", "/sdlc:roadmap", "роадмеп", "що далі", "пріоритети", "додай у roadmap".
   Captures a candidate as an outcome/problem (lands in Next/Later, RICE-scored), promotes/demotes
   between horizons, and renders the board. It is outcome-altitude — NOT a feature list or a
   dated Gantt; the solution lives in the feature's PRD, not here. write-prd promotes an item to
   Now; ship-feature moves it to Shipped — so delivery keeps the roadmap in sync.
   Output: docs/roadmap.md (repo-root, one file, shared across all features).
 triggers:
-  - /sdlc-roadmap
+  - /sdlc:roadmap
   - roadmap
   - what's next
   - prioritize the roadmap

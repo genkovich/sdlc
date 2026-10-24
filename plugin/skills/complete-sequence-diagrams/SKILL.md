@@ -6,15 +6,15 @@ description: >-
   generic participants with happy + error paths.
   Triggers on "complete sequences for {slug}", "sequence diagram for {slug}",
   "draw the runtime flow", "add a sequence to the SAD",
-  "/sdlc-complete-sequence-diagrams {slug}", "діаграми послідовності {slug}",
+  "/sdlc:complete-sequence-diagrams {slug}", "діаграми послідовності {slug}",
   "sequence для {slug}", "намалюй потік {slug}". Reads sad.md §5 for
   participants, drafts each flow from templates/seq-flow.md with generic
   participants, walks them Socratically one flow at a time, and writes
   confirmed blocks into sad.md §6 — they inform data-model indexes downstream.
-  Hard-refuse if sad.md is missing → run /sdlc-architecture-design first.
-  Single-flow mode: /sdlc-complete-sequence-diagrams {slug} --flow {name}.
+  Hard-refuse if sad.md is missing → run /sdlc:architecture-design first.
+  Single-flow mode: /sdlc:complete-sequence-diagrams {slug} --flow {name}.
 triggers:
-  - /sdlc-complete-sequence-diagrams
+  - /sdlc:complete-sequence-diagrams
 stage: "05"
 ---
 
@@ -31,7 +31,7 @@ Tech Lead (drives the runtime decomposition). The PM confirms that each drawn fl
 ## Inputs
 
 - `<slug>` — same feature slug used by every earlier stage.
-- **Gate (hard-refuse if missing):** `docs/features/<slug>/sad.md`. The §5 building-block view names the participants; §6 is where flows are written. If `sad.md` is absent → STOP and point: «run `/sdlc-architecture-design <slug>` first — sequences are written into its §6».
+- **Gate (hard-refuse if missing):** `docs/features/<slug>/sad.md`. The §5 building-block view names the participants; §6 is where flows are written. If `sad.md` is absent → STOP and point: «run `/sdlc:architecture-design <slug>` first — sequences are written into its §6».
 - **Strongly expected:** `docs/features/<slug>/PRD.md` — §4 user stories tell you *which* flows exist; §5 acceptance criteria are the **coverage floor** — every AC must be shown by a flow, a branch, or an explicit non-runtime N/A (the step-7 coverage check). Present by this stage in the normal pipeline; if genuinely absent, fall back to §6/§5 of `sad.md` for the flow list and note that AC-coverage can't be verified.
 - (Optional) `docs/features/<slug>/.size` — depth hint for *detail* (XS/S may collapse a flow's internal steps), never for *coverage*. Absent → default to M.
 - (Optional) `.claude/sdlc.local.md` `interview_depth` (else medium) — governs only the diagram-confirmation UX (per-diagram prose+ask vs. write+summarize-and-proceed); this skill does **not** open its own depth question (it honors the setting, or a `--depth=` arg if passed).
@@ -51,16 +51,16 @@ Tech Lead (drives the runtime decomposition). The PM confirms that each drawn fl
 6. **Present + confirm each flow, one at a time — in prose, never raw Mermaid.** Per [`../_shared/diagram-presentation.md`](../_shared/diagram-presentation.md): for each drafted flow, **write the block into §6** under a `### <flow name>` heading (so Obsidian renders it), **validate** it parses per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md), then **describe it in prose** — the happy path plus every `alt`/`else` branch in plain words. **Never paste the raw `sequenceDiagram` source as the question.** Confirm by prose, governed by the interview-depth setting: at **medium/hard**, one `AskUserQuestion` per flow with the 4-state actions (Accept / Fix / Save-as-OQ / Drop) — on **Fix**, regenerate + overwrite that one block, re-validate, re-describe (one round, second answer final); on **Drop**, remove the block again. At **easy**, write + a one-line prose summary into the assumptions ledger and proceed (no per-flow question). Never touch a flow already present in §6. Maintain a short edits-log.
 
 7. **Use-case + AC → flow coverage check (before finalizing).** Two passes, surfaced as one coverage table:
-   - **Use-case pass (§4).** List **every §4 user story** and the flow(s) that realize it. Every retained user story maps to **≥1 flow** (a US with no flow is a gap — draft + confirm one, or de-scope it back through `/sdlc-write-prd`/`/sdlc-clarify-prd`, never silently skip).
+   - **Use-case pass (§4).** List **every §4 user story** and the flow(s) that realize it. Every retained user story maps to **≥1 flow** (a US with no flow is a gap — draft + confirm one, or de-scope it back through `/sdlc:write-prd`/`/sdlc:clarify-prd`, never silently skip).
    - **AC pass (§5).** List **every §5 AC** and where it is now shown — a **dedicated flow**, an **`alt`/`else` branch**, or an **explicit non-runtime N/A** (with its one-line reason, e.g. «AC-7: authorization check in middleware, not a runtime flow»).
 
    If a `Drop`/`Save-as-OQ` during step 6 left a user story or an AC uncovered, draft + confirm the missing flow or branch before proceeding, or record the explicit N/A with the user. **No §4 user story and no §5 AC may be silently uncovered.** (This gate holds even at easy/XS.)
 
-8. **Finalize: order, validate, propose commit.** Order the §6 blocks to match §4. **Re-validate every `sequenceDiagram` block per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md)** as the backstop (balanced `alt`/`else`/`end`, declared participants; fix any that don't parse before committing). Append any flagged items (new participants, decisions worth an ADR) as a short note at the end of §6 — flag only, never auto-write an ADR. Propose commit `sequences: <slug> runtime flows`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (`sad.md` §6) + *Run next* (`/clear`, then `/sdlc-generate-data-model <slug>`, which uses the persist notes to choose indexes).
+8. **Finalize: order, validate, propose commit.** Order the §6 blocks to match §4. **Re-validate every `sequenceDiagram` block per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md)** as the backstop (balanced `alt`/`else`/`end`, declared participants; fix any that don't parse before committing). Append any flagged items (new participants, decisions worth an ADR) as a short note at the end of §6 — flag only, never auto-write an ADR. Propose commit `sequences: <slug> runtime flows`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (`sad.md` §6) + *Run next* (`/clear`, then `/sdlc:generate-data-model <slug>`, which uses the persist notes to choose indexes).
 
 ## Single-flow mode
 
-`/sdlc-complete-sequence-diagrams <slug> --flow <name>` — draws one sequence on demand. Skips the full inventory + coverage audit; goes straight to step 4 (classify → participants → draft → validate → confirm). Writes inline into `sad.md §6` under `### <name>`. No coverage report generated. Still uses generic participants and validates per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md).
+`/sdlc:complete-sequence-diagrams <slug> --flow <name>` — draws one sequence on demand. Skips the full inventory + coverage audit; goes straight to step 4 (classify → participants → draft → validate → confirm). Writes inline into `sad.md §6` under `### <name>`. No coverage report generated. Still uses generic participants and validates per [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md).
 
 ## Definition of Done
 
@@ -79,7 +79,7 @@ Tech Lead (drives the runtime decomposition). The PM confirms that each drawn fl
 - **Pasting raw Mermaid as the confirmation.** `sequenceDiagram` source in the terminal is unreadable — the user approves blind. Confirm in prose; let Obsidian render the written block (per [`../_shared/diagram-presentation.md`](../_shared/diagram-presentation.md)).
 - **Happy path only** when the PRD lists explicit error acceptance criteria. Each flow gets happy + the demanded error branches.
 - **One mega-diagram** for the whole feature. Split per flow; a cross-cutting flow gets its own `### Cross-cutting: <name>` heading.
-- **Auto-writing ADRs.** This skill only flags decisions (idempotency strategy, retry shape, sync-vs-async); ADRs come from `/sdlc-decide-adr` or a human.
+- **Auto-writing ADRs.** This skill only flags decisions (idempotency strategy, retry shape, sync-vs-async); ADRs come from `/sdlc:decide-adr` or a human.
 - **Rewriting an existing §6 block.** Additive only — editing a drawn flow is a deliberate manual diff.
 - **Inventing a participant §5 never declared without flagging it.** §5 is the source of truth; the flag lets `architecture-design` reconcile it.
 

@@ -5,13 +5,13 @@ description: >
   per-task Definition of Done, and a machine-readable tasks.json that the implement-tasks engine
   consumes. Triggers on "task breakdown for {slug}", "break down tasks for {slug}",
   "tasks for {slug}", "plan the work for {slug}", "sprint plan for {feature}", "stage 13 for {slug}",
-  "/sdlc-break-tasks {slug}". Reads PRD.md + sad.md + Accepted ADRs (+ data-model + openapi if present),
+  "/sdlc:break-tasks {slug}". Reads PRD.md + sad.md + Accepted ADRs (+ data-model + openapi if present),
   writes docs/features/{slug}/tasks/{_epic,tracker,<task>}.md AND docs/features/{slug}/tasks/tasks.json.
   Tracker export to any issue tracker is optional and tool-neutral. Hard-refuses if PRD.md or sad.md
   or an Accepted ADR is missing. Stories LINK to upstream artefacts (PRD AC §, SAD §6, data-model,
   openapi), they do not duplicate them.
 triggers:
-  - /sdlc-break-tasks
+  - /sdlc:break-tasks
   - "task breakdown for"
   - "break down tasks for"
   - "tasks for"
@@ -35,7 +35,7 @@ Tech Lead.
 
 - "task breakdown for <slug>", "break down tasks for <feature>", "sprint plan for <feature>", "run stage 13".
 - User has PRD + sad.md + Accepted ADRs and is about to start implementation (or create tickets in Jira / Linear / Issues).
-- `/sdlc-break-tasks <slug>` as explicit invocation.
+- `/sdlc:break-tasks <slug>` as explicit invocation.
 - Skip if the task-breakdown already exists and `implement-tasks` is mid-run.
 
 ## Inputs
@@ -58,7 +58,7 @@ Tech Lead.
 10. **Emit `tasks.json`** (step contract below) — the same model the markdown reflects, in machine form, at `docs/features/<slug>/tasks/tasks.json`.
 11. **Optional tracker export.** If an issue-tracker MCP is connected (Jira / Linear / GitHub Issues / Redmine — whichever the repo uses), offer to create tickets from `_epic.md` + the task files. Otherwise provide copy-paste-ready bodies. Never hard-bind to one tracker.
 12. **Self-check.** Every task ≤1 day; DAG acyclic with ≥1 parallel branch where the work allows; DoD per task; `acs` cover every PRD §5 AC; `tasks.json` validates against the contract.
-13. **Propose commit + handoff.** `13: task-breakdown for <slug> (breakdown + tasks.json)`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (`tasks/`, `tasks/tasks.json`) + *Run next* (`/clear`, then `/sdlc-plan-tests <slug>`, then `/sdlc-implement-tasks <slug>`).
+13. **Propose commit + handoff.** `13: task-breakdown for <slug> (breakdown + tasks.json)`. Then **emit the stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* + *Review* (`tasks/`, `tasks/tasks.json`) + *Run next* (`/clear`, then `/sdlc:plan-tests <slug>`, then `/sdlc:implement-tasks <slug>`).
 
 ## `tasks.json` contract (read by `implement-tasks`)
 
@@ -124,7 +124,7 @@ Tech Lead.
 
 ## Example invocation
 
-> **User:** `/sdlc-break-tasks rate-limiting-per-user`
+> **User:** `/sdlc:break-tasks rate-limiting-per-user`
 >
 > **Skill behavior:**
 > 1. `test -f` PRD + sad.md + ADR-0001 → OK.
@@ -138,4 +138,4 @@ Tech Lead.
 > 9. Owners: T1–T4 — @alice; T5–T8 — @bob; T9–T10 — @charlie.
 > 10. Self-check → atomic ✅, DAG acyclic with ≥1 parallel branch ✅, DoD per task ✅, every PRD §5 AC covered by ≥1 `acs` ✅, `tasks.json` validates ✅.
 > 11. Commit: `13: task-breakdown for rate-limiting-per-user (breakdown + tasks.json)`.
-> 12. Handoff block → *Run next* `/clear` → `/sdlc-plan-tests rate-limiting-per-user` → `/sdlc-implement-tasks rate-limiting-per-user`.
+> 12. Handoff block → *Run next* `/clear` → `/sdlc:plan-tests rate-limiting-per-user` → `/sdlc:implement-tasks rate-limiting-per-user`.

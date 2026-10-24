@@ -4,6 +4,29 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.1] — 2026-10-24
+
+### Fixed — greenfield scaffold plan path + `/sdlc:<name>` command form
+
+- **`map-architecture` (greenfield) wrote the skeleton plan where `implement-tasks` doesn't look.**
+  It wrote `docs/features/_scaffold/tasks.json`; `implement-tasks` reads
+  `docs/features/<slug>/tasks/tasks.json` (the location `break-tasks` uses), so the run after a
+  greenfield foundation refused with «run break-tasks first». The plan now lands at
+  **`docs/features/_scaffold/tasks/tasks.json`**, and the greenfield handoff prints
+  `/sdlc:implement-tasks _scaffold` as *Run next* (the `handoff.md` table has the greenfield branch too).
+- **`implement-tasks` accepts the legacy location.** If `docs/features/<slug>/tasks/tasks.json` is
+  absent it falls back to `docs/features/<slug>/tasks.json`, says it's using the legacy path and
+  offers to `git mv` it. For a `_scaffold` set it no longer expects `PRD.md` / `sad.md` /
+  `tasks/tracker.md`; `scaffold` is listed as a valid `layer` for that set.
+- **Slash commands in the `/sdlc:<name>` form.** Plugin skills are invoked as `/sdlc:<name>`; the
+  texts (handoff blocks, trigger phrases, refusals, `plugin/README.md`, `CLAUDE.md`,
+  `CONTRIBUTING.md`, `00-overview/`) still said `/sdlc-<name>`, which the live build doesn't
+  recognise, so a copied *Run next* line didn't run. All current skill names are switched;
+  older CHANGELOG entries and the legacy v3 test fixtures keep the old form as history.
+- What to do after updating: if you already ran a greenfield `map-architecture`, nothing is
+  required (the fallback picks up the old file); optionally
+  `git mv docs/features/_scaffold/tasks.json docs/features/_scaffold/tasks/tasks.json`.
+
 ## [4.6.0] — 2026-10-19
 
 ### Changed — `api-forge`: explicit verdict, 5-point drift checklist, baseline `.claude/rules/openapi.md`
