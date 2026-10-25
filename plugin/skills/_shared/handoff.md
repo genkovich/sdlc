@@ -81,7 +81,7 @@ Rules for filling it:
 | `write-prd` | `docs/features/<slug>/PRD.md` | `/sdlc:clarify-prd <slug>` |
 | `clarify-prd` | `docs/features/<slug>/PRD.md` (tightened) | `/sdlc:fix-term <slug>` ↳ or `/sdlc:architecture-design <slug>` |
 | `architecture-design` | `sad.md` (C4 §3/§5 + `target_surfaces`) + `adr/` | `/sdlc:complete-sequence-diagrams <slug>` |
-| `complete-sequence-diagrams` | `sad.md` §6 (flows) | `/sdlc:generate-data-model <slug>` |
+| `complete-sequence-diagrams` | `sad.md` §6 (flows + the `### Coverage: US/AC → flows` block) | `/sdlc:generate-data-model <slug>` |
 | `generate-data-model` | `data-model.md` + staged `migrations/` | `/sdlc:api-forge <slug>` |
 | `api-forge` | `contracts/openapi.yaml` (+ `events.md`, `api-sync-report.md`) | `/sdlc:break-tasks <slug>` |
 | `break-tasks` | `tasks/` + `tasks.json` | `/sdlc:plan-tests <slug>` ↳ then `/sdlc:implement-tasks <slug>` |

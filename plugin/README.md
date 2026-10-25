@@ -32,7 +32,7 @@ Verify: `claude /plugin list` shows `sdlc`; `/sdlc:interview` (or any other slas
 | 03 | [`write-prd`](skills/write-prd/SKILL.md) 🚪 | `/sdlc:write-prd` | `docs/features/<slug>/PRD.md` |
 | 03 | [`clarify-prd`](skills/clarify-prd/SKILL.md) | `/sdlc:clarify-prd` | tightens `PRD.md` in place (ambiguity sweep) |
 | 04–05 | [`architecture-design`](skills/architecture-design/SKILL.md) 🚪 | `/sdlc:architecture-design` | `docs/features/<slug>/sad.md` (Arc42 + C4 L1/L2 + `target_surfaces` frontmatter) + `adr/NNNN-*.md` |
-| 05 | [`complete-sequence-diagrams`](skills/complete-sequence-diagrams/SKILL.md) | `/sdlc:complete-sequence-diagrams` | `sad.md §6` flows (generic participants, surface-gated UI legs) |
+| 05 | [`complete-sequence-diagrams`](skills/complete-sequence-diagrams/SKILL.md) | `/sdlc:complete-sequence-diagrams` | `sad.md §6` flows (generic participants, surface-gated UI legs) + the `### Coverage: US/AC → flows` table as the last §6 block |
 | 07 | [`generate-data-model`](skills/generate-data-model/SKILL.md) | `/sdlc:generate-data-model` | `docs/features/<slug>/data-model.md` + **staged** `docs/features/<slug>/migrations/` (promoted by implement-tasks) |
 | 10 | [`api-forge`](skills/api-forge/SKILL.md) | `/sdlc:api-forge` | `docs/features/<slug>/contracts/openapi.yaml` (+ events.md / cli.md / public-api.md per surface) + `api-sync-report.md` (`**Verdict:**` PASS / PASS (with deferrals) / FAIL, 5-point drift checklist); bootstraps `.claude/rules/openapi.md` on the first HTTP run |
 | 13 | [`break-tasks`](skills/break-tasks/SKILL.md) | `/sdlc:break-tasks` | `docs/features/<slug>/tasks/_epic.md` + `tracker.md` + `<task>.md` + **`tasks/tasks.json`** (machine DAG) |
@@ -119,7 +119,7 @@ Per-skill specifics (templates + key references):
 | `write-prd` | `templates/PRD-template.md`; `references/{draft-generation,socratic-loop,critic-phase,critic-prompt,ask-examples,checklist}.md` |
 | `clarify-prd` | `references/ambiguity-sweep.md` (tightens PRD in place, no new file) |
 | `architecture-design` | `templates/{sad-template,adr-template,c4-context,c4-container,deployment}.md`; `references/{draft-generation,socratic-loop,blast-radius-heuristic,socratic-cadence,c4-mermaid-syntax,…}.md` |
-| `complete-sequence-diagrams` | `templates/seq-flow.md` (single-flow shape, embedded inline in SAD §6) |
+| `complete-sequence-diagrams` | `templates/{seq-flow,seq-coverage}.md` (single-flow shape + the US/AC → flow coverage block, both embedded inline in SAD §6) |
 | `generate-data-model` | `templates/{data-model,rules-migrations-baseline}.md`; staged migrations to `docs/features/<slug>/migrations/`; reads `docs/architecture-map.md` for convention source |
 | `api-forge` | `templates/{openapi.yaml,events.md,cli.md,public-api.md,rules-openapi-baseline.md}`; `references/drift-check.md` (per-surface contracts, verdict rules + 5-point drift detection, baseline `.claude/rules/openapi.md`) |
 | `break-tasks` | `templates/{_epic,tracker,task}.md`; produces `tasks/tasks.json` machine DAG |

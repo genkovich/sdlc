@@ -4,6 +4,41 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.2] — 2026-10-25
+
+### Fixed — `complete-sequence-diagrams`: the US/AC → flow coverage table has one home, `sad.md §6`
+
+Course lesson 6.5 asks the student for a screenshot of the use-case coverage table. Step 7 only said
+the two coverage passes are «surfaced as one coverage table» — no file, no heading, no columns — so
+runs varied: the table appeared in chat only, or inside `sad.md` in an ad-hoc shape, or not at all
+(a curator's run on a real feature produced diagrams and nothing else). Step 6 already names where
+flows go; step 7 now does the same for the table.
+
+- **Fixed location.** The table is written into `docs/features/<slug>/sad.md` as the **last block of
+  §6**, under the fixed heading **`### Coverage: US/AC → flows`** (after every `### <flow name>`
+  block, before `## 7`). Chat gets only the one-line summary. This is where `review-feature`'s
+  end-to-end AC trace and `api-forge`'s coverage cross-check already read; no new `_audit/` file.
+- **Fixed shape.** Columns `ID | Realized by (§6 heading) | How | Note`; one row per PRD §4 user
+  story (in §4 order) then per §5 AC (in §5 order), IDs as the PRD spells them; `How` is `flow` /
+  `branch` / `N/A`; `Note` carries the branch label or the N/A reason. Closes with
+  `Coverage: n/n user stories · m/m ACs — k non-runtime N/A.`; step 8 appends `**Flags:**` under it.
+  New template `plugin/skills/complete-sequence-diagrams/templates/seq-coverage.md`.
+- **Always written, idempotent.** Runs at every depth and size (easy/XS included), even when every
+  row is `flow`. A re-run replaces the existing block instead of appending a second one. Only the
+  N/A rows are confirmed with the user (medium/hard) or go to the assumptions ledger (easy).
+- **Single-flow mode (`--flow`)** no longer says «no coverage report»: it writes the new flow above
+  the coverage block and patches the rows that flow realizes; if §6 has no block yet it says so and
+  points to the full run.
+- DoD gets an explicit «the coverage table is in the file» item; anti-pattern «Coverage table in
+  chat only» added; commit message is now `sequences: <slug> runtime flows + coverage`.
+- `handoff.md` table, `plugin/README.md` and root `README.md` (which still listed a long-gone
+  `diagrams/seq-*.md`) name the block; `examples/course-lesson-mvp/sad.md` §6 carries the real
+  table (10 US, 19 AC, 0 N/A) instead of a comment pointing at a `_audit/sequences-*.md` file that
+  was never shipped.
+- What to do after updating: nothing for existing features; re-running
+  `/sdlc:complete-sequence-diagrams <slug>` adds the block to an existing §6 without touching the
+  drawn flows.
+
 ## [4.6.1] — 2026-10-24
 
 ### Fixed — greenfield scaffold plan path + `/sdlc:<name>` command form
