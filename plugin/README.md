@@ -1,16 +1,26 @@
 # sdlc — Claude Code plugin
 
-20 skills + 11 plugin-namespaced agents for a full ideation → ship pipeline with Claude.
+24 skills + 12 plugin-namespaced agents for a full ideation → ship pipeline with Claude.
 
 - **12-stage backbone** — covers the entire cycle from codebase scan to merge & changelog.
-- **7 cross-cutting utilities** — called ad-hoc at any stage (classify-size, fix-term, decide-adr, roadmap, prepare-design-spec, verify-ui, user-documentation).
+- **Design line (5 skills)** — `design-system` → `ux-flows` → `prepare-design-spec` → `screens` → `verify-ui`: from a short user story (no PRD needed) to screens with every state, a PNG per state, and a live browser check.
+- **6 other cross-cutting utilities** — called ad-hoc at any stage (scaffold, classify-size, fix-term, decide-adr, roadmap, user-documentation).
 - **1 ideation skill** — interview (runs researcher / strategist / analyst / devils-advocate agents).
-- **11 agents** — dispatched as `sdlc:<name>` from inside skills; model/effort policy in `skills/_shared/agent-roster.md`.
-- **10 shared references** — `skills/_shared/` files consumed by multiple skills (surfaces, handoff, mermaid-check, depth-dial, …).
+- **12 agents** — dispatched as `sdlc:<name>` from inside skills; model/effort policy in `skills/_shared/agent-roster.md`.
+- **11 shared references** — `skills/_shared/` files consumed by multiple skills (surfaces, handoff, mermaid-check, depth-dial, design-line, …).
 
 Each skill is a self-contained folder under `skills/<name>/` — `SKILL.md` (protocol + DoD + anti-patterns), optional `templates/` (skeletons the skill copies into `docs/features/<slug>/`), optional `references/` (mini-guides the skill reads at specific protocol steps).
 
 ## Install
+
+From the public marketplace (inside Claude Code):
+
+```text
+/plugin marketplace add genkovich/sdlc
+/plugin install sdlc@sdlc
+```
+
+From a local checkout:
 
 ```bash
 # Option A — symlink (recommended for hacking)
@@ -21,6 +31,39 @@ claude /plugin install ./sdlc/plugin
 ```
 
 Verify: `claude /plugin list` shows `sdlc`; `/sdlc:interview` (or any other slash-trigger below) appears in the slash menu.
+
+## Design line — from a user story to checked screens
+
+Works in a repo with no PRD and no SAD (the course uses it in module 5, before the backbone): the
+input is a 3–5 sentence user story. With a PRD and a SAD present (module 6+) the same skills run in
+full mode and plug into the backbone (`ux-flows` after `clarify-prd`, `screens` after `api-forge`).
+Shared rules, file layout and the pen.dev gates: [`skills/_shared/design-line.md`](skills/_shared/design-line.md).
+
+| Step | Command | Writes |
+|---:|---|---|
+| 1 (once per repo) | `/sdlc:design-system` | `docs/design/design-system.md` (+ the `.pen` document on pen.dev) |
+| 2 | `/sdlc:ux-flows <slug> <story>` | `docs/features/<slug>/story.md` + `ux-flows.md` (flows, `SCR-NN` inventory, «what can go wrong» branches) |
+| 3 | `/sdlc:prepare-design-spec <slug>` | `docs/features/<slug>/design-spec.md` (spec + Definition of Done) |
+| 4 | `/sdlc:screens <slug>` | `docs/features/<slug>/screens.md` (screens × states × components) + `screens/SCR-NN-<state>.png` |
+| 5 | build the screens, then `/sdlc:verify-ui <slug>` | `docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>.md` + screenshots |
+
+Tools: pen.dev (Pencil MCP), Figma (optional), or `code` mode (markdown wireframes, always
+available, the fallback when the MCP is missing).
+
+Install: `/plugin marketplace add genkovich/sdlc` + `/plugin install sdlc@sdlc` (see Install below).
+Already have an older version (e.g. 4.5.1)? In a terminal, then restart `claude`:
+
+```bash
+claude plugin marketplace update sdlc
+claude plugin update sdlc@sdlc     # the CLI says: restart required to apply
+```
+
+`verify-ui` drives the browser through `playwright-cli`; install it once:
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install-browser chrome   # only if open says: Browser "chrome" is not installed
+```
 
 ## Skill order — full backbone (12 stages)
 
@@ -52,13 +95,16 @@ Verify: `claude /plugin list` shows `sdlc`; `/sdlc:interview` (or any other slas
 | [`fix-term`](skills/fix-term/SKILL.md) | `/sdlc:fix-term` | `CONTEXT.md` glossary (+ multi-context `CONTEXT-MAP.md`) |
 | [`decide-adr`](skills/decide-adr/SKILL.md) 🚪 | `/sdlc:decide-adr` | standalone `adr/NNNN-*.md` (blast-radius worthiness gate, Proposed → Accepted) |
 | [`roadmap`](skills/roadmap/SKILL.md) | `/sdlc:roadmap` | `docs/roadmap.md` (Now / Next / Later / Shipped tables) |
+| [`design-system`](skills/design-system/SKILL.md) | `/sdlc:design-system` | `docs/design/design-system.md` — tool, posture, tokens, component inventory (+ the `.pen` component library via `sdlc:pen-keeper`) |
+| [`ux-flows`](skills/ux-flows/SKILL.md) | `/sdlc:ux-flows` | `docs/features/<slug>/ux-flows.md` (+ `story.md`) — works from a short story without a PRD |
 | [`prepare-design-spec`](skills/prepare-design-spec/SKILL.md) | `/sdlc:prepare-design-spec` | `docs/features/<slug>/design-spec.md` |
-| [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc:verify-ui` | per-AC live browser verdict + screenshot evidence |
+| [`screens`](skills/screens/SKILL.md) | `/sdlc:screens` | `docs/features/<slug>/screens.md` + `screens/SCR-NN-<state>.png` (pen.dev / Figma) or inline wireframes (code) |
+| [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc:verify-ui` | per-criterion live browser verdict + screenshot evidence in `_review/verify-ui-<date>.md` |
 | [`user-documentation`](skills/user-documentation/SKILL.md) | `/sdlc:user-documentation` | end-user flow docs + linked User Guide index from a live app (screenshots, optional screencasts) |
 
 ## Agents
 
-11 agents are dispatched as `sdlc:<name>` from inside skills — never called directly by the user. Model/effort policy for each agent lives in [`skills/_shared/agent-roster.md`](skills/_shared/agent-roster.md).
+12 agents are dispatched as `sdlc:<name>` from inside skills — never called directly by the user. Model/effort policy for each agent lives in [`skills/_shared/agent-roster.md`](skills/_shared/agent-roster.md).
 
 | Agent | Role | Dispatched from |
 |-------|------|----------------|
@@ -73,16 +119,18 @@ Verify: `claude /plugin list` shows `sdlc`; `/sdlc:interview` (or any other slas
 | `sdlc:refactor` | REFACTOR — tidy while green, isolated (sonnet) | implement-tasks |
 | `sdlc:reviewer` | Final feature review (opus) | review-feature |
 | `sdlc:doc-flow` | Per-flow user-doc walk + write (sonnet) | user-documentation |
+| `sdlc:pen-keeper` | Seed the pen.dev document from the design canon after the active-document check; recognizes an existing component library, never duplicates it (sonnet) | design-system |
 
 ## Shared mechanisms
 
-`skills/_shared/` contains 10 reference files consumed by multiple skills:
+`skills/_shared/` contains 11 reference files consumed by multiple skills:
 
 | File | Purpose |
 |------|---------|
-| `agent-roster.md` | Model/effort/agents policy for all 11 agents |
+| `agent-roster.md` | Model/effort/agents policy for all 12 agents |
 | `ask-style.md` | AskUserQuestion formatting conventions |
 | `critic.md` | Critic-phase protocol (clean-context adversarial review) |
+| `design-line.md` | Design line: order, file layout, input ladder without a PRD, provenance tokens, pen.dev / Figma / code rules |
 | `diagram-presentation.md` | Mermaid diagram rendering and presentation rules |
 | `handoff.md` | Stage-handoff block template (every skill ends with one) |
 | `interview-depth.md` | Depth-dial (1–5) for the ideation interview |
@@ -131,7 +179,10 @@ Per-skill specifics (templates + key references):
 | `fix-term` | `templates/CONTEXT.md` (lazy bootstrap for the per-feature glossary) |
 | `classify-size` | no template — writes a 1-line `.size` file |
 | `roadmap` | `templates/roadmap.md` (Now/Next/Later/Shipped tables) |
+| `design-system` | `templates/design-system.md` (the canon); dispatches `sdlc:pen-keeper` on pen.dev |
+| `ux-flows` | `templates/{ux-flows,story}.md`; story mode without a PRD |
 | `prepare-design-spec` | `templates/design-spec.md`; repository-aware design-entry contract |
+| `screens` | `templates/screens.md` (the manifest); pen.dev export + `test -s` gate |
 | `user-documentation` | `templates/{flow-doc,user-guide-index}.md`; `references/{style-guide,determinism,flow-inventory}.md`; `scripts/{validate-docs.py,replay-screencast.sh}`; dispatches `sdlc:doc-flow` per flow |
 
 ## DB exception
@@ -154,7 +205,7 @@ Skills do **not** copy from this folder during their protocol. These are snippet
 - **Mermaid only** for diagrams (C4, sequence, ER, deployment). No PlantUML, no draw.io.
 - **One ADR = one decision.** Spawned inline through the blast-radius gate in `architecture-design`; standalone via `decide-adr` for post-hoc cases.
 - **Texts in repo, not Confluence.**
-- **Feature artifacts at `docs/features/<slug>/`** — repo-root artifacts at `docs/` (architecture-map.md, roadmap.md).
+- **Feature artifacts at `docs/features/<slug>/`** — repo-root artifacts at `docs/` (architecture-map.md, roadmap.md) and the design canon at `docs/design/design-system.md`.
 
 ## Customizing
 

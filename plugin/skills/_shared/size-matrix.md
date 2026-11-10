@@ -49,6 +49,19 @@ Artifact depth ∝ feature size. XS/S → minimal set; M+ → full.
 
 Size (XS–XL) is the *depth* dial; the number of **target surfaces** a feature declares (in `architecture-design`, written to `sad.md` frontmatter `target_surfaces` → [`./surfaces.md`](./surfaces.md)) is a second, *breadth* axis on the artifact set. Each surface adds its own work: a UI surface (`web-frontend` / `mobile-app` / `desktop-app`) adds the `ui` task layer, UI-driven §6 flows, and the component / visual-regression / e2e-through-UI test tiers; a `cli` / `worker` / `library-sdk` surface adds its own contract form + flows. So a multi-surface feature (`[backend-service, web-frontend]`) is genuinely **larger** than a single-surface one of the same XS/S/M class — no new column here, but expect more tasks, more flows, and more test rows per extra surface.
 
+## Design line — optional by surface, not by size
+
+The design-line skills (`design-system`, `ux-flows`, `prepare-design-spec`, `screens` →
+[`./design-line.md`](./design-line.md)) don't scale with XS–XL; they switch on the **surface**:
+
+| Skill | N/A when | Who decides |
+|---|---|---|
+| `ux-flows` | no human-facing UI — every actor is a system (API-to-API, worker, scripted CLI) | the upstream handoff (`clarify-prd`), or the user when run directly |
+| `screens` | `sad.md` `target_surfaces` contains none of `web-frontend` / `mobile-app` / `desktop-app` | `screens` itself (step 1) |
+
+Invoked directly, both always run. Size only changes how many screens and states there are, never
+whether every screen gets its error/empty states.
+
 ## SAD size behaviour
 
 Even for XS/S, `architecture-design` walks all 12 Arc42 sections — consistency beats completeness theatre. Sections that genuinely don't apply get `<!-- N/A: <one-line reason> -->`. Common XS/S N/A patterns:

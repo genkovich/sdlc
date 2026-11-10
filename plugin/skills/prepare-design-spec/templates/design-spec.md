@@ -58,14 +58,27 @@ updated_at: <YYYY-MM-DD>
 
 ## 8. State inventory
 
-| State | Trigger | Visible result | Recovery / next action |
-|---|---|---|---|
-| Empty | <trigger> | <result> | <action> |
-| Loading | <trigger> | <result> | <action> |
-| Ready | <trigger> | <result> | <action> |
-| Success | <trigger> | <result> | <action> |
-| Error | <trigger> | <result> | <action> |
-| Disabled / focus / hover | <trigger> | <result> | <action> |
+<!-- State = the design line's one vocabulary (_shared/design-line.md §3), the same ids screens.md,
+     the PNG names and verify-ui use. The six classes default · loading · empty · error · success ·
+     validation are CHECKED for every screen: each gets a row, a real state or `N/A: <reason>`.
+     On top of them, named states from flow branches: <class>-<variant> for a second state of one
+     class (error-undelivered), or a bare kebab-case feature name for a product state that fits no
+     class (ended). Source: AC-NN (PRD), W-NN («what can go wrong» answer in ux-flows.md), S-N (story
+     sentence), or D-NN (derived: inferred, still Proposed). screens draws one frame per row;
+     an N/A row gets no frame and no PNG. -->
+
+| State | Screen (SCR-NN) | Source | Trigger | Visible result | Recovery / next action |
+|---|---|---|---|---|---|
+| default | <SCR-NN> | <S-N / AC-NN> | <trigger> | <result> | <action> |
+| loading | <SCR-NN> | <…> | <trigger> | <result> | <action> |
+| empty | <SCR-NN> | <W-NN / AC-NN / D-NN> | <trigger> | <result> | <action> |
+| error | <SCR-NN> | <…> | <trigger> | <result> | <action> |
+| success | <SCR-NN> | <…> | <trigger> | <result> | <action> |
+| validation | <SCR-NN> | <…> | <trigger> | <result> | <action> |
+| <named state: error-variant / feature-state> | <SCR-NN> | <W-NN / AC-NN / D-NN> | <trigger> | <result> | <action> |
+
+**Component states (hover / focus / disabled):** <the interactive components that need them, from
+the `docs/design/design-system.md` inventory — they are not separate screen frames>
 
 ## 9. Reuse and handoff contract
 
@@ -91,8 +104,10 @@ updated_at: <YYYY-MM-DD>
 ## 13. Design references
 
 - Current UI evidence: <screenshot or route>
-- Approved frame URLs / node IDs: <fill after design>
-- Repo-local design file: <fill when using Pencil or similar>
+- Design canon: `docs/design/design-system.md` (tool: <pencil | figma | code>)
+- Screen manifest: `docs/features/<slug>/screens.md` (fill after `/sdlc:screens`)
+- Approved frame URLs / node IDs and PNGs: <from screens.md — `docs/features/<slug>/screens/SCR-NN-<state>.png`>
+- Repo-local design file: <`pen_file` from the canon when tool is pencil>
 
 ## 14. Open decisions
 
@@ -123,7 +138,7 @@ or visual impression is not evidence by itself.
 | DOD-01 | BR-<id> | Specification | The approved scope, sources, and non-goals are explicit. | Sections 1–14 review | [ ] |
 | DOD-02 | BR-<id> | Design structure | Frames are named; repeated elements use reusable components or documented candidates; layout is editable. | Design tree / node inspection | [ ] |
 | DOD-03 | BR-<id> | Tokens and reuse | Existing tokens and code owners are reused or every deviation is approved. | Design variables + repository diff | [ ] |
-| DOD-04 | BR-<id> | States | Required empty, loading, ready, saving, success, error, hover, focus, and disabled states exist or are explicitly N/A. | State frames + browser actions | [ ] |
+| DOD-04 | BR-<id> | States | Every screen has a row for each of default, loading, empty, error, success and validation (a real state or an explicit N/A) plus its named states from the flows; interactive components have hover, focus and disabled. | `screens.md` state tables + exported PNGs (`test -s`) + browser actions | [ ] |
 | DOD-05 | BR-<id> | Behavior | The complete target user flow works without breaking preserved behavior. | Live browser scenario | [ ] |
 | DOD-06 | BR-<id> | Responsive | Required desktop and mobile widths work without hidden actions or horizontal scrolling. | Viewport screenshots + DOM check | [ ] |
 | DOD-07 | BR-<id> | Accessibility | Controls have names, keyboard focus is visible, order is logical, and feedback is perceivable. | Keyboard run + accessibility inspection | [ ] |

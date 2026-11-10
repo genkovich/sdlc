@@ -1,14 +1,23 @@
 ---
 name: prepare-design-spec
 description: >
-  Turn a raw UI request or confirmed product idea into a repository-aware design spec and a
-  testable Definition of Done before opening Figma, Pencil, or another design tool. Use when the
-  user asks for a "design spec", "UI spec", "design spec for Figma or Pencil", "Definition of Done
-  for a screen", "design-to-code handoff", or invokes "/sdlc:prepare-design-spec SLUG". Reads
-  the real repository and existing SDLC artifacts, then writes one
-  docs/features/SLUG/design-spec.md that contains the specification and an embedded, traced Definition of
-  Done. Do not use for broad product discovery, architecture design, implementation, or browser
-  verification.
+  Turn a raw UI request, a short user story, or a confirmed product idea into a repository-aware
+  design spec and a testable Definition of Done before drawing screens in pen.dev, Figma, or code.
+  Use when the user asks for a "design spec", "UI spec", "design spec for Figma or Pencil",
+  "Definition of Done for a screen", "design-to-code handoff", "дизайн-спека", "спека перед
+  макетом", or invokes "/sdlc:prepare-design-spec SLUG". Reads the real repository, the design
+  canon (docs/design/design-system.md), ux-flows.md and any existing SDLC artifacts — a PRD is
+  optional, a 3-5 sentence story is enough — then writes one docs/features/SLUG/design-spec.md that
+  contains the specification and an embedded, traced Definition of Done. Step 3 of the SDLC design
+  line (design-system → ux-flows → prepare-design-spec → screens → verify-ui). Do not use for broad
+  product discovery, architecture design, implementation, or browser verification.
+triggers:
+  - /sdlc:prepare-design-spec
+  - "design spec for"
+  - "UI spec for"
+  - "дизайн-спека"
+  - "спека перед макетом"
+stage: "util"
 ---
 
 # Skill: prepare-design-spec (SDLC design-entry utility)
@@ -20,8 +29,12 @@ survive; its Definition of Done half says how the team will prove the result is 
 This skill closes a specific SDLC gap:
 
 ```text
-raw idea → interview / PRD → prepare-design-spec → Figma or Pencil → implementation → verify-ui
+story or PRD → design-system → ux-flows → prepare-design-spec → screens (pen.dev / Figma / code)
+  → implementation → verify-ui
 ```
+
+The line, its file layout and the input ladder are shared with the other design skills →
+[`../_shared/design-line.md`](../_shared/design-line.md).
 
 It does not invent a redesign from taste. It traces every important statement to the user's words,
 an existing SDLC artifact, or evidence in the repository.
@@ -46,7 +59,15 @@ verify a finished screen in a browser: run `verify-ui` after implementation.
 ## Inputs
 
 - `<slug>` in kebab-case, for example `meme-editor`.
-- A raw request, issue, `idea-brief.md`, or `PRD.md`.
+- The intent, by the input ladder in [`../_shared/design-line.md`](../_shared/design-line.md) §3
+  (the single source; not restated here). This skill's delta: it skips rung 2, because
+  `design-spec.md` is its own output (an existing one is updated in place, not read as intent), and
+  a linked issue counts as the inline request. A missing PRD is normal before module 6; only
+  missing intent stops.
+- (Expected) `docs/features/<slug>/ux-flows.md` — the flows, the `SCR-NN` inventory and the error
+  branches (`W-NN`, `D-NN`); they seed §5 Target user flow and §8 State inventory.
+- (Expected) `docs/design/design-system.md` — the token source, the component inventory and the
+  conventions; they seed §9 Reuse and §13 Design references.
 - The target repository, including the current UI, routes, styles, tests, and design assets.
 - Optional design references supplied by the user. Never choose a new external visual direction
   without explicit evidence or approval.
@@ -56,10 +77,11 @@ verify a finished screen in a browser: run `verify-ui` after implementation.
 1. **Name the raw request.** Preserve the user's original request verbatim in the design spec. If the
    request is missing, ask for one to three plain-language sentences: who needs what change and why.
 
-2. **Choose the evidence source.** Look for, in order:
-   `docs/features/<slug>/PRD.md`, `docs/features/<slug>/idea-brief.md`, a linked issue, and the user's
-   raw request. Record which sources exist. A missing PRD is acceptable for a small UI iteration;
-   missing intent is not.
+2. **Choose the evidence source.** Walk the input ladder (Inputs above, design-line §3). Record
+   which sources exist. A missing PRD is acceptable for a small UI iteration;
+   missing intent is not. If `ux-flows.md` exists, cite its flows and `SCR-NN` ids instead of
+   re-deriving them; a branch it marks derived (`D-NN`) stays `Proposed` here until the user
+   confirms it.
 
 3. **Inspect the real product before proposing design.** Read the route entry point, styles or
    tokens, reused components, data calls, navigation targets, and relevant tests. Run only
@@ -84,7 +106,9 @@ verify a finished screen in a browser: run `verify-ui` after implementation.
 
 8. **Specify the design surface.** Define target routes, desktop/mobile frames, content, component
    and token reuse, state specimens, responsive behavior, accessibility, and explicit non-goals.
-   For a redesign, state which existing product semantics must remain unchanged.
+   For a redesign, state which existing product semantics must remain unchanged. Reuse comes from
+   the `docs/design/design-system.md` inventory by name; §8 lists every state `ux-flows.md` sends
+   to a screen, with its source token (`W-NN`, `D-NN`, `AC-NN`).
 
 9. **Write the handoff contract.** Map each design element to its likely code owner or existing
    component. If no reusable owner exists, say `new component candidate`; do not invent a path.
@@ -105,17 +129,26 @@ verify a finished screen in a browser: run `verify-ui` after implementation.
     No requirement may be left without proof.
 
 13. **Run the spec-ready gate.** Confirm: no invented routes or dependencies; current behavior
-    is documented; desktop and mobile are covered where relevant; empty/loading/success/error and
-    interactive states are covered; reuse and non-goals are explicit; every requirement maps to a
-    DoD check; all `Proposed` decisions are visible.
+    is documented; desktop and mobile are covered where relevant; every screen has a row for each
+    of the six state classes (default / loading / empty / error / success / validation, a real
+    state or an explicit `N/A: <reason>`, per [`../_shared/design-line.md`](../_shared/design-line.md)
+    §3) plus its named states from the flow branches (`error-undelivered`, `ended`), each with a
+    source token, and the interactive components have hover / focus / disabled; reuse and
+    non-goals are explicit; every requirement maps to a DoD check; all `Proposed` decisions are
+    visible.
 
 14. **Present the student-repeatable summary.** Return four blocks: `What we learned from the
     repository`, `What the user decided`, `What remains proposed`, and `Run next`. The next action is
     a design tool only when the spec-ready gate passes.
 
-15. **Handoff.** Design with the approved spec in Figma or Pencil. Implement against `design-spec.md`.
-    Then run deterministic project checks and `verify-ui` against the live route. A generated image
-    or an agent success message is never completion evidence.
+15. **Handoff.** Propose the commit `prepare-design-spec: <slug> design-spec.md`, then emit the
+    stage-handoff block per [`../_shared/handoff.md`](../_shared/handoff.md) — *Review*
+    `docs/features/<slug>/design-spec.md` — and *Run next* `/sdlc:screens <slug>` (it draws every
+    §8 state per the canon's tool and exports a PNG per state); `↳ or /sdlc:ux-flows <slug>` first
+    when no flows exist, `/sdlc:design-system` when no canon exists. After the screens: implement
+    against `screens.md` + `design-spec.md`, run deterministic project checks, then
+    `/sdlc:verify-ui <slug>` against the live route. A generated image or an agent success message
+    is never completion evidence.
 
 ## Questions for discussion
 
@@ -178,3 +211,12 @@ Expected outputs:
 ```text
 docs/features/meme-editor/design-spec.md
 ```
+
+Design line without a PRD (the story was written by `/sdlc:ux-flows`):
+
+```text
+/sdlc:prepare-design-spec chat
+```
+
+Reads `docs/features/chat/story.md`, `ux-flows.md` and `docs/design/design-system.md`;
+writes `docs/features/chat/design-spec.md`.

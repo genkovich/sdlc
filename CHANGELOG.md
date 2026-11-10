@@ -4,6 +4,143 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.0] — 2026-11-09
+
+### Added — design line: `design-system`, `ux-flows`, `screens` + `sdlc:pen-keeper`
+
+The course lesson «Дизайн-лінія SDLC: процес у скілах» (module 5) needs the design process as
+skills, and the student has no PRD until module 6. Ported from the sdd plugin and adapted so the
+whole line runs from a 3–5 sentence user story:
+
+```text
+/sdlc:design-system → /sdlc:ux-flows <slug> → /sdlc:prepare-design-spec <slug>
+  → /sdlc:screens <slug> → build the screens → /sdlc:verify-ui <slug>
+```
+
+- **`design-system`** (new, once per repo) writes the canon `docs/design/design-system.md`: tool
+  (`pencil` / `figma` / `code`), platform posture, token source, component inventory with source
+  anchors, cross-screen conventions. Works without `docs/architecture-map.md` (scans the code via
+  `sdlc:explorer`). On pen.dev it prepares the `.pen` document by copying a real file or asking the
+  user to create it in the app — unlike sdd it never writes a `.pen` stub by hand — then seeds
+  variables and reconciles the document's component library through the new `sdlc:pen-keeper`
+  agent (an existing library is recognized; see «Fixed» below).
+- **`ux-flows`** (new) writes `docs/features/<slug>/ux-flows.md`: mermaid flows, the `SCR-NN`
+  screen inventory, a coverage table. **Story mode** when there is no PRD: the input is
+  `story.md` or an inline story (saved verbatim to `docs/features/<slug>/story.md`); error branches
+  come from one «що може піти не так» question (`W-NN`); anything inferred without confirmation is
+  marked derived (`D-NN`) and listed under `## Assumptions`. With `PRD.md` it runs in full mode (one flow
+  per UI-touching user story, branches from §5 ACs). Without a question channel (headless) it
+  takes the easy path and records every assumption instead of stopping.
+- **`screens`** (new) writes the manifest `docs/features/<slug>/screens.md` (screens × states ×
+  components, reuse-first, `NEW:` only with a reason) and, on pen.dev / Figma, one PNG per state at
+  `docs/features/<slug>/screens/SCR-NN-<state>.png`. Without `sad.md` the states derive from the
+  flows, the design spec and the story, each with a provenance token; with `sad.md` and contracts
+  they also come from §6 branches and API error responses. pen.dev gates: active-document check
+  before every write, no hand edits of `.pen` JSON, `Export` + `test -s` for every PNG (an export can
+  leave no file or an empty one without a failing status; `Export` names each file
+  `<nodeId>.png`, the skill renames it to `SCR-NN-<state>.png`), Cmd+S before commit, save and close before `git checkout`.
+  Screens are drawn in the canon's `.pen` (one document holds the components and the screens) as
+  frames `<slug> · SCR-NN · <state>`.
+- **`sdlc:pen-keeper`** (new agent) uses the current Pencil MCP tools (`get_app_state`,
+  `read_skill`, `execute`); sdd's version still lists the removed `get_guidelines`. It inherits
+  the session's tools because the Pencil tool prefix differs between an MCP server and a plugin.
+- **`_shared/design-line.md`** (new) is the single source for the order, the file layout, the
+  input ladder (`PRD.md` → `design-spec.md` → `story.md` → `idea-brief.md` → inline → ask), the
+  provenance tokens (`AC` / `BR` / `S` / `W` / `D` / `§6` / `contract`), the headless rule
+  and the pen.dev / Figma / code rules.
+
+### Changed — `prepare-design-spec` and `verify-ui` join the line
+
+- **`prepare-design-spec`** reads `story.md`, `ux-flows.md` and `docs/design/design-system.md`;
+  §8 State inventory gains `Screen (SCR-NN)` and `Source` columns; §13 points to the canon and the
+  screen manifest; DOD-04 evidence names `screens.md` + the exported PNGs; the handoff runs
+  `/sdlc:screens <slug>`. Output path unchanged: `docs/features/<slug>/design-spec.md`.
+- **`verify-ui`** works without `sad.md` when the feature has `screens.md` / `design-spec.md`.
+  Criteria are collected from every source present (not the first one found): PRD §5 or a task
+  file, `design-spec.md` §16, and every state in the `screens.md` tables; one verdict row per
+  checked thing, citing all its ids.
+  When a state has an exported PNG, the live screenshot of the same state is put next to it in the
+  verdict row (a reference, not a pixel diff). New step 7 writes the verdict to a fixed home:
+  `docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>.md` + a screenshots folder of the same name
+  (`test -s` on the report and every screenshot it cites); before, the verdict lived only in chat.
+- **One state vocabulary** for `design-spec.md` §8, `screens.md`, frame/PNG names and `verify-ui`:
+  the six classes `default` · `loading` · `empty` · `error` · `success` · `validation`, checked for
+  every screen, plus named states from flow branches (`error-undelivered`, `ended`; see «Fixed»
+  below). The old §8 rows Ready / Saving map to `default` / `loading`;
+  hover / focus / disabled are component states from the inventory, not screen frames
+  (`_shared/design-line.md` §3).
+- `handoff.md` (five design-line rows), `agent-roster.md` (`pen-keeper`), `size-matrix.md`
+  (design line is optional by surface, not by size), `plugin/README.md`, `README.md`, `CLAUDE.md`
+  and both manifests (24 skills, 12 agents) updated.
+- Smoke run: headless `ux-flows` in story mode on an empty repo (story «чат після метчу») wrote
+  `story.md` + `ux-flows.md` (1 flow, 2 screens, 4 `D-NN` branches, 10 assumptions), mermaid parsed
+  by mermaid-cli, self-check 5/5. pen.dev mode was not run.
+- How to update from an older version (4.5.1 and later): `claude plugin marketplace update sdlc`,
+  `claude plugin update sdlc@sdlc`, then restart `claude`. `verify-ui` needs `playwright-cli`:
+  `npm install -g @playwright/cli@latest`, plus `playwright-cli install-browser chrome` only if
+  `open` says `Browser "chrome" is not installed`.
+- What to do after updating: nothing for existing features. To use the line, run
+  `/sdlc:design-system` once, then `/sdlc:ux-flows <slug> <story>`.
+
+### Fixed — design line review before the course recording
+
+A review of the course series (pen.dev → SDLC design line) found holes that would break the
+recording and every student's run. Fixed before release:
+
+- **An existing component library is recognized, never duplicated.** A starter `.pen` already holds
+  its library under its own frame name (the course kit: «Components · Chat»); `pen-keeper` used to
+  create a second «DS · Foundations» beside it, with twin Button / Input / Badge, and the kit-only
+  components (Toast, Spinner, MessageBubble, ChatRow) never reached the inventory, so `screens`
+  marked them `NEW:`. Now `pen-keeper` lists every reusable component in the open document first
+  and picks the library frame: the one the canon names (new frontmatter field `library_frame`),
+  else the frame that holds the reusable components (`(top level)` when they sit on the canvas in
+  no frame); «DS · Foundations» is created only in a document with none, and only there does
+  `pen-keeper` draw primitives. In a document with a library it draws nothing: code and kit rarely
+  share names (`Badge` vs «Tag / Neutral»), so adding «missing» primitives by name would create
+  twins. A component that exists only in code is a `code-only` row; `design-system` pairs rows by
+  the project's own «.pen → code» map or by name family and never guesses a pair; `screens` draws
+  a `code-only` component into the library frame the first time a screen needs it (it is not
+  `NEW:`). Its report lists every reusable
+  component with its node id and says `writes: none` when nothing changed. `design-system` writes
+  the frame into the canon and merges the components into the inventory (one row per component,
+  both anchors when it is in code and in the document, `design-only` / `code-only` otherwise).
+  Default `pen_file` = the one `.pen` already under `docs/design/`, when there is exactly one.
+  «Оновити» on an existing canon now has real steps (rescan code, re-read the document,
+  reconcile the inventory in place, keep edited conventions). Self-check item 5 uses `test -s` and
+  passes on a clean reconcile with nothing to save (it used to demand a changed file: 4/5).
+  **Not run live in pen.dev** — the library recognition needs a live run before the recording.
+- **Named states beyond the six classes.** The six classes are checked for every screen (a real
+  state or one `N/A: <reason>` row); on top of them a screen may have named states from flow
+  branches: `<class>-<variant>` (`error-undelivered`) or a bare kebab-case name for a product state
+  that fits no class (`ended`: the other person closed the conversation). Each named state carries
+  its source token and gets its own frame, PNG and verdict row. An `N/A` row has no frame, no PNG
+  and no verdict row; the `screens` self-check and Definition of Done now say so, so
+  `validation · N/A: the disabled Send button is a component state` passes. Same wording in
+  `_shared/design-line.md` §3, `screens`, `prepare-design-spec` (§8 + gate) and `verify-ui`.
+- **No promises the neighbour skills don't keep.** `break-tasks`, `implement-tasks` and
+  `review-feature` do not read `screens.md` yet, and `architecture-design` / `plan-tests` do not
+  read `ux-flows.md`. The docs now say: `verify-ui` reads the manifest; name the file in the prompt
+  of the others.
+- **One browser install command.** Four places said three different things;
+  `npx playwright install chromium` installs a browser `playwright-cli open` does not use by
+  default (it opens the system Google Chrome, channel `chrome`). Everywhere now:
+  `npm install -g @playwright/cli@latest`, then `playwright-cli install-browser chrome` only if
+  `open` says `Browser "chrome" is not installed` (the command the CLI itself prints).
+- **`verify-ui`: SKIP is not a pass.** The summary is PASS only with no FAIL and no SKIP; every
+  SKIP names what blocked it. New `screens.md` §Source line «State access» (how to open each state
+  in the running app: URL parameter, fixture switch, test account), filled when the screens are
+  built; `verify-ui` reads it and SKIPs a state it cannot reach, never fakes it.
+- **One input ladder.** `prepare-design-spec` pointed at `_shared/design-line.md` §3 but listed a
+  different ladder; it now states only its delta (skips its own `design-spec.md`; a linked issue
+  counts as the inline request).
+- Smoke run after these fixes: headless `ux-flows` in story mode (story «скарга на анкету», slug
+  `report`) in a fresh repo, plugin loaded with `--plugin-dir`: wrote `story.md` + `ux-flows.md`
+  (1 flow, 2 screens, 7 `D-NN`: 4 branches, among them «Інше» without text → validation, and 3
+  decisions), mermaid parsed by mermaid-cli, self-check 5/5. `design-system`, `screens` and
+  `verify-ui` were not run; pen.dev was not run live.
+- What to do: re-run `/sdlc:design-system` → «Оновити» on a pencil repo created with an earlier
+  4.7.0 build, so the canon gets `library_frame` and the document's components.
+
 ## [4.6.2] — 2026-10-25
 
 ### Fixed — `complete-sequence-diagrams`: the US/AC → flow coverage table has one home, `sad.md §6`

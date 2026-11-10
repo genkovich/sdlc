@@ -59,7 +59,8 @@ clean-context агент пише один flow-документ строго з
 **Gate (hard refuse):**
 
 1. `playwright-cli --version` падає → відмова з інструкцією:
-   `npm install -g @playwright/cli@latest && npx playwright install chromium`.
+   `npm install -g @playwright/cli@latest`, далі `playwright-cli install-browser chrome`, лише якщо
+   `open` каже `Browser "chrome" is not installed`.
 2. Dev server не відповідає на `<base-url>` → відмова: «підніми застосунок і повтори» (не
    вигадуємо стан — прецедент `verify-ui`).
 3. Auth-стратегія невідома → AskUserQuestion (варіанти: без авторизації / кроки логіна /
