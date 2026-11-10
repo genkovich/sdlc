@@ -101,7 +101,7 @@ playwright-cli install-browser chrome   # only if open says: Browser "chrome" is
 | [`design-system`](skills/design-system/SKILL.md) | `/sdlc:design-system` | `docs/design/design-system.md` — tool, posture, tokens, component inventory (+ the design document's component library via `sdlc:design-keeper`, any tool); builds the foundation with you when the project has no tokens |
 | [`ux-flows`](skills/ux-flows/SKILL.md) | `/sdlc:ux-flows` | `docs/features/<slug>/ux-flows.md` (+ `story.md`) — works from a short story without a PRD, or from a PRD plus extra instructions in the command (`N-NN`) |
 | [`prepare-design-spec`](skills/prepare-design-spec/SKILL.md) | `/sdlc:prepare-design-spec` | `docs/features/<slug>/design-spec.md` |
-| [`screens`](skills/screens/SKILL.md) | `/sdlc:screens` | `docs/features/<slug>/screens.md` + `screens/SCR-NN-<state>.png` (any design tool that can export) or inline wireframes (code); read mode `/sdlc:screens <slug> --from <url>` reads the designer's frames, writes nothing into the design file |
+| [`screens`](skills/screens/SKILL.md) | `/sdlc:screens` | `docs/features/<slug>/screens.md` + `screens/SCR-NN-<state>.png` (any design tool that can export) or inline wireframes (code); a flow board «Flow · <name>» per flow (the states' thumbnails joined by labelled arrows); read mode `/sdlc:screens <slug> --from <url>` reads the designer's frames, writes nothing into the design file |
 | [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc:verify-ui` | per-criterion live browser verdict + screenshot evidence in `_review/verify-ui-<date>.md` |
 | [`user-documentation`](skills/user-documentation/SKILL.md) | `/sdlc:user-documentation` | end-user flow docs + linked User Guide index from a live app (screenshots, optional screencasts) |
 
@@ -185,7 +185,7 @@ Per-skill specifics (templates + key references):
 | `design-system` | `templates/design-system.md` (the canon, with `## Sources`); `references/foundation.md` (no tokens yet: value scan, Socratic interview, directions, starter foundation with AA contrast, token writing, starter component set, headless); dispatches `sdlc:design-keeper` on any design tool |
 | `ux-flows` | `templates/{ux-flows,story}.md`; story mode without a PRD |
 | `prepare-design-spec` | `templates/design-spec.md`; repository-aware design-entry contract |
-| `screens` | `templates/screens.md` (the manifest, with §Behaviour and §Ask the designer); `references/read-frames.md` (read mode); design-tool export + `test -s` gate (a named gap when the tool cannot export) |
+| `screens` | `templates/screens.md` (the manifest, with §Behaviour and §Ask the designer); `references/read-frames.md` (read mode); `references/flow-boards.md` (flow boards); design-tool export + `test -s` gate (a named gap when the tool cannot export) |
 | `user-documentation` | `templates/{flow-doc,user-guide-index}.md`; `references/{style-guide,determinism,flow-inventory}.md`; `scripts/{validate-docs.py,replay-screencast.sh}`; dispatches `sdlc:doc-flow` per flow |
 
 ## DB exception

@@ -246,6 +246,12 @@ foundations run; writes not allowed → gate 6 (the «Screens · <slug>» questi
 | a design tool (`pencil`, `figma`, `<name>`) | the canon's design file (one document holds the library and the screens) | node id | required when the session can export (gate 5 below); else a named gap in `screens.md` §Source |
 | `code` | inline markdown wireframes in `screens.md` | «wireframe below» | none — the built screen + the `verify-ui` screenshot are the visual evidence |
 
+**Flow boards** (draw mode): after the state grid, `screens` draws each flow of `ux-flows.md` as a
+board «Flow · <flow name>», the real states' thumbnails joined by labelled arrows, error branches
+dashed; the mermaid stays the source, the board is its render. A `Flow · ` frame is never a frame
+of the feature (no read-mode question, no state). Figma adds real prototype connections and a flow
+starting point. Procedure: `screens/references/flow-boards.md`.
+
 **Read mode** (`/sdlc:screens <slug> --from <url>`, «розбери екрани дизайнера»): the designer
 already drew the screens. `screens` reads their frames through the tool's read tools, writes
 **nothing** into the design file (no permission needed), maps each frame to a screen and a state,
@@ -378,8 +384,10 @@ The Pencil tools: `get_app_state`, `execute`, `read_skill`, `get_style`, `save` 
 6. **One app version per team.** A newer pen.dev rewrites the file format on save; keep a copy of
    the file before opening it in a different version.
 7. **No transitions between frames.** pen.dev has no prototyping links. A flow on the canvas =
-   static frames placed left to right in flow order. A clickable flow lives in code (a `browser`
-   node can show `localhost` next to the frames).
+   static frames placed left to right in flow order, plus the flow board `screens` draws
+   («Flow · <name>»: the states' thumbnails joined by drawn arrows), which is a diagram, not
+   transitions. A clickable flow lives in code (a `browser` node can show `localhost` next to the
+   frames).
 8. **Export gate.** Inside `execute`: `Export([nodeId1, nodeId2, …], "png", "<absolute dir>")`
    writes one file per node, named by the node id: `<dir>/<nodeId>.png`. An export can fail
    without a failing status, leaving no file or an empty one, so for **every** node:

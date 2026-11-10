@@ -17,7 +17,9 @@ description: >
   document checked before every write, the design file never edited by hand, every PNG exported
   and checked with test -s (exists and is not empty) or named as a gap when the tool cannot export,
   the document saved (save tool, autosave or Cmd+S) before commit; pen.dev: save and close before
-  git checkout. Read mode, when the designer already drew the screens: it reads their frames (a
+  git checkout. Draw mode also draws each flow of ux-flows.md as a board «Flow · <name>» (the
+  states' thumbnails joined by labelled arrows, error branches dashed), a diagram of the sequence,
+  recorded in §Flows. Read mode, when the designer already drew the screens: it reads their frames (a
   link with a node, or «the screens are in the document»), writes nothing into the design file,
   maps every frame to a screen and a state, marks every class drawn / N/A / missing (the missing
   ones become an «ask the designer» list, or are drawn on a «Screens · <slug>» page after a yes),
@@ -176,7 +178,7 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
         **Frames of this feature already there?** Among the top-level frames, any whose name
         points at this feature (the slug, a screen name from `ux-flows.md`, `SCR-NN`) and whose
         node id is not in an existing `screens.md` of this slug (frames an earlier run of this
-        skill drew are not counted) → one `AskUserQuestion`: «Розібрати ці фрейми (Recommended)»
+        skill drew are not counted, and never a `Flow · …` board or a node id in §Flows) → one `AskUserQuestion`: «Розібрати ці фрейми (Recommended)»
         (switch to read mode; nothing is written into the file) / «Малювати свої екрани» (draw
         mode, next to them on their own frames). No such
         frames → no question, draw as always. Headless → draw mode, and the frames found are
@@ -224,7 +226,21 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
         capability** in the session (an image returned only into the conversation is a look) → no
         PNG; name the gap in §Source («<tool>: no export in this session — node ids only»); the
         node id stays the source-ref.
-     f. **Persist.** Save through the tool per §6 gate 4: a `save` tool → call it; a tool that
+     f. **Flow boards.** After the grid and the export, one board per flow of `ux-flows.md`, per
+        [`./references/flow-boards.md`](./references/flow-boards.md): a top-level frame (Figma: a
+        section) «Flow · <flow name>»; the mermaid nodes in order, a screen node = the thumbnail of
+        its real state (the exported PNG), no decision nodes (a decision's condition goes into
+        the trigger label: «надсилає, збій мережі (D-02)»), an outside or end node = a grey pill;
+        edges = arrows with the mermaid trigger labels: solid grey the happy path, dashed grey a
+        branch, dashed red an error, and `error` / `ended` screens framed red; the happy path the
+        middle row left to right, branches above and below, two edges between one pair offset; a
+        node whose state is `N/A` or missing = a dashed «немає кадру» card; everything on the
+        document's variables. **A state frame or a board is never a library component** and never
+        an inventory row, even if someone made it reusable.
+        Each board → `screens/flow-NN.png` (one command per call, `test -s`), its node id into
+        §Flows. No new question, headless too. A rerun redraws each board whole (the old one
+        deleted only when its §Flows node id and exact name both match).
+     g. **Persist.** Save through the tool per §6 gate 4: a `save` tool → call it; a tool that
         saves by itself → nothing; neither → ask the user. A local file: confirm it changed on disk
         (`stat` before/after); a URL: read the frames back.
 
@@ -240,7 +256,12 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
        (absolute directory) writes **one file per node, named by the node id**:
        `<dir>/<nodeId>.png`. For each state, three separate calls: `test -s <dir>/<nodeId>.png`,
        `mv <dir>/<nodeId>.png <dir>/SCR-NN-<state>.png`, `test -s <dir>/SCR-NN-<state>.png`.
-     - f: `save` with the document's `uri` (no `save` tool → ask the user for **Cmd+S in pen.dev**);
+     - f: the board per flow-boards.md §3: `layout: "none"`, thumbnails **only** as PNG image fills
+       (`url` relative to the `.pen`, `mode: "contain"`; never a `ref` to a state frame, never
+       `reusable: true` on one), arrows as `path` geometry with the arrowhead inside it, dashes as
+       separate segments, labels in small `$background` frames; look by `TakeScreenshot`, not by
+       `ctx.problems` (false clipping on `layout: "none"`).
+     - g: `save` with the document's `uri` (no `save` tool → ask the user for **Cmd+S in pen.dev**);
        confirm the `.pen` changed on disk (`stat` before/after). Remind: **save and close the
        `.pen` before any `git checkout`, `pull` or `rebase`**.
 
@@ -259,9 +280,15 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
        failed `curl` → the named gap for that state); the
        official server's `get_screenshot` is a look, not an export → a PNG only through another
        export tool in the session, else the named gap.
-     - f: Figma saves by itself; read the frames back.
+     - f: the board as a section with snapshot thumbnails (`exportAsync` of the state frame → an
+       image fill, caption «<frame> · <id> · знімок <date>»; never a copy of a frame), plus real
+       prototype reactions between the state frames (On tap on the real element → Navigate to,
+       Dissolve 150 ms, `setReactionsAsync`, read back) and a flow starting point named after the
+       flow; a conditional branch stays board-only, a target without a frame gets no reaction;
+       per flow-boards.md §4, only where the run may write.
+     - g: Figma saves by itself; read the frames back.
 
-5. **Structural self-check** — re-read `screens.md` **from disk** and verify **7 items**, counting
+5. **Structural self-check** — re-read `screens.md` **from disk** and verify **8 items**, counting
    with Read / Grep or one plain command per call (no `$(…)`, pipes or `&&`):
    (1) every `SCR-NN` from `ux-flows.md` has a section (or the noted-gap fallback is stated in §Source);
    (2) every screen has a row for each of the six classes, a real state or an explicit
@@ -281,6 +308,10 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    no-export gap; `N/A` rows have no PNG and are skipped;
    (7) `tool` ≠ `code`: read every state frame back through the tool: no hidden node in it
    (`enabled: false`, `visible: false`, zero opacity), no layer of another state.
+   (8) flow boards per flow-boards.md §7: every flow of `ux-flows.md` has its board (node id in
+   §Flows), every screen node shows a drawn state's PNG or the «немає кадру» card, every board
+   PNG passes `test -s`, every board was looked at by a screenshot; read mode: §Flows is read from
+   the prototype or says «no prototype in the file».
    Read mode: items 5–7 are replaced by read-frames.md §8 (every state drawn / `N/A` / missing,
    PNG or the named gap, every instance mapped or marked, §Behaviour per screen, nothing written
    into the design file).
@@ -298,8 +329,10 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    «not from the library» blocks, N behaviour findings; tool or the degradation, N
    screens × N states, N `NEW:` components, every «Changed:» component with the advice to run
    `/sdlc:design-system` («Оновити»), in page mode the page «Screens · <slug>» and the list of
-   components in «Drafts · <slug>» for the designer, the permission answer when it was asked, «PNG: n/n exported, test -s passed» or the named no-export gap, «self-check:
-   7/7 pass», the proposed commits; every number counted from disk) + *Review*
+   components in «Drafts · <slug>» for the designer, the permission answer when it was asked,
+   «PNG: n/n exported, test -s passed» or the named no-export gap, N flow boards with their PNG
+   (read mode: §Flows from the prototype, or «no prototype»), «self-check: 8/8 pass», the
+   proposed commits; every number counted from disk) + *Review*
    (`docs/features/<slug>/screens.md`, `docs/features/<slug>/screens/`, + the design file when
    drawn) + *Run next*: build the screens in code following the manifest (one component at a time,
    no twins of inventory components) and fill §Source «State access» as you build, then
@@ -326,6 +359,10 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
   nothing was written into the designer's file except on the «Screens · <slug>» page the person
   allowed (state frames + «Drafts · <slug>», listed in the handoff), otherwise the run used `code`
   mode; the answer sits in the canon's «Screens write permission» line.
+- Draw mode, `tool` ≠ `code`: every flow of `ux-flows.md` has its board «Flow · <name>» (thumbnails
+  of the real states, labelled arrows, error branches dashed, a «немає кадру» card for a state
+  without a frame), its node id and PNG in §Flows; no new question was asked for them. Read mode:
+  §Flows comes from the prototype, nothing drawn.
 - The manifest is the only thing downstream needs.
 
 - Read mode: nothing was written into the design file (except, after the person's yes, the
@@ -374,6 +411,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
   the generation contract.
 - [`./references/read-frames.md`](./references/read-frames.md) — read mode: the designer's frames
   → screens, states, coverage, components, behaviour, PNG, self-check.
+- [`./references/flow-boards.md`](./references/flow-boards.md) — the flow boards: mermaid → board,
+  pen.dev and Figma specifics, §Flows, read mode, self-check item 8.
 - [`../_shared/design-line.md`](../_shared/design-line.md) — provenance tokens, tool modes, the gates
   for every tool (§6), pen.dev (§7), Figma (§8), any other tool (§9), file layout.
 - [`../_shared/surfaces.md`](../_shared/surfaces.md) — the `target_surfaces` gate when `sad.md` exists.
@@ -387,6 +426,11 @@ Draw mode:
 ```text
 /sdlc:screens chat
 ```
+
+Expected (draw mode, pen.dev, a repo `.pen`): the state frames `chat · SCR-NN · <state>` and a
+PNG per state; then one board `Flow · <flow name>` per flow of `ux-flows.md` (the states'
+thumbnails, labelled arrows, error branches dashed), each exported to `screens/flow-NN.png`;
+`screens.md` §Flows with each board's node id; no question beyond the ones the states need.
 
 Read mode, the designer drew the chat screens on a Figma page:
 
@@ -407,5 +451,7 @@ Expected (read mode):
 - §Behaviour: pop-ups, transitions and notes found in annotations, prototype reactions or Code
   Connect instructions, each with its source, or «nothing found» per screen;
 - a PNG for every drawn state that passed `test -s`, or the named no-export gap;
-- the handoff: N frames read, N drawn / N/A / missing, the ask-the-designer list, «self-check: 7/7
+- §Flows: the flows read from the prototype (flow starting points and reactions), or «no
+  prototype in the file»; no board is drawn;
+- the handoff: N frames read, N drawn / N/A / missing, the ask-the-designer list, «self-check: 8/8
   pass».

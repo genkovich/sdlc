@@ -125,7 +125,9 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
    «Виправити» regenerate that one flow (one round, second answer final). `easy` or no question
    channel: write + one-line summary into `## Assumptions` and proceed.
    On the canvas there are no transitions between screens: say in the prose that the drawing tool
-   will show these screens as static frames left to right, and the clickable flow lives in code.
+   will show these screens as static frames left to right, and the clickable flow lives in code;
+   `/sdlc:screens` also draws this flow as a board «Flow · <name>» from this mermaid (a diagram of
+   the sequence, drawn arrows, still no transitions in pen.dev).
 
 5. **Inventory + coverage.** Fill the screen inventory (`SCR-NN`, purpose, entry, exit, and which
    branches land on it — the states `screens` will draw). Fill the coverage table: one row per
@@ -188,7 +190,7 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
 - **Raw mermaid as the confirmation prompt** — the anti-pattern
   [`diagram-presentation.md`](../_shared/diagram-presentation.md) exists to kill.
 - **Promising transitions in the design tool.** pen.dev has no links between frames; the clickable
-  flow is the code.
+  flow is the code. The arrows on a `screens` flow board are a drawn diagram, not transitions.
 - **Dropping the command text because a PRD exists.** The PRD is the base, the text adds to it;
   ignoring it loses exactly what the person just asked for.
 - **Letting the command text overrule the PRD silently.** A contradiction is one question and a PRD

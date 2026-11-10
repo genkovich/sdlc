@@ -133,7 +133,10 @@ inside) → leave it and report it; the caller's self-check surfaces it.
 without write permission) are never the library frame and do not count for emptiness: a document
 whose only reusable components sit in Drafts is still case c for the library, and its drafts are
 not library rows. List them on their own report line, `<name> — <node id> — Drafts · <slug>`, and
-never edit or delete them.
+never edit or delete them. The same for **flow boards** (top-level frames or sections named
+`Flow · …`, drawn by `screens`): never the library, never counted, never touched. **State frames
+named `<slug> · SCR-NN · <state>` and boards are never library components**, even when one was
+made reusable: leave them out of the reusable components you report and out of case b.
 
 `mode: inventory` stops here: no step 4–8, the report lists what is there (an empty document →
 library frame «none», the caller leaves `library_frame` empty and says why).

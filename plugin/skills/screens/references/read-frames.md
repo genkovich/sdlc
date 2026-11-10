@@ -29,7 +29,8 @@
   canon» and the handoff recommends `/sdlc:design-system`.
 - **Read through the tool's read tools only** (design-line §6 «Capabilities»): Figma Console:
   `figma_get_status` / `figma_list_open_files` (the file must have Desktop Bridge running for
-  runtime reads), `figma_execute` with read-only plugin-API code (annotations too, §4),
+  runtime reads), `figma_execute` with read-only plugin-API code (annotations, a node's
+  `reactions` and the page's `flowStartingPoints` too, §4),
   `figma_capture_screenshot`, `figma_get_variables` with `refreshCache: true` (in a long session
   it returns a stale cache otherwise); the official Figma MCP: `get_metadata`, `get_design_context`,
   `get_screenshot`, `get_code_connect_map`; pen.dev: a read-only `execute`. Property names come
@@ -58,7 +59,9 @@
    than 4 → a second batch. Headless → pick the most likely pair, record it under
    `## Assumptions` with the reason.
 4. A frame that maps to no screen of this feature (another feature, a moodboard, a component
-   sheet) is listed in §Source as «not a screen of <slug>», never forced into a state.
+   sheet) is listed in §Source as «not a screen of <slug>», never forced into a state. A
+   top-level frame or section named `Flow · …` (a flow board, flow-boards.md) is skipped
+   silently: it is a diagram, not a screen.
 5. Two frames for the same screen · state (two versions) → one question which one is current
    (the one placed later / named «final» / «v2» first, «(Recommended)»); headless → that one,
    recorded under `## Assumptions`.
@@ -119,6 +122,13 @@ static frame. Read, where the session's tool has it:
   (`<CodeConnectSnippet>`; design-line §8). Which annotations the official server returns is not
   documented: use them if they come, promise nothing.
 
+**Flows from the prototype.** Read the page's `flowStartingPoints` (each a flow, with its name)
+and every state frame's `reactions` (trigger node, trigger, destination, transition) in a
+read-only `figma_execute`; they give `screens.md` §Flows with the flows' names (each step's source
+`frame:<node id>`) and §Behaviour rows (on tap → <target>, dissolve 150 ms), per
+[`./flow-boards.md`](./flow-boards.md) §6. Read mode draws no board, and a `Flow · …` section is
+a board, never a state.
+
 Every finding goes into `screens.md` §Behaviour with its source; the code work then does not go
 back to the design file for it. Nothing found for a screen → say so in §Behaviour and add «a note
 on how <screen> behaves» to §Ask the designer.
@@ -146,6 +156,7 @@ writes into the repo, not into the design file.
   every frame → screen · state (and the frames that are not screens of this feature);
 - the state tables as in draw mode (Source-ref: the designer's node id + PNG, `N/A` or
   «missing — ask the designer»);
+- §Flows from the prototype, or «no prototype in the file» (flow-boards.md §6);
 - §Behaviour, §Ask the designer, §New components (with the «not from the library», «create in
   code», «not in the canon» rows), `## Assumptions` (name matches, picked pairs, picked versions).
 

@@ -4,6 +4,71 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.0] — 2026-11-10
+
+### Added — flow boards: the flows drawn as a sequence on the canvas
+
+«Мені потрібні і відмальовані флоу і екрани». The state grid shows the states; now each flow of
+`ux-flows.md` is also drawn as a sequence, after the variant chosen from the pen.dev prototype.
+Details in the new `screens/references/flow-boards.md`.
+
+- **`screens` draw mode, new step 4f:** after the grid and the PNG export, one board per flow,
+  a top-level frame (Figma: a section) «Flow · <flow name>»: the mermaid nodes in order, a screen
+  node = the thumbnail of its real state (the exported PNG) with `SCR-NN · <state>` and the node's
+  label above it, no decision nodes (the condition goes into the trigger label), an outside or end
+  node = a grey pill, edges = arrows with the mermaid trigger labels (solid grey happy path,
+  dashed grey branch, dashed red error; `error` and `ended` screens framed red); the happy path the middle row left to right,
+  branches above and below, two edges between the same pair offset; a node whose state is `N/A` or
+  missing = a dashed «немає кадру» card; everything on the document's variables. The mermaid stays
+  the source, the board is its render. Persist moves to step 4g.
+- **pen.dev, from its schema** (no line, arrow or connector type): the board is `layout: "none"`;
+  a thumbnail is an image fill `{ type: "image", url, mode: "contain" }` with the `url` relative to
+  the `.pen` (no `scale`, state frames are not reusable, so no `ref`); an arrow is a `path` whose
+  geometry carries its arrowhead; a dash is separate segments; a label sits in a small
+  `$background` frame on the edge; the look is checked by screenshot, because `ctx.problems`
+  reports false clipping on `layout: "none"` boards; edges are not bound to nodes, so a rerun
+  redraws a board whole (deleting the old one only when its node id and exact name both match).
+- **Figma:** the same board as a section, plus real prototype connections between the state
+  frames (on tap on the real element → navigate) and a flow starting point named after the flow;
+  only where the run may write.
+- **`screens.md` §Flows** (new): flow → board node id → nodes → states → `screens/flow-NN.png`
+  (exported, `test -s`, one command per call). Self-check item 8 (was 7 items); Definition of
+  Done, handoff, example invocation.
+- **Boards are never frames of the feature:** step 4a's «Розібрати ці фрейми?» check and read mode
+  skip every `Flow · …` frame and every node id in §Flows, so a rerun on the same `.pen` asks
+  nothing new. Draw mode asks no new question for the boards, headless too. `design-keeper` never
+  takes a board for the library.
+- **After the two prototypes (pen.dev variant B1, Figma «Threads Premium»):** no decision nodes
+  (a decision's condition goes into the trigger label, «надсилає, збій мережі (D-02)»); three edge
+  styles (solid grey happy path, dashed grey branch, dashed red error; `error` and `ended` screens
+  framed red); pen.dev thumbnails **only** as PNG image fills (a `ref` to a state frame does not
+  scale, and `reusable: true` on state frames would make them count as components); Figma
+  thumbnails as snapshots (`exportAsync` → image fill, caption «<frame> · <id> · знімок <date>»),
+  never frame copies; real prototype reactions (On tap on the real element → Navigate to,
+  Dissolve 150 ms, `setReactionsAsync`, read back) and `flowStartingPoints` named after the flow;
+  conditional branches stay board-only, no invented triggers, no reaction to a missing frame.
+- **A safety rule in both skills:** a state frame `<slug> · SCR-NN · <state>` and a `Flow · …`
+  board are never library components and never inventory rows, even when made reusable
+  (`design-keeper`, `design-system` step 5f, `screens` step 4f).
+- **Read mode draws no board:** when the designer's file has a prototype, §Flows is read from the
+  page's `flowStartingPoints` (the flows' names) and the frames' `reactions` in a read-only
+  `figma_execute` (each step `frame:<node id>`), compared with `ux-flows.md`; a `Flow · …` section
+  is never a state; no prototype → «no prototype in the file».
+- `ux-flows`: the prose and the «Promising transitions» anti-pattern say that the board's arrows
+  are a drawn diagram, still no transitions between frames in pen.dev; `_shared/design-line.md` §6
+  and §7 rule 7 the same; `plugin/README.md` and both manifests (4.10.0).
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: rerun `/sdlc:screens <slug>` to get the flow boards for a feature
+  drawn before.
+- **Not run live as a skill:** the boards follow the rehearse-pen prototype (variant B), the skill
+  text was not run end to end; the Figma part follows the rehearse-figma prototype in «Threads
+  Premium», also not the skill text run end to end. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.9.1] — 2026-11-10
 
 ### Fixed — after the Figma rehearsal of 4.9.0 (design-system → screens in read mode)

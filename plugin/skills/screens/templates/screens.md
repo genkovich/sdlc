@@ -63,6 +63,19 @@ updated_at: "<YYYY-MM-DD>"
 +--------------------------------------+
 ```
 
+## Flows
+
+<!-- instruction: one row per flow of ux-flows.md. Draw mode: the board «Flow · <flow name>» the
+     skill drew (references/flow-boards.md) — a diagram of the sequence, not prototype links in
+     pen.dev; its node id, every mermaid node → the state it shows («немає кадру» for an N/A or
+     missing state), and the board's PNG. Read mode: the flows read from the designer's prototype
+     (flow starting points + reactions, each step `frame:<node id>`), or «no prototype in the
+     file»; nothing drawn. code mode: «—» (the mermaid in ux-flows.md is the flow). -->
+
+| Flow | Board node id | Nodes → states | PNG |
+|---|---|---|---|
+| <Flow · first message> | <node id> | <SCR-01 · default → SCR-02 · empty → SCR-02 · success; error SCR-02 · error; SCR-02 · ended (немає кадру); Figma: start «<flow>» on <frame>, reactions element → target, board-only edges> | <`screens/flow-01.png`> |
+
 ## Behaviour
 
 <!-- instruction: read mode (draw mode: only what the flows say). Pop-ups, transitions,

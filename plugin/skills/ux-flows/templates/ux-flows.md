@@ -32,7 +32,7 @@ updated_at: "<YYYY-MM-DD>"
      NO components, no layout — that is screens. -->
 
 - **Posture:** <mobile-first | desktop-first | responsive-both> — <«per design-system» or the deviation + why>
-- **On the canvas:** screens are static frames left to right in flow order; the clickable flow lives in code.
+- **On the canvas:** screens are static frames left to right in flow order, and `screens` draws each flow below as a board «Flow · <name>» (a diagram with drawn arrows); the clickable flow lives in code.
 
 ## Screen inventory
 

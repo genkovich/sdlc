@@ -269,7 +269,9 @@ of them is a permission prompt on camera and a rejection headless.
       inventory: a component present in code and in the document = one row with both anchors
       (`file:line` · node id); only in the document = a row with the node id, Notes `design-only`;
       only in code = Notes `code-only`. Every component the report lists gets a row, so `screens`
-      never marks one of them `NEW:`. Components the report lists under «Drafts · <slug>» (on a
+      never marks one of them `NEW:`. A state frame (`<slug> · SCR-NN · <state>`) or a flow board
+      (`Flow · …`) is never an inventory row, even if it was made reusable. Components the report
+      lists under «Drafts · <slug>» (on a
       «Screens · <slug>» page) are not library rows: each gets a row with its node id and Notes
       `draft — Drafts · <slug>, waiting for the designer`, and a changed copy keeps pointing at the
       original's row.
