@@ -14,12 +14,12 @@
 
 ## Detection cascade (first available wins)
 
-1. **`mmdc` (mermaid-cli)** — the real parser. On PATH, or `npx -y @mermaid-js/mermaid-cli`. Run it over the file that contains the diagrams (it extracts and renders every ```mermaid block) to a throwaway output and check the exit code:
+1. **`mmdc` (mermaid-cli)** — the real parser. On PATH, or `npx -y @mermaid-js/mermaid-cli`. Run it over the file that contains the diagrams (it extracts and renders every ```mermaid block) to a throwaway output **inside the repo, next to the checked file** — never `/tmp` or anywhere else outside the repo — and check the exit code:
    ```bash
-   mmdc -i docs/features/<slug>/sad.md -o /tmp/_mmd_check.md 2>&1   # exit != 0 → a block failed; stderr names it
+   mmdc -i docs/features/<slug>/sad.md -o docs/features/<slug>/_review/_mmd_check.md 2>&1   # exit != 0 → a block failed; stderr names it
    ```
-   A non-zero exit means at least one block is invalid; the stderr names the diagram + the syntax error. Delete the throwaway output after.
-2. **Project mermaid dep** — if `node_modules/mermaid` exists, a tiny `mermaid.parse(src)` per extracted block (parse-only, no render) is enough and fast.
+   A non-zero exit means at least one block is invalid; the stderr names the diagram + the syntax error. A repo-level file (`docs/architecture-map.md`) writes to `docs/_review/_mmd_check.md`. **Clean up after yourself**, one command per call: remove the throwaway output (mmdc writes it plus one rendered image per block next to it, `_mmd_check-1.svg`, …: remove each by its exact name, never by a wildcard), then the `_review/` folder only if this check created it and it is now empty (`rmdir`).
+2. **Project mermaid dep** — if `node_modules/mermaid` exists, a tiny `mermaid.parse(src)` per extracted block (parse-only, no render) is enough and fast: an inline `node -e`, no file at all — no helper script in `/tmp` or elsewhere.
 3. **Obsidian vault** — if the docs live in an Obsidian vault, the obsidian-cli render/error-capture can confirm the block renders.
 4. **No renderer → structural lint** (the fallback; what `architecture-design` did inline — now centralized here): for each ```mermaid block check
    - matched opening/closing ```mermaid fences;

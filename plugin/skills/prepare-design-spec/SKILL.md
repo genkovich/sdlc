@@ -65,7 +65,7 @@ verify a finished screen in a browser: run `verify-ui` after implementation.
   a linked issue counts as the inline request. A missing PRD is normal before module 6; only
   missing intent stops.
 - (Expected) `docs/features/<slug>/ux-flows.md` — the flows, the `SCR-NN` inventory and the error
-  branches (`W-NN`, `D-NN`); they seed §5 Target user flow and §8 State inventory.
+  branches (`W-NN`, `D-NN`, `N-NN`); they seed §5 Target user flow and §8 State inventory.
 - (Expected) `docs/design/design-system.md` — the token source, the component inventory and the
   conventions; they seed §9 Reuse and §13 Design references.
 - The target repository, including the current UI, routes, styles, tests, and design assets.
@@ -108,7 +108,7 @@ verify a finished screen in a browser: run `verify-ui` after implementation.
    and token reuse, state specimens, responsive behavior, accessibility, and explicit non-goals.
    For a redesign, state which existing product semantics must remain unchanged. Reuse comes from
    the `docs/design/design-system.md` inventory by name; §8 lists every state `ux-flows.md` sends
-   to a screen, with its source token (`W-NN`, `D-NN`, `AC-NN`).
+   to a screen, with its source token (`W-NN`, `D-NN`, `N-NN`, `AC-NN`).
 
 9. **Write the handoff contract.** Map each design element to its likely code owner or existing
    component. If no reusable owner exists, say `new component candidate`; do not invent a path.

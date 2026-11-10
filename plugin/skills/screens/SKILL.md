@@ -40,8 +40,8 @@ its PNG. Whatever the tool, **the manifest is the contract** for code — downst
 design file (`verify-ui` reads the manifest; the backbone skills are pointed at it by name,
 [`../_shared/design-line.md`](../_shared/design-line.md) §1). Two rules carry the stage:
 
-- **States are derived, not invented.** `default` plus every state a source implies: a `W-NN` or
-  `D-NN` branch from `ux-flows.md`, a `design-spec.md` §8 row (`BR-NN`), a PRD §5 AC, a `sad.md`
+- **States are derived, not invented.** `default` plus every state a source implies: a `W-NN`,
+  `D-NN` or `N-NN` branch from `ux-flows.md`, a `design-spec.md` §8 row (`BR-NN`), a PRD §5 AC, a `sad.md`
   §6 `alt`/`else` branch, a contract error response. Each non-default state carries its provenance
   token ([`../_shared/design-line.md`](../_shared/design-line.md) §3); a state class that does not
   apply gets one explicit `N/A: <reason>` row.
@@ -86,19 +86,31 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    the canon's «Agent access» line); map its capabilities (target document, read, write, save,
    look, export). Not connected → `code` mode with a named degradation (§Source + handoff). Connected
    but with no write tool → `code` mode too, named («<tool> MCP is read-only in this session»).
-   Read the canon's «Foundations write permission» line (design-line §6 gate 6): «not allowed» →
-   **drafts mode**: this run never writes into the designer's library (step 4c). No such line (a
-   canon from 4.7) → the owner rule itself: a repo path is allowed, a URL is drafts mode until
-   `/sdlc:design-system` records the permission. The canon's
-   `library_frame` is empty: writes allowed → `code` mode, named («the design document has no
-   library yet — run `/sdlc:design-system`»), so the document stays empty for the foundations run;
-   drafts mode → draw, with every component on «Drafts · <slug>».
+   **Permission to write** (design-line §6 gate 6). Read the canon's «Foundations write
+   permission» line; no such line (a canon from 4.7) → the owner rule itself (a repo path is
+   allowed, a URL is not).
+   - Allowed → draw as below.
+   - Not allowed → this run writes **nothing** into the designer's file on its own. Read the
+     canon's «Screens write permission» line: «allowed — «Screens · <slug>» pages» → **page
+     mode**; «not allowed» → `code` mode, named («no permission to write into <design_file> —
+     code-mode wireframes»); not asked yet (or the person wants to change it) → interactive: one
+     `AskUserQuestion` per [`../_shared/ask-style.md`](../_shared/ask-style.md): «Намалювати
+     екрани на окремій сторінці «Screens · <slug>» у цьому файлі?» — «Так, лише на цій сторінці»
+     (the state frames and a «Drafts · <slug>» frame with new components go there; the library and
+     every other page stay untouched) / «Ні, вайрфрейми в markdown» (`code` mode, no PNG);
+     headless → `code` mode, nothing asked. Write the answer into the canon's §Design tool
+     «Screens write permission» line («allowed — «Screens · <slug>» pages, <YYYY-MM-DD>» / «not
+     allowed — code mode» / «not asked — a headless run used code mode»), so the next run reuses
+     it.
+   The canon's `library_frame` is empty: writes allowed → `code` mode, named («the design document
+   has no library yet — run `/sdlc:design-system`»), so the document stays empty for the
+   foundations run; page mode → draw, with every component in «Drafts · <slug>».
 
 2. **Derive states per screen.** For each `SCR-NN`, per the one vocabulary in
    [`../_shared/design-line.md`](../_shared/design-line.md) §3 «State vocabulary»: **check the six
    classes** (`default`, `loading`, `empty`, `error`, `success`, `validation`), each gets a row, a
    real state or one `N/A: <reason>` row; **then add the named states** from every source that lands
-   on this screen (`W-NN`, `D-NN`, `BR-NN`, `AC-NN`, `§6:<flow>`, `contract:<status>`):
+   on this screen (`W-NN`, `D-NN`, `N-NN`, `BR-NN`, `AC-NN`, `§6:<flow>`, `contract:<status>`):
    `<class>-<variant>` for a second state of one class (`error-undelivered`), or a bare kebab-case
    feature name for a product state that fits no class (`ended`), each with its source token.
    An `N/A` row gets no frame and no PNG. Hover / focus / disabled are component states from the
@@ -141,15 +153,16 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
           node in the document yet) is **not** `NEW:` and needs no why-line: draw it once there
           under its inventory name, matching the code, instance it, and list it in the handoff so
           `/sdlc:design-system` («Оновити») records its node id;
-        - **drafts mode** (not allowed) — the designer's library stays untouched: every `NEW:` and
-          `code-only` component is drawn on a separate page (Figma) or top-level frame (pen.dev,
-          other tools) «Drafts · <slug>» and instanced from there; the handoff lists them for the
-          designer.
+        - **page mode** (no write permission, the person allowed «Screens · <slug>») — every state
+          frame goes on the page «Screens · <slug>» (Figma: a page; another tool: its page, else one
+          top-level frame of that name), and every `NEW:` and `code-only` component is drawn in a
+          frame «Drafts · <slug>» on the same page and instanced from there; the library and every
+          other page stay untouched; the handoff lists the drafts for the designer.
 
         **Changing an existing library component** (a fourth tab in the TabBar, a new Button
         variant) is allowed only with a line «Changed: <component> — what and why» in §New
         components and in the handoff, with the advice to run `/sdlc:design-system` («Оновити»).
-        In drafts mode the original is never changed: a changed copy goes on «Drafts · <slug>» under
+        In page mode the original is never changed: a changed copy goes in «Drafts · <slug>» under
         the same name + « (changed)», and the screens instance the copy.
      d. **Look.** Screenshot each finished screen through the tool and fix clipping/collapse before
         moving on.
@@ -192,7 +205,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
        Full seat.
      - c: frames on the feature's page (`<slug>`); instances of the library's components
        (`figma_instantiate_component` or `figma_execute`), a variant = a component-set property;
-       drafts mode → the page «Drafts · <slug>»; no hidden layer (`visible: false`) in a state frame.
+       page mode → the page «Screens · <slug>» with its «Drafts · <slug>» frame; no hidden layer
+       (`visible: false`) in a state frame.
      - d: `figma_capture_screenshot` (Console) / `get_screenshot` (official).
      - e: Console → after the look, `figma_get_component_image` per frame returns a URL → `curl` →
        `test -s` (it renders the cloud state, which can lag behind the live drawing; no URL or a
@@ -205,31 +219,34 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    (1) every `SCR-NN` from `ux-flows.md` has a section (or the noted-gap fallback is stated in §Source);
    (2) every screen has a row for each of the six classes, a real state or an explicit
    `N/A: <reason>` row;
-   (3) every non-default, non-`N/A` state carries a provenance token (`W`/`D`/`BR`/`AC`/`§6`/
+   (3) every non-default, non-`N/A` state carries a provenance token (`W`/`D`/`N`/`BR`/`AC`/`§6`/
    `contract`, or `derived` for a standard class the agent added itself), named states included;
    (4) every component name exists in the canon inventory or sits in §New components with a reason;
    every library component this run changed has a «Changed: <component> — what and why» row; in
-   drafts mode every `NEW:`, `code-only` and changed component lives on «Drafts · <slug>», none in
-   the library frame;
+   page mode every state frame sits on «Screens · <slug>» and every `NEW:`, `code-only` and changed
+   component in its «Drafts · <slug>» frame, nothing elsewhere in the file; without write
+   permission and without that page, the run is in `code` mode and the canon's «Screens write
+   permission» line is filled;
    (5) `tool` ≠ `code`: every state row except `N/A` rows has a node id; `code`: every distinct
    layout has a wireframe;
-   (6) `tool` ≠ `code`: every PNG path in the manifest passes `test -s` (run it, don't assume); a
-   non-`N/A` state without a PNG is allowed only when §Source names the no-export gap; `N/A` rows
-   have no PNG and are skipped;
+   (6) `tool` ≠ `code`: every PNG path in the manifest passes `test -s` (run it, one call per file,
+   no loop; don't assume); a non-`N/A` state without a PNG is allowed only when §Source names the
+   no-export gap; `N/A` rows have no PNG and are skipped;
    (7) `tool` ≠ `code`: read every state frame back through the tool: no hidden node in it
    (`enabled: false`, `visible: false`, zero opacity), no layer of another state.
    Fix and re-check at most 2 cycles; surface anything unresolved — never silently.
 
 6. **Propose commits + handoff.** Propose one commit for the manifest + PNGs
-   (`screens: <slug> screens.md + PNG`) and, when the design file is a local path, a separate one
+   (`screens: <slug> screens.md + PNG`; plus the canon when this run wrote its «Screens write
+   permission» line) and, when the design file is a local path, a separate one
    for it (`screens: <slug> <design_file>`) only when `git status --porcelain -- <design_file>`
    shows it changed — an unsaved design file is named in the handoff, not committed. Nobody reviews
    a design file's diff: the PNGs are what goes into the PR. Unresolved self-check item → no
    commits, say why. Then emit the **stage-handoff block** per
    [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (tool or the degradation, N
    screens × N states, N `NEW:` components, every «Changed:» component with the advice to run
-   `/sdlc:design-system` («Оновити»), in drafts mode the list of components on «Drafts · <slug>»
-   for the designer, «PNG: n/n exported, test -s passed» or the named no-export gap, «self-check:
+   `/sdlc:design-system` («Оновити»), in page mode the page «Screens · <slug>» and the list of
+   components in «Drafts · <slug>» for the designer, the permission answer when it was asked, «PNG: n/n exported, test -s passed» or the named no-export gap, «self-check:
    7/7 pass», the proposed commits; every number counted from disk) + *Review*
    (`docs/features/<slug>/screens.md`, `docs/features/<slug>/screens/`, + the design file when
    drawn) + *Run next*: build the screens in code following the manifest (one component at a time,
@@ -253,9 +270,10 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
 - `tool` ≠ `code`: the target-document check passed before every write; the design file was changed
   only through the tool's MCP; it was saved (a local file changed on disk, a cloud file read back).
 - `tool` ≠ `code`: every state frame holds only its own layers (no hidden leftovers); every changed
-  library component has its «Changed:» line and the «Оновити» advice; without write permission the
-  designer's library is untouched and the new, `code-only` and changed components sit on «Drafts ·
-  <slug>», listed in the handoff.
+  library component has its «Changed:» line and the «Оновити» advice; without write permission
+  nothing was written into the designer's file except on the «Screens · <slug>» page the person
+  allowed (state frames + «Drafts · <slug>», listed in the handoff), otherwise the run used `code`
+  mode; the answer sits in the canon's «Screens write permission» line.
 - The manifest is the only thing downstream needs.
 
 ## Anti-patterns
@@ -282,7 +300,9 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
   looks right on the canvas and wrong in the Layers panel; each state frame holds only its layers.
 - **Silently editing a library component.** A changed TabBar or Button without a «Changed:» line
   drifts from the canon and the code; in a designer's file it is never edited, only copied to
-  «Drafts · <slug>».
+  «Drafts · <slug>» on the allowed «Screens · <slug>» page.
+- **Writing into a designer's file without asking.** No write permission → one question about a
+  separate «Screens · <slug>» page, else `code` mode; headless never writes there.
 - **Shell chains and temp scripts.** `for … do`, `&&` and a script in `/tmp` are rejected headless
   and need a permission prompt each in an interactive run; one plain command per call.
 

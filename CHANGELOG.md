@@ -4,6 +4,85 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.1] — 2026-11-10
+
+### Added — `ux-flows` reads a PRD and the command text together
+
+The question was: «ux-flows вміє і в PRD, і в prompt? треба, щоб і те, і те». Before, the input
+ladder took the first source it found, so text in the command was ignored whenever a `PRD.md`
+existed.
+
+- **The source stays the base, the text adds to it.** When the ladder finds a source (`PRD.md`,
+  `design-spec.md`, `story.md`, `idea-brief.md`) and the command also carries text, the text is
+  additional instructions: narrow to one story, add failures, screens or constraints the source
+  does not mention. With no source at all the text is still the story (`S-N`), as before.
+- **New provenance token `N-NN`** (from the invocation) in `_shared/design-line.md` §3, next to
+  `S` / `W` / `D` / `AC`. Every item from the command gets its branch, screen or note, a coverage
+  row, and a line in `ux-flows.md` §Source (it is not written to `story.md`); `screens` and
+  `prepare-design-spec` carry the token on.
+- **A contradiction with the source is one question** («Лишити як у джерелі» / «Зробити як у
+  команді»); the decision goes under `## Assumptions`, and with a PRD source the contradiction also
+  goes to the handoff as a PRD gap for `/sdlc:clarify-prd`. Headless: follow the source and record
+  it the same way.
+- **«What can go wrong» in full mode** runs at `hard`, and now at any depth when the command text
+  asks to think about failures.
+- `ux-flows`: mode descriptions, step 1 (split the text into `N-NN` items), step 3, step 5
+  (coverage rows for `N-NN`), self-check item 3, Definition of Done, anti-patterns, the template
+  (§Source «From the command», «Contradictions with the source», coverage row) and an example
+  invocation for both modes. `plugin/README.md` and `CLAUDE.md` updated.
+
+### Changed — `screens` writes nothing into a designer's file on its own
+
+In 4.8.0, without write permission `screens` still drew its state frames and a «Drafts · <slug>»
+page into the designer's file, and a headless run did so without asking anybody.
+
+- **No permission → one question, else markdown.** Interactive: «Намалювати екрани на окремій
+  сторінці «Screens · <slug>» у цьому файлі?». Yes → **page mode**: every state frame goes on that
+  page, new, `code-only` and changed components go in a frame «Drafts · <slug>» on the same page,
+  the library and every other page stay untouched. No → `code` mode (inline wireframes, no PNG).
+  Headless without permission → `code` mode, nothing asked.
+- **The answer is in the canon**: a new §Design tool line «Screens write permission», next to
+  «Foundations write permission», written by `screens` and reused by the next run until the person
+  changes it. The `design-system` step-5d «ні» option now says exactly this.
+- `design-keeper` never takes a «Screens · <slug>» page or its Drafts for the library;
+  `_shared/design-line.md` §6 gate 6, §7 rule 11, §8 and the TL;DR say the same; the `screens`
+  self-check item 4, Definition of Done, handoff, anti-patterns and template follow.
+
+### Changed — `mermaid-check.md` keeps its throwaway output in the repo
+
+`_shared/mermaid-check.md` sent the `mmdc` output to `/tmp`. Now it goes next to the checked file
+(`docs/features/<slug>/_review/_mmd_check.md`, or `docs/_review/` for a repo-level file) and is
+removed afterwards by exact name, one command per call, with the `_review/` folder only when the
+check created it. The `node_modules/mermaid` path parses with an inline `node -e`, no file at all.
+
+### Fixed — design line after the 4.8.0 release
+
+- **`design-keeper` never takes «Drafts · <slug>» for the library.** Drafts that `screens` leaves
+  in a file without write permission do not count for emptiness and are not library rows; the
+  keeper lists them on their own report line, and `design-system` step 5f records them as `draft`
+  rows. Before, a designer's file with only drafts in it could have looked like it had a library.
+- **«Оновити» on a 4.7 canon** without the «Foundations write permission» line uses the owner rule
+  of step 5a (as `screens` already did).
+- **The directions sheet is removed only when its node id and exact name both match**: the
+  keeper's frontmatter and its «Mode `directions`» section still said «by its exact name».
+- **No method names that are not from the tool's guide**: the Figma note drops a plugin-API method
+  name; «the colour collection's mode set on the card frame» is the rule.
+- **One shell command per call, also here:** `screens` self-check item 6 (`test -s` one call per
+  file, no loop) and the keeper's own `stat` / `test -s`.
+- Re-wrapped long lines in `design-system` step 5c and `verify-ui` steps 6–7.
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing. To give `ux-flows` extra instructions next to a PRD, put
+  them after the slug: `/sdlc:ux-flows <slug> <text>`. A Figma file without write permission: the
+  next `/sdlc:screens` asks once about a «Screens · <slug>» page.
+- **Not run live:** the `N-NN` path (PRD + command text, the contradiction question), the
+  «Screens · <slug>» page mode and its question, the Drafts handling in the keeper, and the new
+  `mermaid-check.md` output path. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.8.0] — 2026-11-10
 
 ### Changed — one `sdlc:design-keeper` for any design tool (replaces `sdlc:pen-keeper`)

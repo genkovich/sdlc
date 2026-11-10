@@ -18,7 +18,9 @@
 - **Без PRD теж працює.** Нема `PRD.md` → вхід = коротка історія користувача на 3-5 речень
   (`docs/features/<slug>/story.md` або прямо в команді). Гілки помилок беремо з питання «що може
   піти не так», а стани без джерела в AC позначаємо як виведені з історії. Є PRD і SAD (модуль 6+)
-  → поведінка повна. Деградація, не відмова.
+  → поведінка повна. Деградація, не відмова. Є PRD і ще текст у команді → PRD лишається основою,
+  а текст додає вказівки (звузити до історії, додати збої чи екрани) з позначкою `N-NN`;
+  суперечність з PRD = одне питання і прогалина PRD для `/sdlc:clarify-prd`.
 - **Канон дизайну репо-рівня** лежить у `docs/design/`, усе фічеве лежить у `docs/features/<slug>/`.
 - **Інструмент будь-який, у якого є MCP у сесії.** У каноні `tool` = `pencil` (pen.dev), `figma`
   або назва іншого інструмента; документ дизайну лежить у полі `design_file` (шлях у репо або URL).
@@ -28,9 +30,10 @@
 - **Перед записом перевіряємо, що відкритий саме файл з канону**, інакше стоп. Дозвіл писати
   визначає власник файла. Файл у репо належить тому, хто запускає скіл: пишемо без питання, і в
   headless теж. Файл за URL (Figma тощо), який не створили в цьому прогоні: одне питання, а без
-  відповіді лише пропозиції. Без дозволу `screens` не чіпає бібліотеку дизайнера і кладе нові
-  компоненти на «Drafts · <slug>». Аркуш основ і компоненти малюємо тільки в порожньому файлі, і
-  аркуш однаковий у кожному інструменті.
+  відповіді лише пропозиції. Без дозволу `screens` у файл дизайнера нічого не пише: питає, чи
+  можна намалювати екрани на окремій сторінці «Screens · <slug>» (там же «Drafts · <slug>» з
+  новими компонентами); «ні» або headless → code mode. Аркуш основ і компоненти малюємо тільки в
+  порожньому файлі, і аркуш однаковий у кожному інструменті.
 - **pen.dev:** `.pen` руками не правимо; після змін зберегти (`save` з `uri` або Cmd+S); перед
   `git checkout` зберегти й закрити; PNG кожного стану експортуємо і перевіряємо `test -s`, бо
   експорт може тихо не створити файл або лишити його порожнім.
@@ -107,6 +110,22 @@ source that exists. It records which one it used (frontmatter `input:` + the han
 **Degrade, don't refuse.** Sources 2–5 are **story mode**: there are no `AC-NN` ids, so the skills
 number what they find and keep its origin visible.
 
+**Text in the invocation next to a source** (`ux-flows`). When the ladder found a source 1–4 and
+the command also carries text («/sdlc:ux-flows chat лише історія про першого співрозмовника, і
+подумай, що буде, коли мережа зникне»), the source stays the base and the text is **additional
+instructions**: narrow to one story, add failures, screens or constraints the source does not
+mention. Each such item gets its own token `N-NN` (from the invocation) in the flows, the screen
+inventory and the coverage table; `ux-flows.md` §Source quotes the items (they are not written to
+`story.md`), and the later skills read them from there. It never replaces the source:
+
+- **Text contradicts the source** (e.g. the PRD says a chat opens only after a match, the text says
+  from any profile) → one `AskUserQuestion`: follow the source / follow the text. Whatever is
+  picked, the decision goes under `## Assumptions`, and with a PRD source the contradiction is
+  also a PRD gap for `/sdlc:clarify-prd`. Headless → follow the source, record it the same way.
+- **Text asks to think about failures** → the «what can go wrong» question (§4) runs in full mode
+  too, at any depth.
+- No source above the inline story (source 5) → the text *is* the story: `S-N`, not `N-NN`.
+
 ### Provenance tokens (every derived branch, state and requirement carries one)
 
 | Token | Meaning | Where it comes from |
@@ -114,12 +133,13 @@ number what they find and keep its origin visible.
 | `AC-NN` | PRD acceptance criterion | `PRD.md` §5 |
 | `BR-NN` | design-spec requirement | `design-spec.md` §6 |
 | `S-N` | sentence N of the story | `story.md` / inline story |
+| `N-NN` | an additional instruction from the invocation text, next to a source 1–4 | the command line («з команди») |
 | `W-NN` | «what can go wrong» item the user confirmed | the §4 question below |
 | `§6:<flow>` / `contract:<status>` | SAD runtime branch / API error response | `sad.md` §6, `contracts/` (backbone only) |
 | `D-NN` (`derived`) | inferred by the agent from the story, **not** confirmed by anyone | headless runs, `easy` defaults |
 
 A state or branch with no `AC`/`BR`/`§6`/`contract` source is marked as coming from the story
-(`S-N`, `W-NN`) or as derived (`D-NN`, so flows and tables can point at it). Derived items are
+(`S-N`, `W-NN`), from the invocation (`N-NN`) or as derived (`D-NN`, so flows and tables can point at it). Derived items are
 listed in the artifact's `## Assumptions` section so a human can veto them; they never silently
 become requirements. When a user later confirms a `D-NN`, it is renumbered as the next `W-NN`.
 
@@ -146,7 +166,7 @@ and the `verify-ui` verdict row.
   - a bare kebab-case feature name when the branch is a product state that fits none of the
     classes: `ended` (the other person closed the conversation; not an error, not empty).
 
-  Every named state carries its source token (`W-NN`, `D-NN`, `AC-NN`, `BR-NN`, `S-N` …) and gets
+  Every named state carries its source token (`W-NN`, `D-NN`, `N-NN`, `AC-NN`, `BR-NN`, `S-N` …) and gets
   its own frame, PNG and verdict row under the same id. A bare name never reuses a class name.
 - **Hover / focus / disabled are component states**, not screen states. They come from the
   components in `docs/design/design-system.md` («States it supports») and get no screen frame.
@@ -174,8 +194,9 @@ mode `ux-flows` asks for them explicitly after it has drafted the happy path:
   (creating, sending, loading a list); when there are more candidates than 4 options, ask a second
   question rather than dropping them. The free-text «Other» answer adds more.
 - Each chosen item becomes `W-NN` (Confirmed by the user) and gets a branch in a flow.
-- At `hard` depth in full mode (PRD present) the same question runs once for failures the ACs
-  missed; any `W-NN` there is also flagged as a PRD gap for `/sdlc:clarify-prd`.
+- In full mode (PRD present) the same question runs once for failures the ACs missed at `hard`
+  depth, and at any depth when the invocation text asks to think about failures; any `W-NN` there
+  is also flagged as a PRD gap for `/sdlc:clarify-prd`.
 
 ## 5. Runs with no one to ask (headless, `claude -p`, CI)
 
@@ -204,7 +225,7 @@ when the keeper reported that nothing could be drawn (a read-only tool, an empty
 write permission, a read-only `inventory` run); the canon then says why in `## Assumptions`.
 `screens` with an empty `library_frame`: writes allowed → `code` mode, named («the design document
 has no library yet — run `/sdlc:design-system`»), so the document stays empty for the
-foundations run; writes not allowed → it draws on «Drafts · <slug>» (gate 6).
+foundations run; writes not allowed → gate 6 (the «Screens · <slug>» question, else `code` mode).
 
 | Mode | Screens live in | Per-state source-ref | PNG per state |
 |---|---|---|---|
@@ -267,9 +288,14 @@ section adds its specifics):
    - a URL file not created in this run, **empty or with a library** → one question to the person,
      showing what would be written; headless → no permission, only proposals in the canon.
 
-   Without permission `design-keeper` writes nothing and returns proposals, and `screens` never
-   writes into the designer's library: new, `code-only` and changed components go on a separate
-   page or top-level frame «Drafts · <slug>» and are listed in the handoff for the designer. With
+   Without permission `design-keeper` writes nothing and returns proposals, and `screens` writes
+   **nothing** into the designer's file on its own: interactive, it asks once «Намалювати екрани
+   на окремій сторінці «Screens · <slug>» у цьому файлі?». Yes → every state frame goes on that
+   page (Figma: a page; another tool: its page, else one top-level frame), and new, `code-only`
+   and changed components go in a frame «Drafts · <slug>» on the same page, listed in the handoff
+   for the designer; the library and every other page stay untouched. No, or headless → `code`
+   mode (inline wireframes, no PNG). The answer is recorded in the canon as «Screens write
+   permission», next to «Foundations write permission», and reused until the person changes it. With
    permission or without, the foundations sheet, the components (and the temporary «DS ·
    Directions» sheet of `design-system` step 4b) are drawn only in an empty document; a document
    with a library only gets its missing foundations.
@@ -337,8 +363,9 @@ The Pencil tools: `get_app_state`, `execute`, `read_skill`, `get_style`, `save` 
     in a document with no reusable components at all, and only there does `design-keeper` draw
     the foundations sheet and the components. In a document with a library, a component that
     exists only in code (`code-only` in the canon) is drawn by `screens` the first time a screen
-    needs it (into the library frame, or on «Drafts · <slug>» without write permission, §6 gate 6). The procedure lives in `design-keeper`; the canon records the frame as
-    `library_frame`. The same rule holds in every tool.
+    needs it (into the library frame; without write permission only on the «Screens · <slug>» page
+    the person allowed, §6 gate 6). The procedure lives in `design-keeper`; the canon records the
+    frame as `library_frame`. The same rule holds in every tool.
 12. **A variant is its own component.** pen.dev has no variant sets: each variant, size and state
     is a separate reusable component named `<Component> / <Variant> / <Size or state>`.
 
@@ -379,7 +406,8 @@ Common to both:
   spacing and type sizes as number variables; type families as string variables or text styles.
 - **A Figma file is a URL, so it usually belongs to a designer.** Unless the person created it in
   this run, anything is written only with permission (§6 gate 6); without it the foundations are
-  proposals in the canon and `screens` draws new components on «Drafts · <slug>» (a page).
+  proposals in the canon, and `screens` draws only on a page «Screens · <slug>» the person allowed
+  (else `code` mode).
 - No export tool in the session → name the missing PNGs as a gap in `screens.md` §Source; the node
   ids remain the source-ref.
 

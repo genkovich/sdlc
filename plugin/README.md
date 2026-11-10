@@ -99,7 +99,7 @@ playwright-cli install-browser chrome   # only if open says: Browser "chrome" is
 | [`decide-adr`](skills/decide-adr/SKILL.md) 🚪 | `/sdlc:decide-adr` | standalone `adr/NNNN-*.md` (blast-radius worthiness gate, Proposed → Accepted) |
 | [`roadmap`](skills/roadmap/SKILL.md) | `/sdlc:roadmap` | `docs/roadmap.md` (Now / Next / Later / Shipped tables) |
 | [`design-system`](skills/design-system/SKILL.md) | `/sdlc:design-system` | `docs/design/design-system.md` — tool, posture, tokens, component inventory (+ the design document's component library via `sdlc:design-keeper`, any tool); builds the foundation with you when the project has no tokens |
-| [`ux-flows`](skills/ux-flows/SKILL.md) | `/sdlc:ux-flows` | `docs/features/<slug>/ux-flows.md` (+ `story.md`) — works from a short story without a PRD |
+| [`ux-flows`](skills/ux-flows/SKILL.md) | `/sdlc:ux-flows` | `docs/features/<slug>/ux-flows.md` (+ `story.md`) — works from a short story without a PRD, or from a PRD plus extra instructions in the command (`N-NN`) |
 | [`prepare-design-spec`](skills/prepare-design-spec/SKILL.md) | `/sdlc:prepare-design-spec` | `docs/features/<slug>/design-spec.md` |
 | [`screens`](skills/screens/SKILL.md) | `/sdlc:screens` | `docs/features/<slug>/screens.md` + `screens/SCR-NN-<state>.png` (any design tool that can export) or inline wireframes (code) |
 | [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc:verify-ui` | per-criterion live browser verdict + screenshot evidence in `_review/verify-ui-<date>.md` |

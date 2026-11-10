@@ -80,7 +80,8 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    a. rescan the code side (step 2);
    b. `tool` ≠ `code` → run steps 5b–5e: design-keeper re-reads the document's reusable components
       and returns the library frame (persist only when it reports writes). `allow_writes` comes
-      from the canon's «Foundations write permission» line as recorded; the question of step 5d
+      from the canon's «Foundations write permission» line as recorded (no such line, a canon from
+      4.7 → the owner rule of step 5a decides); the question of step 5d
       is asked again only when the person says they want to change it (in the invocation or in
       the «Other» of this step's question);
    c. reconcile the inventory rows in place per step 5f: add new components, fill missing anchors,
@@ -205,9 +206,10 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
       group, the first names with values, and in an empty file «would draw: the foundations sheet +
       N components») and says whose file it is: «Дозволити запис у файл» → re-dispatch
       design-keeper with `allow_writes: true` (it re-checks the gate, adds only what is missing,
-      never overwrites) / «Лише записати пропозицію в канон» → nothing is written into the
-      document, and `screens` will put new components on «Drafts · <slug>». No question channel
-      (headless) → no permission, the same as «ні». Either way the proposals go under the canon's
+      never overwrites) / «Лише записати пропозицію в канон» → nothing is written into the file;
+      the description says plainly that `screens` will then ask once whether it may draw on a
+      separate page «Screens · <slug>» in this file, and otherwise use markdown wireframes. No
+      question channel (headless) → no permission, the same as «ні». Either way the proposals go under the canon's
       `## Assumptions` as «Proposed, not written: …». A tool with no write tool skips the question
       and records the proposals the same way.
    e. **Persist.** Read the report's `saved:` line; the keeper did the `stat` / read-back. «saved
@@ -220,20 +222,23 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
       «library_frame empty: <the report's reason>» under `## Assumptions`), its tool and
       capabilities to «Agent access», and the permission to «Foundations write permission»: «repo
       file — written without asking» / «created in this run — written» / «allowed by the person,
-      <YYYY-MM-DD>» / «not allowed — proposals under Assumptions; screens uses Drafts · <slug>».
-      `screens` and «Оновити» read this line. Merge its components into the
+      <YYYY-MM-DD>» / «not allowed — proposals under Assumptions». `screens` and «Оновити» read
+      this line; `screens` writes the «Screens write permission» line next to it. Merge its components into the
       inventory: a component present in code and in the document = one row with both anchors
       (`file:line` · node id); only in the document = a row with the node id, Notes `design-only`;
       only in code = Notes `code-only`. Every component the report lists gets a row, so `screens`
-      never marks one of them `NEW:`.
+      never marks one of them `NEW:`. Components the report lists under «Drafts · <slug>» (on a
+      «Screens · <slug>» page) are not library rows: each gets a row with its node id and Notes
+      `draft — Drafts · <slug>, waiting for the designer`, and a changed copy keeps pointing at the
+      original's row.
       **Pairing.** Code and document rarely share names (`Badge` in code, «Tag / Neutral» in the
       kit). Pair by the project's own map when the repo has one (e.g. a «.pen → code» list in
       `AGENTS.md`), else by the name family (the part before ` / `: «Button / Primary / Large» ↔
       `Button`; a Figma component set's name ↔ the code component). No certain pair → keep two
       rows (`design-only`, `code-only`) and list the candidates under `## Assumptions`; never
       guess. A `code-only` row is not `NEW:` either: `screens` draws that component into the
-      library frame the first time a screen needs it (on «Drafts · <slug>» when writes are not
-      allowed).
+      library frame the first time a screen needs it (without write permission only in «Drafts ·
+      <slug>» on a «Screens · <slug>» page the person allowed).
 
 6. **Structural self-check** — re-read the file **from disk** and verify **7 items**:
    (1) `tool` is `code` or a lowercase design-tool name (`pencil`, `figma`, `<name>`), never empty;
@@ -323,8 +328,10 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
   its own frame name; a new «DS · Foundations» beside it creates twin Button / Input / Badge, and
   the kit-only components (Toast, Spinner …) never reach the inventory, so `screens` marks them `NEW:`.
 - **Writing into a designer's file without asking.** A file at a URL that the person did not
-  create in this run belongs to someone else: nothing goes in before the step 5d «yes». A repo
-  file is the person's own and is written without asking.
+  create in this run belongs to someone else: no foundations and nothing in its library before
+  the step 5d «yes» (`screens` then asks for a separate «Screens · <slug>» page, else uses
+  markdown wireframes). A repo file is
+  the person's own and is written without asking.
 - **Judging ownership by what is inside.** An empty Figma file can still be a designer's, and a
   repo `.pen` with a kit's library is still the person's: the owner rule looks at where the file
   lives (design-line §6 gate 6).

@@ -18,7 +18,8 @@ description: >
   report: the tool and the capabilities used, the library frame, every reusable component with its
   id, what was seeded / proposed / already matched, whether it saved, and what only the user can do.
   Two more modes: directions (a temporary «DS · Directions» comparison sheet of 2–3 candidate
-  foundations, only in an empty document, removed by its exact name on the next reconcile) and
+  foundations, only in an empty document, removed on the next reconcile when its node id and exact
+  name both match) and
   inventory (read-only: recognize and report, write nothing).
 model: sonnet
 effort: medium
@@ -51,7 +52,7 @@ without ever touching a document that is not the canon's. The rules are in
 (§7 pen.dev, §8 Figma, §9 any other). «Known tools» at the end of this file is the short version.
 
 Your other tools: Read/Grep/Glob for the canon and the token files, Bash only for `stat` /
-`test -s`. **Never** open, read, grep, edit or rewrite the design file with file tools, `sed`,
+`test -s`, one plain command per call (no loops, no `&&`, no scripts in `/tmp`). **Never** open, read, grep, edit or rewrite the design file with file tools, `sed`,
 `python` or `jq`: the format belongs to the tool.
 
 ## 1. Find the tool and what it can do
@@ -121,6 +122,12 @@ that id carries exactly that name **and** holds no reusable components — that 
 else, no name pattern — and report it. Any mismatch (no id given, another name, components
 inside) → leave it and report it; the caller's self-check surfaces it.
 
+**«Screens · <slug>» pages and their «Drafts · <slug>» frames** (left by `screens` in a file
+without write permission) are never the library frame and do not count for emptiness: a document
+whose only reusable components sit in Drafts is still case c for the library, and its drafts are
+not library rows. List them on their own report line, `<name> — <node id> — Drafts · <slug>`, and
+never edit or delete them.
+
 `mode: inventory` stops here: no step 4–8, the report lists what is there (an empty document →
 library frame «none», the caller leaves `library_frame` empty and says why).
 
@@ -180,8 +187,7 @@ Below it draw the components from the canon inventory, complete: every variant a
 defines (for example each `cva` variant × size of `Button`, each `Badge` variant), and the states
 the code styles for it (disabled, invalid / error, selected, focus). A `design-only` starter row
 (source `starter set`, no code yet) is drawn from its canon row: exactly the variants and states
-its «States it supports» cell lists. Use the tool's **own variant
-mechanism**: Figma → one component set per component with variant properties (`Variant`, `Size`,
+its «States it supports» cell lists. Use the tool's **own variant mechanism**: Figma → one component set per component with variant properties (`Variant`, `Size`,
 `State`); pen.dev, which has no variant sets → each variant as its own reusable component named
 `<Component> / <Variant> / <Size or state>`; another tool → whatever it offers, else the pen.dev
 naming. Group each component in one row or grid with a label, lay them out with the tool's
@@ -230,8 +236,9 @@ foundations seen side by side. Steps 1–3 as usual, then:
   heading line and a body line, a radius sample, and a sample button and card in that direction.
 - **Plain nodes only, never reusable components**, so the document stays empty for the
   foundations run. Literal values are allowed here (no variables exist yet); this is the one place.
-- Look once (step 8). Do not save it: it is temporary, and the `reconcile` run deletes it by that
-  exact name. A tool that saves by itself keeps it until then: report that.
+- Look once (step 8). Do not save it: it is temporary, and the `reconcile` run deletes it when
+  the node id you report and the exact name both match. A tool that saves by itself keeps it
+  until then: report that.
 - Report: the frame's node id, the directions drawn, the look.
 
 ## Report (your return value)
@@ -254,9 +261,11 @@ One short markdown block:
   («DS · Foundations», empty document) / **none** (empty document and nothing drawn: no permission,
   no write tool, or `inventory`; say which); other frames holding reusable components: names +
   counts
-- reusable components: **every** one in the document, `<name> — <node id> — <frame> — variants:
-  <list or —> — found | created`, not only the ones you created (the caller writes them into the
-  inventory)
+- reusable components: **every** one in the document outside Drafts, `<name> — <node id> —
+  <frame> — variants: <list or —> — found | created`, not only the ones you created (the caller
+  writes them into the inventory)
+- drafts: every component in a «Drafts · <slug>» frame (on a «Screens · <slug>» page), `<name> —
+  <node id> — Drafts · <slug>` (or «none»)
 - font check: OK / failing fonts
 - saved: «saved via `save`, stat `<before>` → `<after>`» / «saves by itself, read back: <what>» /
   «NOT saved: the user must save (pen.dev: Cmd+S), stat before `<value>`» / «no writes»
@@ -307,8 +316,8 @@ a document that is not open («wrong .pen file»); pass the `uri` wherever a too
   session: search again every session), `figma_get_variables`, `figma_get_styles`. Write:
   `figma_execute` (plugin-API JavaScript; a component set = `figma.combineAsVariants`),
   `figma_setup_design_tokens` / `figma_batch_create_variables` for variables with `Light` / `Dark`
-  modes; a theme card of the foundations sheet gets the collection's mode on its frame (e.g.
-  `setExplicitVariableModeForCollection`). Fonts: `figma.loadFontAsync` fails for a font the file
+  modes; a theme card of the foundations sheet gets the colour collection's mode set on its frame.
+  Fonts: `figma.loadFontAsync` fails for a font the file
   cannot use. Look: `figma_capture_screenshot`. Guide: the server's instructions.
 - **Official Figma MCP:** no «open» state: the file key goes into every call. Gate = a read of the
   file (`get_metadata`) succeeds. Read: `get_metadata`, `get_variable_defs`, `search_design_system`

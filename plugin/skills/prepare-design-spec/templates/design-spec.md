@@ -63,7 +63,7 @@ updated_at: <YYYY-MM-DD>
      validation are CHECKED for every screen: each gets a row, a real state or `N/A: <reason>`.
      On top of them, named states from flow branches: <class>-<variant> for a second state of one
      class (error-undelivered), or a bare kebab-case feature name for a product state that fits no
-     class (ended). Source: AC-NN (PRD), W-NN («what can go wrong» answer in ux-flows.md), S-N (story
+     class (ended). Source: AC-NN (PRD), W-NN («what can go wrong» answer in ux-flows.md), N-NN (from the command text in ux-flows.md), S-N (story
      sentence), or D-NN (derived: inferred, still Proposed). screens draws one frame per row;
      an N/A row gets no frame and no PNG. -->
 
