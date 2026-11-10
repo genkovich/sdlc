@@ -115,11 +115,21 @@ of them is a permission prompt on camera and a rejection headless.
    d. a foundation that is only proposed (`## Assumptions` «Proposed, not written», a headless run)
       → offer to run step 4b with that proposal as direction A;
    e. write the sync result into §Token source «Last sync with the document» (date, updated N,
-      added N, left N, counted from the keeper's read-back); when the canon has a «Contrast» table
-      and a colour in it changed, recompute those pairs (one inline command) and update the table,
-      naming a pair that now fails AA in the handoff; bump `updated_at`, then run steps 6 and 7;
-      the handoff names every updated value (before → after), every added token and every
-      variable left alone.
+      added N, left N, counted from the keeper's read-back);
+      **check the contrast of every colour that changed**, with or without a «Contrast» table in
+      the canon: for each changed colour that has a text pair — its `<name>-foreground` (`like` ↔
+      `like-foreground`), or `foreground` when the changed colour is a background (`background`,
+      `card`, `popover`) — compute the ratio in **both themes**, the hex values read from the token
+      source. Compute it yourself from the WCAG 2 formula, no Bash: per channel `c = value/255`,
+      `lin = c/12.92` when `c ≤ 0.04045`, else `((c + 0.055)/1.055)^2.4`; `L = 0.2126·R + 0.7152·G +
+      0.0722·B` of the linear channels; ratio `(L_lighter + 0.05)/(L_darker + 0.05)` (white has
+      `L = 1`). Name in the handoff every pair below **4.5:1** (fails AA for body text) and every
+      pair below **3:1** (fails for large text, ≥ 24 px or ≥ 18.66 px bold, and for icons), with
+      both ratios (e.g. «`like-foreground` `#FFFFFF` on `like` `#0095F6`: 3.2:1, fails AA for body
+      text»). When the canon has a «Contrast» table, update its rows too. The code is not changed
+      here; the failing pair is a follow-up. Then bump `updated_at` and run steps 6 and 7; the
+      handoff names every updated value (before → after), every added token, every variable left
+      alone and the contrast result («contrast: N pairs checked, M below AA»).
 
 2. **Scan the code side.** Read `docs/architecture-map.md` §Frontend if it exists and is current.
    Otherwise dispatch the [`explorer`](../../agents/explorer.md) agent **in the foreground**
@@ -322,7 +332,8 @@ of them is a permission prompt on camera and a rejection headless.
    under `## Assumptions`) or the write was checked — a local file changed on disk (step 5e), a URL
    has the keeper's read-back in its `saved:` line; no «DS · Directions» frame is left in the
    document; on «Оновити», a changed value was written only per the owner rule (a repo path, or a
-   URL after the person's yes), and «Last sync with the document» matches the keeper's report;
+   URL after the person's yes), «Last sync with the document» matches the keeper's report, and
+   every changed colour with a text pair has its contrast in the handoff (both themes);
    (6) step 4b ran → `## Sources` lists every reference (read or unread) and `## Assumptions` every
    decision with its source tag (`answer` / `ref:N` / `derived`); interactive: the tokens file
    exists (`test -s`; `docs/design/tokens.json` parses with `python3 -m json.tool`), holds both

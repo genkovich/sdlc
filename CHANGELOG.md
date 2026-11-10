@@ -4,6 +4,33 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.3] — 2026-11-11
+
+### Fixed — after the lesson 5.5 rehearsal on 4.10.2 (pen.dev, «Оновити»)
+
+«Оновити» on a repo file, headless, updated only `like` (`$pink-500` → `$blue-500`, dark and
+light), wrote «Last sync with the document», rewrote the sheet's labels, saved through `save`, asked
+for nothing and took 3 min 21 s. One hole:
+
+- **Contrast was not rechecked**, because the canon had no «Contrast» table (the tokens existed, so
+  step 4b never ran), while `like-foreground` `#FFFFFF` on the new `like` `#0095F6` is about 3.2:1,
+  below AA for body text. Now «Оновити» checks every changed colour that has a text pair
+  (`<name>-foreground`, or `foreground` for a background colour) in both themes, with or without the
+  table, and names in the handoff every pair below 4.5:1 and below 3:1 (large text, icons), with
+  the ratios. The agent computes the ratio itself from the WCAG 2 formula written in the skill (no
+  Bash, no new permission prompt); the table is updated when it exists; the code is not changed
+  there. Self-check item 5 checks that the contrast result is in the handoff.
+- Not changed: the composed `curl …; ls …; grep …` the agent used to check the dev server in 🎬2
+  is not part of this plugin.
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing; the next «Оновити» names any pair that a changed colour
+  broke.
+- **Not run live:** this fix. `claude plugin validate` passes for the plugin and the marketplace.
+
 ## [4.10.2] — 2026-11-11
 
 ### Fixed — after the lesson 3 rerun on 4.10.1 (pen.dev) and the Figma boards
