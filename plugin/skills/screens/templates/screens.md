@@ -73,9 +73,9 @@ updated_at: "<YYYY-MM-DD>"
      (flow starting points + reactions, each step `frame:<node id>`), or «no prototype in the
      file»; nothing drawn. code mode: «—» (the mermaid in ux-flows.md is the flow). -->
 
-| Flow | Board node id | Nodes → states | Input fingerprint | PNG |
-|---|---|---|---|---|
-| <Flow · first message> | <node id> | <SCR-01 · default → SCR-02 · empty → SCR-02 · success; error SCR-02 · error; SCR-02 · ended (немає кадру); Figma: start «<flow>» on <frame>, reactions element → target, board-only edges> | <`ux-flows <hash12>` · `png <hash12> <hash12> …`> | <`screens/flow-01.png`> |
+| Flow | Board node id | Nodes → states | Input fingerprint | Drawn | PNG |
+|---|---|---|---|---|---|
+| <Flow · first message> | <node id> | <SCR-01 · default → SCR-02 · empty → SCR-02 · success; error SCR-02 · error; SCR-02 · ended (немає кадру); Figma: start «<flow>» on <frame>, reactions element → target, board-only edges> | <`ux-flows <hash12>` · `png <hash12> <hash12> …`> | <today's date from the session, no Bash> | <`screens/flow-01.png`> |
 
 ## Behaviour
 

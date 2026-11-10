@@ -53,6 +53,13 @@ Read each ```mermaid flowchart in `ux-flows.md` in order:
 «немає кадру»** (in the project's language) with the same two captions, never an empty or a
 made-up thumbnail.
 
+**States the mermaid has no node for.** A drawn state in `screens.md` whose source is a branch of
+this flow (a `W-NN` / `D-NN` / `N-NN` token that labels one of this flow's edges or its coverage
+rows, e.g. `SCR-01 · default-no-thread` from the D-01 branch inside a modal) **is a node of the
+board too**, placed where that branch is: after the node the branch leaves, joined by the branch's
+edge. **Every drawn state that belongs to the flow is on its board**, not only the mermaid's
+nodes.
+
 **Layout** (the rehearsal's generator works like this):
 
 - **columns** = the order of the steps, left to right; **rows** = the happy path in the middle
@@ -62,8 +69,9 @@ made-up thumbnail.
   the same column goes as an **elbow** around the node;
 - a label sits on its edge (about the middle, moved along it when two labels would meet), in a
   small frame filled with the background so the line does not run through the words;
-- **one bus for the same edge from many nodes**: several edges with the same target and the same
-  label from different nodes (a «назад (D-06)» from every state of the conversation) are drawn as
+- **one bus for the same edge from many nodes**, back or forward: several edges with the same
+  target and the same label from different nodes (a «назад (D-06)» from every state of the
+  conversation; «Макс надсилає (S-3)» from `empty`, `empty-no-thread` and «повторити») are drawn as
   one shared line that collects them, with one label («назад з кожного стану (D-06)») and one
   arrowhead at the target, so they never cross each other or a red edge;
 - thumbnails at about 0.4 of the state frame (156 × 338 for a 390 × 844 phone frame), the column
@@ -81,6 +89,9 @@ From the schema (`read_skill({ path: "pen-schema.md" })`; it has no line, arrow 
 
 - **The board** is a top-level frame with `layout: "none"`, nodes placed by `x` / `y`, the theme
   of the state frames (`theme`).
+- **Every `execute` carries a `description`** (3–8 words starting with a verb: «Draw flow board
+  first message», «Export flow board PNG»): pen.dev shows it in the history, so a person can
+  follow what each call did.
 - **A thumbnail is a PNG image fill, nothing else**: a rectangle with `fill: { type: "image",
   url, mode: "contain" }`, the `url` relative to the `.pen` (`docs/design/app.pen` →
   `../features/<slug>/screens/SCR-02-empty.png`). Not a `ref` to the state frame: a `ref` does not
@@ -116,6 +127,11 @@ From the schema (`read_skill({ path: "pen-schema.md" })`; it has no line, arrow 
   button, the row, the «Назад» in the top bar; a layer nested in an instance works).
 - **A flow starting point** per flow, named after the flow, on the flow's first state frame (the
   page's `flowStartingPoints`).
+- **A paint bound to a variable needs a visible fallback.** `setBoundVariableForPaint` keeps the
+  paint's own colour as the fallback, and Figma drew dashed strokes with it: the red and grey
+  dashes vanished (black on a black board) while solid lines looked right. Give the paint the
+  variable's resolved value first (`variable.resolveForConsumer(node).value`), then bind it; the
+  binding stays, the colour is visible. The same holds for every bound paint on the board.
 - **What Prototype cannot do stays on the board only:** a branch by condition (a send that fails,
   a conversation that was closed) has no tap that causes it. Do not imitate it with a delay or a
   hidden hotspot; never invent a trigger. A target with no frame (the dashed «немає кадру» card)
@@ -129,20 +145,27 @@ as today. The handoff lists every connection made and every edge that stayed boa
 
 One row per flow:
 
-| Flow | Board node id | Nodes → states | Input fingerprint | PNG |
-|---|---|---|---|---|
-| `Flow · <name>` | `<id>` | `SCR-01 · default` → `SCR-02 · empty` → `SCR-02 · success`; error `SCR-02 · error`; `SCR-02 · ended (немає кадру)` | `ux-flows <hash12>` · `png <hash12> …` | `screens/flow-01.png` |
+| Flow | Board node id | Nodes → states | Input fingerprint | Drawn | PNG |
+|---|---|---|---|---|---|
+| `Flow · <name>` | `<id>` | `SCR-01 · default` → `SCR-02 · empty` → `SCR-02 · success`; error `SCR-02 · error`; `SCR-02 · ended (немає кадру)` | `ux-flows <hash12>` · `png <hash12> …` | `<YYYY-MM-DD>` | `screens/flow-01.png` |
 
 **The input fingerprint** says what the board was drawn from: the git blob hash of `ux-flows.md`
-(the file that holds the flow's mermaid) and of every state PNG on the board, the first 12
+(the file that holds the flow's mermaid) and of the PNG of **every drawn state that belongs to
+the flow** (§2: the mermaid's nodes and its branch states), the first 12
 characters of each, taken with **one plain command per call**: `git hash-object <file> <file> …`
 lists several files in one call (no pipe, no `$(…)`). It is a git command, a class the skill runs
 anyway (`git status`, commits), so it brings no new permission prompt; it works on files not yet
 committed. On a rerun, `screens` takes the fingerprint again:
 
-- **the same** → the board is not touched; the handoff says «board up to date: Flow · <name>»;
+- **the same** → the board is not touched; the handoff says, word for word, «board up to date:
+  Flow · <name>»;
 - **different** (the flows changed, a state PNG was re-exported, a state was added or removed on
   this flow, a row has no fingerprint yet) → the board is redrawn whole (§3) and its row updated.
+
+**Dates are today's date as the session gives it** (Claude Code puts today's date into the
+session's environment), with no Bash call: never a date copied from an earlier file, an older
+§Flows row or the conversation's past. It goes into the «Drawn» date of a §Flows row and the
+«знімок <date>» on a Figma snapshot caption.
 
 Figma adds the prototype: the flow starting point and every reaction (element → target), and the
 edges that are board-only. Each board is exported to `docs/features/<slug>/screens/flow-NN.png`
@@ -164,7 +187,8 @@ prototype in the file», and the flows stay as `ux-flows.md` has them. pen.dev h
 ## 7. Self-check (the `screens` self-check item 8)
 
 Draw mode: every flow of `ux-flows.md` has a board whose node id is in §Flows, with its input
-fingerprint, drawn after the states passed their self-check (every state of the flow is on it); every screen node
+fingerprint, drawn after the states passed their self-check; **every drawn state that belongs to
+the flow is on it** (the mermaid's nodes and the states of its branches, §2); every screen node
 on it shows the PNG (Figma: the snapshot) of a drawn state or the dashed «немає кадру» card; no
 state frame or board became a library component or an inventory row; every board PNG passes
 `test -s` (one call per file); every board was checked by a screenshot; Figma: every reaction

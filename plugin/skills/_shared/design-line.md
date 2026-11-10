@@ -361,6 +361,8 @@ mode and write the degradation into `screens.md` §Source and the handoff («<to
 
 The Pencil tools: `get_app_state`, `execute`, `read_skill`, `get_style`, `save` (newer servers),
 `browser`, prefixed per session (e.g. `mcp__pencil__execute`). The design file is a local `.pen`.
+Every `execute` carries a `description` (3–8 words starting with a verb): pen.dev shows it in the
+history.
 
 1. **Never edit `.pen` JSON by hand.** The file is JSON on disk, but it is changed only through the
    pen.dev app, its MCP, or its CLI: no `Read`/`Edit`/`Write`, no `sed`, no `python`, no
@@ -453,6 +455,9 @@ Common to both:
   `space/4`; match names with `-` and `/` treated alike between a group and its step.
 - **`figma_get_variables` caches:** pass `refreshCache: true` (Console), or read the variables in
   a read-only `figma_execute`, so a long session never compares against a stale copy.
+- **A paint bound to a variable needs a visible fallback:** `setBoundVariableForPaint` keeps the
+  paint's own colour as the fallback, and dashed strokes were drawn with it (black on black). Set
+  the variable's resolved value first (`variable.resolveForConsumer(node).value`), then bind.
 - **Annotations are read as the node property `annotations`**, in a read-only `figma_execute`.
   Not `figma_get_annotations`: in a live run it created the file's four preset annotation
   categories (`isPreset: true`), a write that read mode must not do.

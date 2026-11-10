@@ -4,6 +4,46 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.2] — 2026-11-11
+
+### Fixed — after the lesson 3 rerun on 4.10.1 (pen.dev) and the Figma boards
+
+The 4.10.1 run redrew the boards once under the new names, removed the old ones, left no
+duplicates, drew elbow arrows and the shared «назад з кожного стану (D-06)» bus, took the
+fingerprint with `git hash-object` under the existing `Bash(git:*)` permission and asked for
+nothing new; the repeat said the fingerprints matched and wrote nothing. What was still off:
+
+- **A state outside the mermaid missed its board.** `SCR-01 · default-no-thread` (the D-01 branch
+  inside the modal) was left off because the agent took only the mermaid's nodes. A drawn state
+  whose source is a branch of the flow (its `W-NN` / `D-NN` / `N-NN` token on one of the flow's
+  edges or coverage rows) is now a node of the board where that branch is; every drawn state that
+  belongs to the flow is on its board, its PNG is part of the board's fingerprint, and
+  self-check item 8 checks it.
+- **Incoming buses are fine too.** The agent joined «Макс надсилає (S-3)» from `empty`,
+  `empty-no-thread` and «повторити» into one bus. §2 now says it: the same target and the same
+  label from several nodes is one bus, back or forward.
+- **The handoff line is exact:** «board up to date: Flow · <name>», word for word.
+- **Dates are today's date from the session** (Claude Code gives it in the environment), with no
+  Bash call (a `date` command would be a new permission prompt on camera), never a date copied
+  from an earlier file: the new «Drawn» column of §Flows and the «знімок <date>» of a Figma
+  snapshot caption.
+- **Every pen.dev `execute` has a `description`** (3–8 words starting with a verb), shown in the
+  app's history: `screens`, `design-keeper`, design-line §7.
+- **Figma: dashed strokes on a variable vanished.** `setBoundVariableForPaint` keeps the paint's
+  own colour as the fallback, and Figma drew the dashes with it (black on the black board). Set
+  the variable's resolved value first (`variable.resolveForConsumer(node).value`), then bind; the
+  binding stays (`flow-boards.md` §4, `screens`, `design-keeper`, design-line §8).
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing. The fingerprint now covers the PNG of every state that
+  belongs to the flow, so a board that missed a branch state gets a new fingerprint and is redrawn
+  on the next `/sdlc:screens <slug>`.
+- **Not run live:** these fixes. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.10.1] — 2026-11-10
 
 ### Fixed — after the lesson 3 rerun on 4.10.0 (pen.dev)

@@ -375,6 +375,8 @@ Short notes; the rules are design-line §7 (pen.dev) and §8 (Figma).
 whatever path you name, newer ones take the document's `uri` (`file://<absolute path>`) and refuse
 a document that is not open («wrong .pen file»); pass the `uri` wherever a tool asks for it.
 
+- every `execute` carries a `description` (3–8 words starting with a verb: «Seed colour variables
+  light and dark»), shown in pen.dev's history;
 - gate: `get_app_state` → the active document is the `.pen`; STOP action «open `<path>` in pen.dev»
   (macOS: `open <path>`);
 - guide, before the first `execute` (read-only queries included): `read_skill()` with no
@@ -412,6 +414,9 @@ a document that is not open («wrong .pen file»); pass the `uri` wherever a too
   `figma_execute` (plugin-API JavaScript; a component set = `figma.combineAsVariants`),
   `figma_setup_design_tokens` / `figma_batch_create_variables` for variables with `Light` / `Dark`
   modes; a theme card of the foundations sheet gets the colour collection's mode set on its frame.
+  A paint bound with `setBoundVariableForPaint` keeps its own colour as the fallback: give it the
+  variable's resolved value first (`variable.resolveForConsumer(node).value`), then bind, or a
+  dashed stroke is drawn in the fallback (black on black).
   Fonts: `figma.loadFontAsync` fails for a font the file
   cannot use. Look: `figma_capture_screenshot`. Guide: the server's instructions.
 - **Official Figma MCP:** no «open» state: the file key goes into every call. Gate = a read of the

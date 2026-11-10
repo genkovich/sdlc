@@ -230,21 +230,25 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
         1–7) and every state it added is drawn and exported, so no state misses its board; then
         step 5 checks item 8. One board per flow of `ux-flows.md`, per
         [`./references/flow-boards.md`](./references/flow-boards.md): a top-level frame (Figma: a
-        section) «Flow · <flow name>», the flow's heading without its provenance tokens; the mermaid nodes in order, a screen node = the thumbnail of
+        section) «Flow · <flow name>», the flow's heading without its provenance tokens; every
+        drawn state that belongs to the flow is a node, also a state from one of its branches
+        that the mermaid has no node for (`SCR-01 · default-no-thread` from D-01); the mermaid nodes in order, a screen node = the thumbnail of
         its real state (the exported PNG), no decision nodes (a decision's condition goes into
         the trigger label: «надсилає, збій мережі (D-02)»), an outside or end node = a grey pill;
         edges = arrows with the mermaid trigger labels: solid grey the happy path, dashed grey a
         branch, dashed red an error, and `error` / `ended` screens framed red; the happy path the
         middle row left to right, branches above and below, two edges between one pair offset, the
-        same edge from many nodes to one target (every «назад (D-06)») one shared bus with one
-        label; a
+        same edge from many nodes to one target, back or forward (every «назад (D-06)», «Макс
+        надсилає (S-3)» from three states), one shared bus with one label; a
         node whose state is `N/A` or missing = a dashed «немає кадру» card; everything on the
         document's variables. **A state frame or a board is never a library component** and never
         an inventory row, even if someone made it reusable.
         Each board → `screens/flow-NN.png` (one command per call, `test -s`), its node id and its
-        **input fingerprint** (`git hash-object` of `ux-flows.md` and of the board's state PNGs) into
+        **input fingerprint** (`git hash-object` of `ux-flows.md` and of the PNG of every state that
+        belongs to the flow) into
         §Flows. No new question, headless too. A rerun takes the fingerprint again: the same →
-        the board is left alone and the handoff says «board up to date»; different (the flows
+        the board is left alone and the handoff says, word for word, «board up to date: Flow ·
+        <name>»; different (the flows
         changed, a state was re-exported, added or removed) → the board is redrawn whole (the old
         one deleted only when its §Flows node id and exact name both match).
      g. **Persist.** Save through the tool per §6 gate 4: a `save` tool → call it; a tool that
@@ -263,6 +267,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
        (absolute directory) writes **one file per node, named by the node id**:
        `<dir>/<nodeId>.png`. For each state, three separate calls: `test -s <dir>/<nodeId>.png`,
        `mv <dir>/<nodeId>.png <dir>/SCR-NN-<state>.png`, `test -s <dir>/SCR-NN-<state>.png`.
+     - every `execute` of this skill carries a `description` (3–8 words starting with a verb),
+       shown in pen.dev's history;
      - f: the board per flow-boards.md §3: `layout: "none"`, thumbnails **only** as PNG image fills
        (`url` relative to the `.pen`, `mode: "contain"`; never a `ref` to a state frame, never
        `reusable: true` on one), arrows as `path` geometry with the arrowhead inside it, dashes as
@@ -292,6 +298,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
        prototype reactions between the state frames (On tap on the real element → Navigate to,
        Dissolve 150 ms, `setReactionsAsync`, read back) and a flow starting point named after the
        flow; a conditional branch stays board-only, a target without a frame gets no reaction;
+       a paint bound to a variable gets the resolved value as its fallback first
+       (`variable.resolveForConsumer(node).value`), or dashed strokes vanish;
        per flow-boards.md §4, only where the run may write.
      - g: Figma saves by itself; read the frames back.
 
@@ -317,8 +325,9 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    no-export gap; `N/A` rows have no PNG and are skipped;
    (7) `tool` ≠ `code`: read every state frame back through the tool: no hidden node in it
    (`enabled: false`, `visible: false`, zero opacity), no layer of another state.
-   (8) flow boards per flow-boards.md §7: every flow of `ux-flows.md` has its board (node id and
-   input fingerprint in §Flows, every state of the flow on it), every screen node shows a drawn state's PNG or the «немає кадру» card, every board
+   (8) flow boards per flow-boards.md §7: every flow of `ux-flows.md` has its board (node id,
+   input fingerprint and today's date in §Flows; every drawn state that belongs to the flow on
+   it, the states of its branches included), every screen node shows a drawn state's PNG or the «немає кадру» card, every board
    PNG passes `test -s`, every board was looked at by a screenshot; read mode: §Flows is read from
    the prototype or says «no prototype in the file».
    Read mode: items 5–7 are replaced by read-frames.md §8 (every state drawn / `N/A` / missing,
