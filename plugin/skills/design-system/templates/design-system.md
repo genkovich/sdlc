@@ -52,6 +52,7 @@ updated_at: "<YYYY-MM-DD>"
 - **Typography:** <source> — `<file>`
 - **Themes:** <light only | light + dark — where the dark values live>
 - **Contrast (AA):** <«—» and no table when step 4b did not run | the table below, every pair, both themes>
+- **Last sync with the document:** <«—» | <YYYY-MM-DD>: updated N, added N, left N (in the document, not in the code: <names>) — from the design-keeper report of «Оновити»>
 
 | Pair (text on background) | Light | Dark |
 |---|---|---|

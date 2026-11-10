@@ -4,6 +4,45 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.3] — 2026-11-10
+
+### Changed — «Оновити» brings changed token values into the design document
+
+For the lesson «токени змінились у коді». Before, `design-keeper` never overwrote a variable it did
+not create and only reported a different value as a conflict, so after a token changed in the
+CSS, `/sdlc:design-system` → «Оновити» left the document on the old value.
+
+- **The keeper sorts every variable against the canon's token source**, each theme separately:
+  new in the code (added), the same (nothing to do), changed in the code, and in the document but
+  not in the code.
+- **Changed values are written per theme** (the light value into the light mode, the dark one into
+  the dark mode, never one into both) when the variable mirrors a token: the same name under the
+  seeding mapping, in the file the canon names as its token source. Who decides: a repo
+  `design_file` → no question, but the «before → after» list is in the report and the handoff; a
+  URL file with write permission → one `AskUserQuestion` that shows the list, then a re-dispatch
+  with the new `update_values: true`; no permission or headless on a URL → nothing written, the
+  list under `## Assumptions`.
+- **Variables the code does not have** (a designer's own, or a token deleted from the code) are
+  never touched or deleted, only listed as «in the document, not in the code»; one plain
+  `git log -S '<name>' -- <token file>` tells a removed token apart.
+- **The foundations sheet follows**: bound values update by themselves; numbers set from a value
+  (the spacing bars in pen.dev) and labels that print a value are rewritten in the «Foundations»
+  frame the keeper drew; a new token gets its swatch, row, bar or square.
+- **Report and canon:** updated / added / left, with names, counted from the document; a new
+  §Token source line «Last sync with the document»; a changed colour in the «Contrast» table is
+  recomputed and a pair that now fails AA is named in the handoff. Self-check item 5 checks the
+  owner rule for value writes. `_shared/design-line.md` §6 says the same in short.
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: after a token changes in the code, run `/sdlc:design-system` →
+  «Оновити».
+- **Not run live:** the value sync, its question for a URL file, the sheet's label and number
+  rewrite, the contrast recompute. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.8.2] — 2026-11-10
 
 ### Fixed — after the lesson 1 rerun on 4.8.0 (pen.dev)

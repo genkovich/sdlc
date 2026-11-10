@@ -17,7 +17,8 @@ description: >
   looks once with a screenshot. Never touches the design file with file tools. Returns a reconcile
   report: the tool and the capabilities used, the library frame, every reusable component with its
   id, what was seeded / proposed / already matched, whether it saved, and what only the user can do.
-  Two more modes: directions (a temporary «DS · Directions» comparison sheet of 2–3 candidate
+  On «Оновити» (update_values) it brings token values that changed in the code over, per theme,
+  and lists what it updated, added and left alone. Two more modes: directions (a temporary «DS · Directions» comparison sheet of 2–3 candidate
   foundations, only in an empty document, removed on the next reconcile when its node id and exact
   name both match) and
   inventory (read-only: recognize and report, write nothing).
@@ -44,7 +45,11 @@ The dispatching prompt gives you:
   gives the 2–3 directions: name, hex palette, font pair, radii, density); `inventory` — steps 1–3
   and the report only, nothing is written (the caller has only a proposed foundation);
 - in `reconcile`: the node id of the «DS · Directions» frame an earlier `directions` run reported,
-  when there was one.
+  when there was one;
+- `update_values`: `true` or `false` (absent = `false`) — whether variables that mirror the
+  canon's token source may take the code's **new values** («Оновити» after the tokens changed in
+  code). Without it a changed value is only reported, never written (step 4 «Values that changed
+  in the code»). It needs `allow_writes: true` as well.
 
 Your one job: make the tool's document reflect the canon (foundations and one component library)
 without ever touching a document that is not the canon's. The rules are in
@@ -146,12 +151,38 @@ themed light + dark when the source defines both:
   24, 32 px as `space-*`) and say in the report that they came from the framework defaults.
 
 A group the source does not have at all is listed in the report as «not in the token source»,
-never invented. Read what exists → diff → **add only what is missing**. Never delete, rename or
-overwrite a variable you did not create. If a same-named variable already holds a different value,
-report it as a conflict instead of overwriting it (a CSS→document sync has erased a dark-theme
-colour this way before).
+never invented. Read what exists → diff the document's variables against the token source, every
+theme separately, and sort each variable into one of four lists:
 
-**Who may write.** `allow_writes: true` → write only the missing ones, in any case (a, b or c).
+- **new in the code** — the source has the token, the document has no variable for it → add it;
+- **same** — the same name (under the mapping you seed with: CSS `--primary` → `primary`,
+  `--text-*` → `text-size-*`) and the same value in every theme → nothing to do;
+- **changed in the code** — the same name, another value in at least one theme → see «Values
+  that changed in the code» below;
+- **in the document, not in the code** — a variable with no token of that name in the source:
+  a designer's own variable, or a token deleted from the code (one plain command,
+  `git log -S '<token name>' --oneline -- <token file>`, tells the second apart). **Never touch
+  or delete it**; list it by name.
+
+Never delete or rename a variable.
+
+**Values that changed in the code.** A variable mirrors a token when it has the token's name and
+the canon names that file as its token source. With `update_values: true` (and `allow_writes:
+true`), set it to the code's value **per theme**: the light value into the light mode, the dark
+value into the dark mode, never one value into both (a CSS→document sync has erased a dark-theme
+colour this way before). Without `update_values` write none of them and list each as `<name>:
+<before> → <after> (<theme>)`, so the caller can show the list and ask. A same-named variable in a
+document whose token source the canon does not name stays a conflict, reported, not written.
+
+**The sheet follows the values.** Everything on the foundations sheet bound to a variable updates
+by itself. What was set as a number from a variable's value (a spacing bar's width where the tool
+cannot bind a size) and every label that prints a value (`space/8 · 8`, `Inter Regular 16/24`,
+`radius/md · 14`) is rewritten to the new value, in the «Foundations» frame this agent drew and
+nowhere else; the same for a newly added token (a new swatch, row, bar or square in its section).
+This edits the existing sheet; it is not drawing in a document with a library.
+
+**Who may write.** `allow_writes: true` → write the missing ones, in any case (a, b or c), and the
+changed values only with `update_values: true`.
 `allow_writes: false`, or a tool with no write tool → write nothing and list every missing variable
 as a proposal (`<group> · <name> = <value> (<theme>)`), plus, in case c, «would draw: the
 foundations sheet + N components»; the report says `writes: none — proposals: N`, and the caller
@@ -287,6 +318,10 @@ where 49 were drawn.
 - directions sheet: drawn (node id) / not drawn (why) / removed (node id) / none found
 - writes: N (variables + nodes created) / **none — the document already matched** (the caller then
   expects no change) / **none — proposals: N** (`allow_writes: false`, or no write tool)
+- values: **updated** N (`<name>: <before> → <after> (<theme>)` each) / **added** N (names) /
+  **left** N — in the document, not in the code (names; «removed from the code» where git shows
+  it) / **changed, not written** N (the before → after list, when `update_values` was not given) /
+  sheet labels and numbers rewritten N
 - variables: seeded N / already matching N / conflicting N (names) / proposed N; per group:
   colours, radii, typography, spacing (or «not in the token source», or «framework defaults»)
 - proposals: every missing variable, `<group> · <name> = <value> (<theme>)`, and in an empty

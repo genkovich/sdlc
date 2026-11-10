@@ -76,20 +76,44 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    inventory size and ask (one `AskUserQuestion`): «Лишити як є» (STOP, nothing to do) /
    «Оновити» / «Перебудувати» (the full protocol from step 2). Never overwrite silently.
    **«Оновити»** keeps `tool`, posture, token source and every convention line a person edited;
-   it only reconciles the inventory, in place:
+   it reconciles the inventory and brings the document's token values in line with the code, in
+   place:
    a. rescan the code side (step 2);
    b. `tool` ≠ `code` → run steps 5b–5e: design-keeper re-reads the document's reusable components
       and returns the library frame (persist only when it reports writes). `allow_writes` comes
       from the canon's «Foundations write permission» line as recorded (no such line, a canon from
-      4.7 → the owner rule of step 5a decides); the question of step 5d
-      is asked again only when the person says they want to change it (in the invocation or in
-      the «Other» of this step's question);
+      4.7 → the owner rule of step 5a decides); the question of step 5d is asked again only when
+      the person says they want to change it (in the invocation or in the «Other» of this step's
+      question);
+      **token values that changed in the code** (a lesson changes `--primary` in the CSS, the
+      document still has the old one): the keeper sorts the document's variables against the
+      canon's token source into updated / added / left (design-keeper step 4). Who decides:
+      - `design_file` is a repo path → dispatch with `update_values: true`, no question; the
+        «before → after» list still goes into the report and the handoff;
+      - a URL with write permission → dispatch with `update_values: false` first; the report's
+        «changed, not written» list → one `AskUserQuestion` per
+        [`../_shared/ask-style.md`](../_shared/ask-style.md) that **shows** the list
+        («`primary`: `#2563eb` → `#7c3aed` (light)» …): «Оновити ці значення у файлі» →
+        re-dispatch with `update_values: true` / «Лишити як є, записати список у канон»;
+      - a URL without write permission, or headless on a URL → nothing written; the list goes
+        under `## Assumptions` as «Proposed, not written: …».
+      Variables the source does not have (a designer's own, or tokens deleted from the code) are
+      never touched or deleted, only listed. New tokens from the code are added as before. The
+      foundations sheet follows by itself; the keeper rewrites the numbers and value labels on it
+      (design-line §7 rule 9 for pen.dev: the committed `.pen` is the copy before such a sync;
+      `git status --porcelain -- <design_file>` shows uncommitted changes → say so in the question
+      or the report);
    c. reconcile the inventory rows in place per step 5f: add new components, fill missing anchors,
       re-mark `design-only` / `code-only`; a row whose anchor no longer resolves is listed under
       `## Assumptions`, not deleted;
    d. a foundation that is only proposed (`## Assumptions` «Proposed, not written», a headless run)
       → offer to run step 4b with that proposal as direction A;
-   e. bump `updated_at`, then run steps 6 and 7.
+   e. write the sync result into §Token source «Last sync with the document» (date, updated N,
+      added N, left N, counted from the keeper's read-back); when the canon has a «Contrast» table
+      and a colour in it changed, recompute those pairs (one inline command) and update the table,
+      naming a pair that now fails AA in the handoff; bump `updated_at`, then run steps 6 and 7;
+      the handoff names every updated value (before → after), every added token and every
+      variable left alone.
 
 2. **Scan the code side.** Read `docs/architecture-map.md` §Frontend if it exists and is current.
    Otherwise dispatch the [`explorer`](../../agents/explorer.md) agent — `subagent_type:
@@ -261,7 +285,8 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    `test -s`; and either the report says `writes: none` (everything matched, or the proposals are
    under `## Assumptions`) or the write was checked — a local file changed on disk (step 5e), a URL
    has the keeper's read-back in its `saved:` line; no «DS · Directions» frame is left in the
-   document;
+   document; on «Оновити», a changed value was written only per the owner rule (a repo path, or a
+   URL after the person's yes), and «Last sync with the document» matches the keeper's report;
    (6) step 4b ran → `## Sources` lists every reference (read or unread) and `## Assumptions` every
    decision with its source tag (`answer` / `ref:N` / `derived`); interactive: the tokens file
    exists (`test -s`; `docs/design/tokens.json` parses with `python3 -m json.tool`), holds both

@@ -317,6 +317,13 @@ mechanism on the card (Figma: the collection mode; pen.dev: `theme` on the card 
 with name and value. Every value is bound to a variable or style, never a literal. The components
 go below it. The detail lives in `design-keeper` step 5.
 
+**Token values follow the code on «Оновити».** When a token changes in the code, `design-system`
+«Оновити» has the keeper set the mirroring variable to the new value, per theme: without a
+question in a repo file, after one question that shows «before → after» in a URL file with write
+permission, never without permission. New tokens are added; a variable the code does not have
+(a designer's own, or a token deleted from the code) is never touched or deleted, only listed.
+The sheet follows by itself; its numbers and value labels are rewritten.
+
 **Local path vs URL.** Every disk step (`test -s <file>`, `stat` before/after,
 `git status --porcelain -- <file>`, a separate commit for the design file) applies only when the
 design file is a local path. A URL has nothing in the repo to check or commit.
