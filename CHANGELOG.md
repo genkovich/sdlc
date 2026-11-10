@@ -4,6 +4,42 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.1] — 2026-11-10
+
+### Fixed — after the lesson 3 rerun on 4.10.0 (pen.dev)
+
+The run drew 13 states and 2 flow boards with PNG thumbnails and arrows, asked nothing, saved
+through `save`, made no state or board reusable; the repeat asked nothing and left no duplicates.
+What the text still got wrong:
+
+- **Rerun and redraw.** The text said «a rerun redraws each board whole», the agent sensibly did
+  not, because nothing had changed. Now §Flows records each board's **input fingerprint**: the
+  git blob hash (12 characters) of `ux-flows.md` and of every state PNG on the board, taken with one
+  plain `git hash-object <file> …` per call (a git command the skill runs anyway, so no new
+  permission prompt on camera). A rerun redraws a board only when its fingerprint changed (the
+  flows changed, a state was re-exported, added or removed), else the handoff says «board up to
+  date: Flow · <name>».
+- **A state added during the self-check missed its board** (`SCR-01 · default-no-thread`). The
+  boards are now the last drawing step: step 5 checks the states first (items 1–7), a state it adds
+  is drawn and exported, then step 4f draws the boards, then item 8 checks them; the fingerprint
+  catches a state added later.
+- **Board names without provenance tokens:** «Flow · написати Анні просто з вікна метчу», not
+  «… (S-1…S-3)».
+- **Crossing back edges.** Four separate «назад (D-06)» edges from every conversation state crossed
+  each other and the red D-03. The same edge (same target, same label) from several nodes is now
+  one shared bus with one label («назад з кожного стану (D-06)») and one arrowhead.
+- The boards stay to the right of the state grid. `screens.md` §Flows and the template gain the
+  «Input fingerprint» column; self-check item 8 checks it.
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing. A board drawn by 4.10.0 has no fingerprint yet, so the next
+  `/sdlc:screens <slug>` redraws it once and records one.
+- **Not run live:** these fixes. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.10.0] — 2026-11-10
 
 ### Added — flow boards: the flows drawn as a sequence on the canvas

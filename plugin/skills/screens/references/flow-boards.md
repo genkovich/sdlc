@@ -1,15 +1,17 @@
 # Flow boards — the flows as a sequence on the canvas
 
-> **Reference-only.** `screens` reads this in draw mode, step 4f, after the state grid is drawn
-> and every PNG is exported: each flow of `ux-flows.md` gets one board «Flow · <flow name>» that
+> **Reference-only.** `screens` reads this in draw mode, step 4f, **the last drawing step**: after
+> the state grid is drawn, every PNG is exported and the states have passed the self-check (a state
+> the self-check adds is drawn and exported first, so it is on its board): each flow of `ux-flows.md` gets one board «Flow · <flow name>» that
 > shows the flow as a sequence of the real states. The mermaid flow in `ux-flows.md` stays the
 > source; the board is its render. Read mode never draws a board (§6).
 
 ## 1. What a board is
 
-- One **top-level frame** (Figma: a **section**) named exactly `Flow · <flow name>` (the flow's
-  heading in `ux-flows.md`), placed next to the state grid; in page mode on the «Screens ·
-  <slug>» page.
+- One **top-level frame** (Figma: a **section**) named exactly `Flow · <flow name>`: the flow's
+  heading in `ux-flows.md` **without its provenance tokens** («Flow: написати Анні просто з
+  вікна метчу (S-1…S-3)» → `Flow · написати Анні просто з вікна метчу`). It is placed next to the
+  state grid (to its right); in page mode on the «Screens · <slug>» page.
 - A title (`Flow · <flow name>`) and one legend line: solid grey = the happy path, dashed grey = a
   branch, dashed red = an error.
 - **No new question** in draw mode, headless too: a board is drawn for every flow, as part of the
@@ -60,6 +62,10 @@ made-up thumbnail.
   the same column goes as an **elbow** around the node;
 - a label sits on its edge (about the middle, moved along it when two labels would meet), in a
   small frame filled with the background so the line does not run through the words;
+- **one bus for the same edge from many nodes**: several edges with the same target and the same
+  label from different nodes (a «назад (D-06)» from every state of the conversation) are drawn as
+  one shared line that collects them, with one label («назад з кожного стану (D-06)») and one
+  arrowhead at the target, so they never cross each other or a red edge;
 - thumbnails at about 0.4 of the state frame (156 × 338 for a 390 × 844 phone frame), the column
   gap wide enough for the longest label.
 
@@ -89,9 +95,10 @@ From the schema (`read_skill({ path: "pen-schema.md" })`; it has no line, arrow 
 - **Look by screenshot, not by `ctx.problems`**: on a `layout: "none"` board it reports false
   «partially / fully clipped» problems. `TakeScreenshot` the board, check that every node, arrow
   and label is visible and nothing overlaps; fix once and look again.
-- **Edges are not bound to nodes.** A rerun **redraws the board whole**: delete the old board
-  (the node id from `screens.md` §Flows **and** the exact name `Flow · <flow name>` both match;
-  nothing else, no name pattern) and draw it again.
+- **Edges are not bound to nodes**, so a board is never patched: when it has to change, it is
+  **redrawn whole** — delete the old board (the node id from `screens.md` §Flows **and** the exact
+  name `Flow · <flow name>` both match; nothing else, no name pattern) and draw it again. Whether
+  it has to change is decided by its input fingerprint (§5).
 
 ## 4. Figma
 
@@ -122,9 +129,20 @@ as today. The handoff lists every connection made and every edge that stayed boa
 
 One row per flow:
 
-| Flow | Board node id | Nodes → states | PNG |
-|---|---|---|---|
-| `Flow · <name>` | `<id>` | `SCR-01 · default` → `SCR-02 · empty` → `SCR-02 · success`; error `SCR-02 · error`; `SCR-02 · ended (немає кадру)` | `screens/flow-01.png` |
+| Flow | Board node id | Nodes → states | Input fingerprint | PNG |
+|---|---|---|---|---|
+| `Flow · <name>` | `<id>` | `SCR-01 · default` → `SCR-02 · empty` → `SCR-02 · success`; error `SCR-02 · error`; `SCR-02 · ended (немає кадру)` | `ux-flows <hash12>` · `png <hash12> …` | `screens/flow-01.png` |
+
+**The input fingerprint** says what the board was drawn from: the git blob hash of `ux-flows.md`
+(the file that holds the flow's mermaid) and of every state PNG on the board, the first 12
+characters of each, taken with **one plain command per call**: `git hash-object <file> <file> …`
+lists several files in one call (no pipe, no `$(…)`). It is a git command, a class the skill runs
+anyway (`git status`, commits), so it brings no new permission prompt; it works on files not yet
+committed. On a rerun, `screens` takes the fingerprint again:
+
+- **the same** → the board is not touched; the handoff says «board up to date: Flow · <name>»;
+- **different** (the flows changed, a state PNG was re-exported, a state was added or removed on
+  this flow, a row has no fingerprint yet) → the board is redrawn whole (§3) and its row updated.
 
 Figma adds the prototype: the flow starting point and every reaction (element → target), and the
 edges that are board-only. Each board is exported to `docs/features/<slug>/screens/flow-NN.png`
@@ -145,7 +163,8 @@ prototype in the file», and the flows stay as `ux-flows.md` has them. pen.dev h
 
 ## 7. Self-check (the `screens` self-check item 8)
 
-Draw mode: every flow of `ux-flows.md` has a board whose node id is in §Flows; every screen node
+Draw mode: every flow of `ux-flows.md` has a board whose node id is in §Flows, with its input
+fingerprint, drawn after the states passed their self-check (every state of the flow is on it); every screen node
 on it shows the PNG (Figma: the snapshot) of a drawn state or the dashed «немає кадру» card; no
 state frame or board became a library component or an inventory row; every board PNG passes
 `test -s` (one call per file); every board was checked by a screenshot; Figma: every reaction

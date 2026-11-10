@@ -68,13 +68,14 @@ updated_at: "<YYYY-MM-DD>"
 <!-- instruction: one row per flow of ux-flows.md. Draw mode: the board «Flow · <flow name>» the
      skill drew (references/flow-boards.md) — a diagram of the sequence, not prototype links in
      pen.dev; its node id, every mermaid node → the state it shows («немає кадру» for an N/A or
-     missing state), and the board's PNG. Read mode: the flows read from the designer's prototype
+     missing state), the board's input fingerprint (`git hash-object`, 12 chars, of ux-flows.md and of each
+     state PNG on it: a rerun redraws the board only when it changed), and the board's PNG. Read mode: the flows read from the designer's prototype
      (flow starting points + reactions, each step `frame:<node id>`), or «no prototype in the
      file»; nothing drawn. code mode: «—» (the mermaid in ux-flows.md is the flow). -->
 
-| Flow | Board node id | Nodes → states | PNG |
-|---|---|---|---|
-| <Flow · first message> | <node id> | <SCR-01 · default → SCR-02 · empty → SCR-02 · success; error SCR-02 · error; SCR-02 · ended (немає кадру); Figma: start «<flow>» on <frame>, reactions element → target, board-only edges> | <`screens/flow-01.png`> |
+| Flow | Board node id | Nodes → states | Input fingerprint | PNG |
+|---|---|---|---|---|
+| <Flow · first message> | <node id> | <SCR-01 · default → SCR-02 · empty → SCR-02 · success; error SCR-02 · error; SCR-02 · ended (немає кадру); Figma: start «<flow>» on <frame>, reactions element → target, board-only edges> | <`ux-flows <hash12>` · `png <hash12> <hash12> …`> | <`screens/flow-01.png`> |
 
 ## Behaviour
 
