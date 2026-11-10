@@ -17,10 +17,17 @@ description: >
   document checked before every write, the design file never edited by hand, every PNG exported
   and checked with test -s (exists and is not empty) or named as a gap when the tool cannot export,
   the document saved (save tool, autosave or Cmd+S) before commit; pen.dev: save and close before
-  git checkout. Triggers on "screens for {slug}", "screen states for {slug}", "draw the screens",
+  git checkout. Read mode, when the designer already drew the screens: it reads their frames (a
+  link with a node, or «the screens are in the document»), writes nothing into the design file,
+  maps every frame to a screen and a state, marks every class drawn / N/A / missing (the missing
+  ones become an «ask the designer» list, or are drawn on a «Screens · <slug>» page after a yes),
+  maps every instance to the canon's inventory (and flags detached or hand-built blocks), and
+  records the behaviour the tool really returns (annotations, prototype reactions, Code Connect
+  instructions). Triggers on "screens for {slug}", "screen states for {slug}", "draw the screens",
   "mockups for {slug}", "/sdlc:screens {slug}", "екрани для {slug}", "стани екранів {slug}",
-  "намалюй екрани". The manifest is the contract for code, never the raw design file: verify-ui
-  reads it; point break-tasks / implement-tasks / review-feature at it by name.
+  "намалюй екрани", "розбери екрани дизайнера", "screens from the designer's frames",
+  "/sdlc:screens {slug} --from <url>". The manifest is the contract for code, never the raw design
+  file: verify-ui reads it; point break-tasks / implement-tasks / review-feature at it by name.
 triggers:
   - /sdlc:screens
   - "screens for"
@@ -29,6 +36,9 @@ triggers:
   - "екрани для"
   - "стани екранів"
   - "намалюй екрани"
+  - "розбери екрани дизайнера"
+  - "screens from the designer's frames"
+  - "екрани вже в документі"
 stage: "util"
 ---
 
@@ -48,6 +58,11 @@ design file (`verify-ui` reads the manifest; the backbone skills are pointed at 
 - **Reuse first.** Components come from `docs/design/design-system.md` §Component inventory by
   name; `NEW: <name>` only with the one-line reason no existing component fits.
 
+**Two ways in, one manifest.** **Draw mode** (default): the agent draws every state. **Read
+mode**: the designer already drew the screens; the agent reads their frames and writes nothing
+into the design file, per [`./references/read-frames.md`](./references/read-frames.md). Both
+write the same `screens.md`, so nothing downstream changes.
+
 **Degrade, don't refuse.** No PRD, no SAD (module 5): states come from the flows, the design spec
 and the story. With `sad.md`, a declared `target_surfaces` without any UI surface means this stage
 does not apply — say so and stop.
@@ -65,6 +80,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
 ## Inputs
 
 - `<slug>` — feature slug.
+- (Read mode) `--from <url>` — a link to the designer's page, section or frame (Figma: with
+  `node-id`), or the words «екрани вже в документі» / «розбери екрани дизайнера».
 - (Expected) `docs/features/<slug>/ux-flows.md` — the `SCR-NN` inventory + the branches landing on
   each screen. **Absent → soft**: offer `/sdlc:ux-flows <slug>` first, or derive the inventory from
   `design-spec.md` / the story with a **noted gap** in §Source — never a silent invention.
@@ -79,7 +96,12 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
 
 ## Protocol
 
-1. **Read + resolve the mode.** Read every input above that exists. `sad.md` present and its
+1. **Read + resolve the mode.** **Draw or read first.** Read mode only when asked for:
+   `--from <url>`, «розбери екрани дизайнера», «screens from the designer's frames» or «екрани
+   вже в документі» → **read mode**: skip the permission part below (read mode writes nothing into
+   the design file), run steps 2–3, then step 4's read-mode branch. **Otherwise draw mode, with no
+   question**, exactly as before; the one exception is step 4a, when the design file already holds
+   frames of this feature that this skill did not draw. Read every input above that exists. `sad.md` present and its
    `target_surfaces` contains no `web-frontend` / `mobile-app` / `desktop-app` → STOP: no UI
    surface. Resolve the tool from the canon and find its MCP in this session per
    [`../_shared/design-line.md`](../_shared/design-line.md) §6 (deferred tools included; start from
@@ -124,10 +146,21 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
 3. **Write the manifest progressively.** At the first screen, bootstrap
    [`./templates/screens.md`](./templates/screens.md) → `docs/features/<slug>/screens.md` (Read the
    template, Write the file; never `cp` from the plugin's folder)
-   (frontmatter `tool` from the canon, `input:` per the ladder, §Source). Write each `### SCR-NN`
+   (frontmatter `tool` from the canon, `mode: draw | read`, `input:` per the ladder, §Source). Write each `### SCR-NN`
    section as soon as that screen is confirmed and drawn.
 
-4. **Draw per the tool.**
+4. **Draw per the tool** — or read, in read mode.
+   - **Read mode: read, don't draw** — per
+     [`./references/read-frames.md`](./references/read-frames.md): the frames under the link →
+     screen · state (ambiguous ones in one batch of questions; headless → `## Assumptions`);
+     coverage per screen and class: drawn (node id) / `N/A` / **missing** → §Ask the designer, or,
+     after the person's yes, drawn by the draw-mode gates below on «Screens · <slug>» only; every instance → its main
+     component → the inventory row (node id / key, else by name, marked), detached and hand-built
+     blocks «not from the library», `design-only` components → §New components «create in code
+     once and add to the canon»; §Behaviour from what the tool really returns (annotations,
+     prototype reactions, Code Connect instructions; nothing → say so and ask for a note); a PNG per
+     drawn state (step 4e's export and `test -s`) or the named gap. §Source: «Mode: read — frames
+     drawn by the designer, read only».
    - **`code`** — one ASCII wireframe per state that needs a distinct layout, inline under the
      screen's table. No PNGs.
    - **A design tool** (`tool` ≠ `code`) — the gates, in this order, per
@@ -136,6 +169,13 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
         local file, file keys for a URL). Mismatch → STOP and ask the user to open it. Repeat the
         check before each batch of writes if the user touched the app in between. Before the first
         write, read the tool's own guide once (§6 gate 3); a local file: `stat` it now.
+        **Frames of this feature already there?** Among the top-level frames, any whose name
+        points at this feature (the slug, a screen name from `ux-flows.md`, `SCR-NN`) and whose
+        node id is not in an existing `screens.md` of this slug (frames an earlier run of this
+        skill drew are not counted) → one `AskUserQuestion`: «Розібрати ці фрейми» (switch to read
+        mode) / «Малювати свої екрани» (draw mode, next to them on their own frames). No such
+        frames → no question, draw as always. Headless → draw mode, and the frames found are
+        listed under `## Assumptions`.
      b. **No hand edits.** Every change goes through the tool's write tools; never read or write
         the design file with file tools, `sed` or scripts.
      c. **Frames.** One top-level frame per state (none for an `N/A` row), named
@@ -236,6 +276,9 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    no-export gap; `N/A` rows have no PNG and are skipped;
    (7) `tool` ≠ `code`: read every state frame back through the tool: no hidden node in it
    (`enabled: false`, `visible: false`, zero opacity), no layer of another state.
+   Read mode: items 5–7 are replaced by read-frames.md §8 (every state drawn / `N/A` / missing,
+   PNG or the named gap, every instance mapped or marked, §Behaviour per screen, nothing written
+   into the design file).
    Fix and re-check at most 2 cycles; surface anything unresolved — never silently.
 
 6. **Propose commits + handoff.** Propose one commit for the manifest + PNGs
@@ -245,7 +288,9 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    shows it changed — an unsaved design file is named in the handoff, not committed. Nobody reviews
    a design file's diff: the PNGs are what goes into the PR. Unresolved self-check item → no
    commits, say why. Then emit the **stage-handoff block** per
-   [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (tool or the degradation, N
+   [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did* (draw or read mode; in read mode
+   N frames read, N states drawn by the designer / N/A / missing, the §Ask the designer list, N
+   «not from the library» blocks, N behaviour findings; tool or the degradation, N
    screens × N states, N `NEW:` components, every «Changed:» component with the advice to run
    `/sdlc:design-system` («Оновити»), in page mode the page «Screens · <slug>» and the list of
    components in «Drafts · <slug>» for the designer, the permission answer when it was asked, «PNG: n/n exported, test -s passed» or the named no-export gap, «self-check:
@@ -278,6 +323,12 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
   mode; the answer sits in the canon's «Screens write permission» line.
 - The manifest is the only thing downstream needs.
 
+- Read mode: nothing was written into the design file (except, after the person's yes, the
+  missing states on «Screens · <slug>»); every frame is mapped to a screen · state or listed as
+  «not a screen of <slug>»; every class of every screen is drawn / `N/A` / missing, the missing ones
+  in §Ask the designer; every instance maps to an inventory row or is marked; §Behaviour has a line
+  per screen.
+
 ## Anti-patterns
 
 - **Happy-path-only screens.** A screen with just `default` hides the states users actually hit;
@@ -305,6 +356,10 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
   «Drafts · <slug>» on the allowed «Screens · <slug>» page.
 - **Writing into a designer's file without asking.** No write permission → one question about a
   separate «Screens · <slug>» page, else `code` mode; headless never writes there.
+- **Redrawing what the designer drew.** When the frames exist, read them (read mode); a second
+  set of frames next to the designer's is a fork nobody maintains.
+- **Inventing behaviour.** Pop-ups and animations come from annotations, prototype reactions or
+  Code Connect instructions the tool returned; nothing found → say so and ask the designer.
 - **Shell chains and temp scripts.** `for … do`, `&&` and a script in `/tmp` are rejected headless
   and need a permission prompt each in an interactive run; one plain command per call.
 
@@ -312,8 +367,40 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
 
 - [`./templates/screens.md`](./templates/screens.md) — the manifest scaffold; inline comments are
   the generation contract.
+- [`./references/read-frames.md`](./references/read-frames.md) — read mode: the designer's frames
+  → screens, states, coverage, components, behaviour, PNG, self-check.
 - [`../_shared/design-line.md`](../_shared/design-line.md) — provenance tokens, tool modes, the gates
   for every tool (§6), pen.dev (§7), Figma (§8), any other tool (§9), file layout.
 - [`../_shared/surfaces.md`](../_shared/surfaces.md) — the `target_surfaces` gate when `sad.md` exists.
 - [`../verify-ui/SKILL.md`](../verify-ui/SKILL.md) — reads this manifest (states + PNG paths) after
   the screens are built.
+
+## Example invocation
+
+Draw mode:
+
+```text
+/sdlc:screens chat
+```
+
+Read mode, the designer drew the chat screens on a Figma page:
+
+```text
+/sdlc:screens chat --from https://www.figma.com/design/<fileKey>/Threads-Premium?node-id=<page-or-frame-id>
+```
+
+Expected (read mode):
+
+- nothing changes in the Figma file;
+- `docs/features/chat/screens.md` with `mode: read` and §Source «Mode: read — frames drawn by the
+  designer, read only», every frame listed as `SCR-NN · <state>` (or «not a screen of chat»);
+- per screen a row for each of the six classes and each named state: the designer's node id and
+  `screens/SCR-NN-<state>.png`, or `N/A: <reason>`, or «missing — ask the designer»;
+- §Ask the designer: the missing states and the behaviour notes to request;
+- §New components: «not from the library» blocks, `design-only` components («create in code once
+  and add to the canon»), components not in the canon;
+- §Behaviour: pop-ups, transitions and notes found in annotations, prototype reactions or Code
+  Connect instructions, each with its source, or «nothing found» per screen;
+- a PNG for every drawn state that passed `test -s`, or the named no-export gap;
+- the handoff: N frames read, N drawn / N/A / missing, the ask-the-designer list, «self-check: 7/7
+  pass».

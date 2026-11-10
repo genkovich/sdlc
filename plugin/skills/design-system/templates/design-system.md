@@ -66,13 +66,17 @@ updated_at: "<YYYY-MM-DD>"
      only in code → `code-only` (not `NEW:`; `screens` draws it into the library frame on first
      use). An empty project's starter set (references/foundation.md §6): Source `starter set` until
      design-keeper draws it (then the node id), Notes `design-only — starter set, no code yet`,
-     «States it supports» = the variants to draw. screens.md may use only these names, or declare
+     «States it supports» = the variants to draw. «Design ↔ code props»: for a row with both
+     anchors, the design's variant properties paired with the props the code really has, read
+     from the code (`cva` variants …) or «from Code Connect»; «—» when the component has no
+     variants or one anchor only. This canon row is the design ↔ code binding every skill reads;
+     AGENTS.md only points here. screens.md may use only these names, or declare
      `NEW: <name>` with a why-no-primitive-fits line (then the component is added here). -->
 
-| Component | Source (`file:line` / node / URL) | States it supports | Notes |
-|---|---|---|---|
-| <Button> | `<path>:<line>` · node `<id>` | default / hover / disabled / loading | <…> |
-| <Toast> | node `<id>` | default | design-only — <no code yet> |
+| Component | Source (`file:line` / node / URL) | States it supports | Design ↔ code props | Notes |
+|---|---|---|---|---|
+| <Button> | `<path>:<line>` · node `<id>` | default / hover / disabled / loading | <Figma: `Variant=Outline ↔ variant="outline"` · `Size=Large ↔ size="lg"` / pen.dev: `Button / Outline / Large ↔ variant="outline" size="lg"`> | <…> |
+| <Toast> | node `<id>` | default | — | design-only — <no code yet> |
 
 ## Interaction & writing conventions
 

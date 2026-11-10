@@ -44,6 +44,9 @@
   сократичне інтервʼю, референси, 2-3 напрямки на вибір, потім токени двома шарами (світла і темна
   тема, контраст AA пораховано) у файл теми проєкту або `docs/design/tokens.json`, і стартовий
   набір компонентів. Без каналу питань лише пропозиція в каноні.
+- **Екрани вже намалював дизайнер** → `screens` у режимі розбору (`--from <url>`): читає фрейми,
+  у файл нічого не пише, розкладає на екрани й стани, позначає, чого бракує, і звіряє компоненти
+  з інвентарем; привʼязка «компонент дизайну ↔ компонент коду» з props живе в каноні.
 - **code-mode доступний завжди**: нема MCP → markdown-вайрфрейми і названа деградація.
 
 ---
@@ -55,7 +58,7 @@
 | 1 | `design-system` | once per repo (refresh when the foundation changes) | the code's tokens + components; `docs/architecture-map.md` if present | `docs/design/design-system.md` (+ the design document through its tool, `tool` ≠ `code`; + the tokens in the project's theme file or `docs/design/tokens.json` when it built the foundation) |
 | 2 | `ux-flows` | per UI feature | the input ladder (§3) + the canon | `docs/features/<slug>/ux-flows.md` (+ `story.md` when the story came inline) |
 | 3 | `prepare-design-spec` | per UI feature | the input ladder + `ux-flows.md` + the canon + the repo | `docs/features/<slug>/design-spec.md` |
-| 4 | `screens` | per UI feature | `ux-flows.md` + `design-spec.md` + the canon (+ `sad.md` §6, contracts when present) | `docs/features/<slug>/screens.md` + `docs/features/<slug>/screens/*.png` |
+| 4 | `screens` | per UI feature | `ux-flows.md` + `design-spec.md` + the canon (+ `sad.md` §6, contracts when present); read mode: the designer's frames | `docs/features/<slug>/screens.md` + `docs/features/<slug>/screens/*.png` (read mode: nothing in the design file) |
 | 5 | `verify-ui` | after the screens are built in code | every state in `screens.md` + `design-spec.md` §16 (+ PRD §5 when present) | `docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>.md` + its screenshots folder |
 
 **Without the backbone (a story, no PRD/SAD)** — run the five steps in order; every skill accepts a
@@ -237,6 +240,13 @@ foundations run; writes not allowed → gate 6 (the «Screens · <slug>» questi
 | a design tool (`pencil`, `figma`, `<name>`) | the canon's design file (one document holds the library and the screens) | node id | required when the session can export (gate 5 below); else a named gap in `screens.md` §Source |
 | `code` | inline markdown wireframes in `screens.md` | «wireframe below» | none — the built screen + the `verify-ui` screenshot are the visual evidence |
 
+**Read mode** (`/sdlc:screens <slug> --from <url>`, «розбери екрани дизайнера»): the designer
+already drew the screens. `screens` reads their frames through the tool's read tools, writes
+**nothing** into the design file (no permission needed), maps each frame to a screen and a state,
+marks every class drawn / `N/A` / missing, maps every instance to the canon's inventory, and
+records the behaviour the tool returns. The manifest has the same format, so `verify-ui` and the
+code work do not change. Procedure: `screens/references/read-frames.md`.
+
 **What counts as a design tool.** An MCP server in this session whose tools can read a design
 document's nodes (frames, components, variables). Find it by listing the session's tools, deferred
 ones included (load a deferred tool's schema before calling it). A browser, a docs server or a
@@ -285,7 +295,10 @@ section adds its specifics):
    `test -s` again, each its own call; no loops, no `&&` chains, no `$(…)` substitutions or pipes
    (a headless run rejects them, an interactive one asks permission for each), no helper scripts
    outside the repo (no `/tmp`). Counting for a self-check or a handoff goes through Read and Grep
-   (its count mode), never a composed command.
+   (its count mode), never a composed command; looking around goes through Glob and Read, never
+   `ls` / `wc` (on the plugin's own folder neither). A subagent whose result the next step needs
+   (the explorer's map, the keeper's report) is dispatched in the foreground
+   (`run_in_background: false`), so the run never pauses on «still scanning, waiting».
 6. **Who may write: the file's owner decides** (`allow_writes`, recorded in the canon as
    «Foundations write permission»):
    - `design_file` is a **repo path** → the file belongs to the person running the skill: write
@@ -424,6 +437,22 @@ Common to both:
   (else `code` mode).
 - No export tool in the session → name the missing PNGs as a gap in `screens.md` §Source; the node
   ids remain the source-ref.
+- **The design ↔ code binding lives in the canon**, as in pen.dev: an inventory row carries both
+  anchors and the «Design ↔ code props» cell (`Variant=Outline ↔ variant="outline"`), read from
+  the code. `AGENTS.md` only points at the canon; code work follows `screens.md`.
+- **Code Connect is a layer on top of that binding, not a replacement.** With components connected
+  through Code Connect, the official Figma server puts each one into a node's context as a
+  `<CodeConnectSnippet>` marker: the design properties, the import, a snippet and the
+  instructions (instructions from Code Connect UI arrive as user rules; a UI mapping gives the
+  component and its basic usage, a CLI mapping the full snippet). Requirements (developers.figma.com,
+  checked 2026-11-10): the MCP integration on Professional, Organization, Government and
+  Enterprise plans with a Full or Dev seat, and on Professional only the active library and
+  framework are returned; Code Connect UI on a Dev or Full seat on Professional, Organization and
+  Enterprise (its page does not mention Government), one active library and framework on
+  Professional. When the session's server returns Code Connect for a component, `design-system`
+  takes the props mapping from it and says so; without it the mapping is read from the code.
+  Writing mappings: on Professional the MCP refused it in a live run (2026-10-25), the CLI
+  (`npx figma connect publish`) published them.
 
 ## 9. Any other design tool
 

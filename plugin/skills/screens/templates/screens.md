@@ -2,6 +2,7 @@
 status: draft            # draft | approved
 input: "<prd | design-spec | story | idea-brief — the input-ladder source>"
 tool: "<the canon's tool (pencil | figma | another tool's name) or code — copied from docs/design/design-system.md, or code when degraded>"
+mode: draw               # draw (the agent drew the states) | read (frames drawn by the designer, read only)
 updated_at: "<YYYY-MM-DD>"
 ---
 
@@ -22,6 +23,7 @@ updated_at: "<YYYY-MM-DD>"
      could not export. -->
 
 - **Tool:** <tool name | code> (from `docs/design/design-system.md`), through <MCP server | —>
+- **Mode:** <draw | read — frames drawn by the designer, read only: <file + node(s) read>; frame → state: <frame name> → SCR-NN · <state>, …; not screens of <slug>: <frames>>
 - **File:** <`docs/design/<name>.pen` or the file URL, frames `<slug> · SCR-NN · <state>` (page mode: on the page «Screens · <slug>») | inline wireframes below>
 - **PNG folder:** <`docs/features/<slug>/screens/` | N/A (code mode) | N/A (no export in this session)>
 - **Inputs used:** <`ux-flows.md`, `design-spec.md`, `story.md`, `sad.md` §6, `contracts/` — whichever existed>
@@ -35,9 +37,11 @@ updated_at: "<YYYY-MM-DD>"
      empty / error / success / validation), a real state or `N/A: <reason>`; then the named states
      from the flow branches landing here: `<class>-<variant>` (error-undelivered) or a bare
      kebab-case feature name (ended), each with its source token. Components: names from the
-     design-system inventory, or `NEW: <name>`. Source-ref: a design tool → node id + PNG path
-     (node id alone when §Source names the no-export gap); code → «wireframe below»; an N/A row →
-     «—» (no frame, no PNG). -->
+     design-system inventory, or `NEW: <name>` (read mode: «matched by name: <name>» or «not from
+     the library: <what it imitates>» where that applies). Source-ref: a design tool → node id +
+     PNG path (node id alone when §Source names the no-export gap); read mode: the designer's node
+     id, «drawn by the agent» for a state drawn on «Screens · <slug>», or «missing — ask the
+     designer»; code → «wireframe below»; an N/A row → «—» (no frame, no PNG). -->
 
 ### SCR-01 — <screen name>
 
@@ -59,6 +63,25 @@ updated_at: "<YYYY-MM-DD>"
 +--------------------------------------+
 ```
 
+## Behaviour
+
+<!-- instruction: read mode (draw mode: only what the flows say). Pop-ups, transitions,
+     animations, gestures, taken only from what the design tool returned — annotations, prototype
+     reactions (trigger → action, transition, duration), Code Connect instructions — each with its
+     source, so code work never goes back to the design file for it. A screen with nothing found
+     gets «nothing found — a note asked from the designer». -->
+
+| Screen · state | Element | Trigger → result | Source |
+|---|---|---|---|
+| <SCR-01 · default> | <Send button> | <on click → opens overlay «Report», dissolve 200 ms> | <prototype reaction, node <id> / annotation / Code Connect instruction> |
+
+## Ask the designer
+
+<!-- instruction: read mode — every state marked «missing» (what to draw and its branch token)
+     and every screen without behaviour notes. Otherwise «None.» -->
+
+- <SCR-02 · error-undelivered — the message that could not be sent (W-02): frame missing>
+
 ## New components
 
 <!-- instruction: every `NEW:` component named above, every `code-only` component drawn for the
@@ -67,8 +90,10 @@ updated_at: "<YYYY-MM-DD>"
      and run `/sdlc:design-system` («Оновити») after a «Changed:» row. Where: the library frame, or
      «Drafts · <slug>» on the page «Screens · <slug>» when the canon says writes are not allowed and
      the person allowed that page (the designer's library is untouched; the designer takes them
-     from there). If none: «None — all
-     screens compose the existing inventory.» -->
+     from there). Read mode also lists «not from the library» blocks (a detached or hand-built
+     imitation of <component>), `design-only` components («create in code once and add to the
+     canon») and components not in the canon («run /sdlc:design-system «Оновити»»). If none:
+     «None — all screens compose the existing inventory.» -->
 
 | Component | Why no existing component fits / what changed and why | Where | Added to design-system |
 |---|---|---|---|

@@ -4,6 +4,98 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.9.0] — 2026-11-10
+
+### Added — `screens` read mode: the designer already drew the screens
+
+`screens` could only draw. When a designer has drawn the screens in Figma (or pen.dev, or another
+tool), the line now reads their frames instead of drawing a second set next to them. Details in
+the new `screens/references/read-frames.md`; the manifest format is the same, so `verify-ui` and
+the code work downstream do not change.
+
+- **Entry:** `/sdlc:screens <slug> --from <url>` (a page, section or frame; Figma with `node-id`),
+  or «розбери екрани дизайнера» / «screens from the designer's frames» / «екрани вже в
+  документі». **Draw mode is unchanged**: without these, `screens` draws with no new question; the
+  only new question comes when the design file already holds frames of this feature that the skill
+  did not draw («Розібрати ці фрейми» / «Малювати свої екрани»; headless → draw, the frames listed
+  under `## Assumptions`). **Nothing is written into the design file**, so no write permission is needed; a
+  file other than the canon's is read too, and §Source says which.
+- **Frames → screens and states:** each frame maps to an `SCR-NN` from `ux-flows.md` and a state
+  (the six classes and the named states), by its name, what it shows and the branches landing on
+  the screen. Ambiguous frames are asked about in one batch; headless → `## Assumptions`. A frame
+  that is not a screen of this feature is listed, never forced into a state.
+- **Coverage:** every class of every screen is drawn (node id) / `N/A: <reason>` / **missing**.
+  The missing states go into the new §Ask the designer, or, after the person's yes, are drawn by
+  the normal draw mode on «Screens · <slug>» only, marked «drawn by the agent».
+- **Components:** every instance → its main component → the inventory row (node id / component
+  key, else by name, marked «matched by name»). Detached instances and hand-built look-alikes are
+  «not from the library»; a `design-only` component goes to §New components as «create in code
+  once and add to the canon»; a component missing from the canon → «run `/sdlc:design-system`
+  («Оновити»)».
+- **Behaviour:** the new §Behaviour holds pop-ups, transitions and notes from what the tool really
+  returns: annotations (Figma Console `figma_get_annotations`), prototype `reactions`, Code Connect
+  instructions when the official server returned them (which annotations it returns is not
+  documented, so they are used only if present). Nothing found → said so, and a note asked from
+  the designer.
+- PNG per drawn state as in draw mode (`test -s`, one command per call) or the named gap;
+  frontmatter `mode: draw | read`; §Source «Mode: read — frames drawn by the designer, read only»
+  with the frame → state map. Self-check items 5–7 are replaced by read-frames.md §8 in read mode.
+  Triggers, Definition of Done, anti-patterns and an example invocation for both modes added.
+
+### Added — the design ↔ code binding with props, in the canon
+
+- **«Design ↔ code props»**, a new column of the canon's inventory: for a row with both anchors,
+  the design's variant properties paired with the props the code really has, read from the code
+  (`cva` variants), never invented. Figma: `Variant=Outline ↔ variant="outline"` ·
+  `Size=Large ↔ size="lg"`; pen.dev: `Button / Outline / Large ↔ variant="outline" size="lg"`.
+  An uncertain pair goes under `## Assumptions`. When the session's official Figma server returns
+  Code Connect for the component, the mapping comes from it, marked «from Code Connect».
+  `design-system` self-check item 3 checks the cell. 4.8.x had the two anchors, not the props.
+- **One line for `AGENTS.md`, not a table:** when it is missing, the `design-system` handoff says
+  «Можна додати в `AGENTS.md` рядок: UI бери з інвентаря `docs/design/design-system.md`; новий
+  компонент лише якщо його там нема». A proposal only: no question, no write, no new stop in the
+  run.
+- **`_shared/design-line.md` §8: Code Connect as a layer over the canon's binding.** The official
+  server puts a connected component into a node's context as `<CodeConnectSnippet>` (design
+  properties, import, snippet, instructions; Code Connect UI instructions arrive as user rules).
+  Requirements checked on developers.figma.com on 2026-11-10: the MCP integration on Professional,
+  Organization, Government and Enterprise, a Full or Dev seat, on Professional only the active
+  library and framework; Code Connect UI on a Dev or Full seat on Professional, Organization and
+  Enterprise (Government not mentioned on its page). Read mode in §1, §6 and the TL;DR.
+- `plugin/README.md`, `CLAUDE.md` and both manifests (4.9.0) updated.
+
+### Fixed — after the lesson 1 rerun on 4.8.2 (pen.dev)
+
+- **Clipped swatch labels.** Five labels (`popover-foreground`, `muted-foreground`,
+  `border-strong`, `pass`, `flag-green-bg`) were cut at the edge, and the keeper wrote off pen.dev's
+  «partially clipped» as rounding. A label now hugs its text or wraps inside its column, and every
+  problem the tool reports (`ctx.problems` included) is a defect to fix, never cleared by a
+  screenshot that looks intact.
+- **Composed shell commands that would be permission prompts on camera.** The main agent listed
+  the plugin cache with `ls …; wc -l`, the explorer read the tokens with `python3 -I -c … ; wc -l`.
+  `design-system` now says how to look around (Glob, Read, Grep; the template and shared files by
+  their relative paths), and its explorer dispatch prompt forbids `python`, `ls`, `wc` and `;` /
+  `&&` / `|` chains; design-line §6 gate 5 says the same for every skill.
+- **«Сканування коду ще триває. Чекаю…».** The explorer was dispatched in the background, so the
+  main agent ended its turn and resumed only when the result arrived. The explorer and the keeper
+  are now dispatched in the foreground (`run_in_background: false`): their results feed the next
+  step.
+- **Stale instances in the light-theme card** (`stale 0-size layout`) needed one nudge each, part
+  of why the run took 12:52 and $5.08 against 6:01 on 4.8.0. The keeper now draws every original
+  component first and builds the second theme's card in one batch afterwards.
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: to fill the new props column of an existing canon, run
+  `/sdlc:design-system` → «Оновити». To read a designer's screens, run
+  `/sdlc:screens <slug> --from <url>`.
+- **Not run live:** read mode (frames → states, the batch question, component mapping, the
+  behaviour sources, the optional drawing of missing states), the props column, and the four
+  fixes from the lesson 1 rerun.
+  `claude plugin validate` passes for the plugin and the marketplace.
+
 ## [4.8.3] — 2026-11-10
 
 ### Changed — «Оновити» brings changed token values into the design document

@@ -72,6 +72,11 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
 
 ## Protocol
 
+**Looking around, the cheap way.** Find files with Glob (`docs/design/*`, `src/components/ui/*`),
+read them with Read, search with Grep; read this skill's template and the shared files by their
+relative paths with Read. No `ls`, `wc` or `cat`, and nothing chained with `;`, `&&` or `|`: each
+of them is a permission prompt on camera and a rejection headless.
+
 1. **Check existing.** If `docs/design/design-system.md` exists, show its `tool`, posture and
    inventory size and ask (one `AskUserQuestion`): «Лишити як є» (STOP, nothing to do) /
    «Оновити» / «Перебудувати» (the full protocol from step 2). Never overwrite silently.
@@ -116,9 +121,12 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
       variable left alone.
 
 2. **Scan the code side.** Read `docs/architecture-map.md` §Frontend if it exists and is current.
-   Otherwise dispatch the [`explorer`](../../agents/explorer.md) agent — `subagent_type:
-   "sdlc:explorer"` (fallback `subagent_type: "Explore"`, per
-   [`../_shared/agent-roster.md`](../_shared/agent-roster.md)) — for: the component library
+   Otherwise dispatch the [`explorer`](../../agents/explorer.md) agent **in the foreground**
+   (`run_in_background: false`: the canon is written from its map, so wait for it; never end the
+   turn with «сканування ще триває, чекаю») — `subagent_type: "sdlc:explorer"` (fallback
+   `subagent_type: "Explore"`, per [`../_shared/agent-roster.md`](../_shared/agent-roster.md)). Its
+   prompt says: read files with Read, list with Glob, search with Grep (a JSON token file too, with
+   Read), no `python`, `ls`, `wc` and no `;` / `&&` / `|` chains. It maps: the component library
    (e.g. `components/ui/`), the token files (CSS variables, theme config), the styling approach, and
    the shared primitives, each with a `file:line`. **No token files found** (by the map or the
    scan) → the explorer also scans for values written straight into styles (colours, font sizes,
@@ -207,8 +215,8 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
       of the file) that the target IS `design_file` (paths or file keys, §6 gate 1). Mismatch →
       stop and repeat the ask; never write into a foreign document. (Step 4b may already have run
       5a–5b for the directions sheet; then only re-check the target here.)
-   c. **Reconcile.** Dispatch the [`design-keeper`](../../agents/design-keeper.md) agent —
-      `subagent_type: "sdlc:design-keeper"` (no fallback: without the tool's MCP this step degrades
+   c. **Reconcile.** Dispatch the [`design-keeper`](../../agents/design-keeper.md) agent in the
+      foreground (`run_in_background: false`) — `subagent_type: "sdlc:design-keeper"` (no fallback: without the tool's MCP this step degrades
       to `code` mode) — with the canon path, `tool`, `design_file`, `library_frame` (empty on a
       first run), the token source files (those step 4b wrote included), the inventory (starter
       rows included), `allow_writes` (per step 5a's owner rule, or the person's yes in 5d), and
@@ -265,6 +273,17 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
       guess. A `code-only` row is not `NEW:` either: `screens` draws that component into the
       library frame the first time a screen needs it (without write permission only in «Drafts ·
       <slug>» on a «Screens · <slug>» page the person allowed).
+      **The binding lives in the canon, design ↔ code props included.** A row with both anchors
+      also gets its «Design ↔ code props» cell: the design's variant properties paired with the
+      props the code really has, read from the code (e.g. the `cva` `variants` block of
+      `src/components/ui/button.tsx`), never invented. Figma (a component set): `Variant=Outline ↔
+      variant="outline"` · `Size=Large ↔ size="lg"`; pen.dev (a component per variant): `Button /
+      Outline / Large ↔ variant="outline" size="lg"`. Pair values by name (`Outline` ↔
+      `outline`; `Small` / `Medium` / `Large` ↔ the code's own `sm` / `md` / `lg`); an uncertain
+      pair goes under `## Assumptions`, a design value with no prop in the code is named, not
+      mapped. When the session's official Figma server returns Code Connect for the component
+      (`get_code_connect_map`, or the props in a `<CodeConnectSnippet>`, design-line §8), take the
+      mapping from it and write «from Code Connect» in the cell.
 
 6. **Structural self-check** — re-read the file **from disk** and verify **7 items**. Count and
    check with Read and Grep (Grep's count mode for rows), or one plain command per call
@@ -279,7 +298,8 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    `""` or absent;
    (3) every inventory row carries a source anchor (`file:line`, node/URL, or `starter set` for a
    starter row not drawn yet), and on a design tool every component in the design-keeper report
-   has a row;
+   has a row; every row with both anchors and design variants has its «Design ↔ code props» cell
+   (read from the code, or «from Code Connect»);
    (4) no `<placeholder>` survives outside comments;
    (5) `tool` ≠ `code`: the report's target-document check said PASS; a local design file passes
    `test -s`; and either the report says `writes: none` (everything matched, or the proposals are
@@ -311,7 +331,10 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    inventory size, the foundation's origin and the chosen direction, foundations written /
    proposed, «self-check: 7/7 pass», the proposed commits) + *Review*
    (`docs/design/design-system.md`, + the design file, + the tokens file) + *Run next*:
-   `/sdlc:ux-flows <slug>` for the UI feature in flight; when step 4b wrote tokens into a project
+   `/sdlc:ux-flows <slug>` for the UI feature in flight; when `AGENTS.md` does not have it yet
+   (check with Grep), **one line of proposal in the handoff, no question and no write**: «Можна
+   додати в `AGENTS.md` рядок: UI бери з інвентаря `docs/design/design-system.md`; новий компонент
+   лише якщо його там нема» (not a table); when step 4b wrote tokens into a project
    with written-in values, name the follow-up code task «replace the written-in values with the
    tokens»; `/clear` optional.
 

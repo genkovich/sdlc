@@ -209,7 +209,9 @@ The report lists it as «in the tokens, not used by the product».
    colour collection's mode set on the card frame; pen.dev → `theme` on the card frame; another
    tool → its mode or theme switch. Inside, a grid of every semantic colour: a rounded swatch
    filled with the semantic variable, its name under it, and the primitive it points at under the
-   name (e.g. `background` / `gray/1000`).
+   name (e.g. `background` / `gray/1000`). **A label always fits**: its width follows the text, or
+   it wraps inside the swatch's column; a long name (`popover-foreground`, `flag-green-bg`) is
+   never cut at the edge.
 3. **Typography** — one row per size of the type scale and per text style the components use: on
    the left the name (`text/16`) with the font, weight and size / line height under it (`Inter
    Regular 16/24`), on the right one sample line set in that style.
@@ -250,6 +252,10 @@ name every node. The components go **below** the foundations sheet in the same l
 to the semantic variables) and shown in both: its instances laid out in two theme cards side by
 side, the theme set on each card the same way as the colour cards (Figma: the collection mode;
 pen.dev: `theme` on the card frame), or a second row of instances in a frame with the other theme.
+**Build order:** draw every original component first, and only then build the second theme's
+card in one batch of instances. An instance made before its component is final goes stale (pen.dev
+reported `stale 0-size layout`, and every such instance needed its own nudge, minutes and money of
+a run).
 
 **Check against the inventory before the report.** For every inventory row, compare what was
 drawn with what its code defines (every variant × size in default, every state per variant in the
@@ -283,8 +289,10 @@ collection, the created frame and its components) through the tool.
 When you created anything: one screenshot of the library frame through the tool's look capability,
 and check the frame is not collapsed, clipped or overlapping other content. **Then read the sizes
 back**, because a screenshot hides a 0-width bar: every node of the sheet and every component has
-a non-zero width and height (its bounds, read through the tool). A visible defect or a zero size
-gets one fix and one more look; whatever is still wrong goes in the report.
+a non-zero width and height (its bounds, read through the tool). **Every problem the tool reports
+is a defect** (pen.dev `ctx.problems`, «partially clipped» included): fix it, never write it off as
+rounding because the screenshot looks intact. A visible defect, a reported problem or a zero size
+gets one fix and one more look; whatever is still wrong goes in the report as a defect.
 
 ## Mode `directions` — the comparison sheet
 
@@ -375,7 +383,8 @@ a document that is not open («wrong .pen file»); pass the `uri` wherever a too
 - sizes: a width or height bound to a `$space-*` variable can come out `0`; set it as the number
   from `GetVariables()` and read every node's bounds back with `Get`;
 - look: end the creating `execute` with `TakeScreenshot([libraryFrameId])` and check `Get` with
-  `ctx.problems`;
+  `ctx.problems`; «partially clipped» on a label means the text does not fit: let the label hug
+  its text or wrap, then look again;
 - save: `save` with the `uri`; no `save` tool → Cmd+S by the user;
 - never touch the `.pen` with file tools; copying a whole file is the caller's job.
 
