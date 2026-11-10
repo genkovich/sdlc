@@ -98,8 +98,9 @@ of them is a permission prompt on camera and a rejection headless.
       - a URL with write permission → dispatch with `update_values: false` first; the report's
         «changed, not written» list → one `AskUserQuestion` per
         [`../_shared/ask-style.md`](../_shared/ask-style.md) that **shows** the list
-        («`primary`: `#2563eb` → `#7c3aed` (light)» …): «Оновити ці значення у файлі» →
-        re-dispatch with `update_values: true` / «Лишити як є, записати список у канон»;
+        («`primary`: `#2563eb` → `#7c3aed` (light)» …): «Оновити ці значення у файлі
+        (Recommended)» → re-dispatch with `update_values: true` / «Лишити як є, записати список у
+        канон»;
       - a URL without write permission, or headless on a URL → nothing written; the list goes
         under `## Assumptions` as «Proposed, not written: …».
       Variables the source does not have (a designer's own, or tokens deleted from the code) are
@@ -150,8 +151,10 @@ of them is a permission prompt on camera and a rejection headless.
    or the conversation, else the only one detected; more than 3 detected → the 3 most likely, the
    rest through «Other». `code` (markdown wireframes) is **always** offered, needs no MCP and never
    blocks. Each description says what the tool can do in this session (write? export PNG?) per
-   §6 «Capabilities»; **(b) platform posture** — mobile-first / desktop-first / responsive-both;
-   **(c) token source** — case A: the code file(s) from step 2 / the tool's variables / «ще немає»;
+   §6 «Capabilities»; **(b) platform posture** — mobile-first / desktop-first / responsive-both,
+   the one the code suggests first as «(Recommended)» (its breakpoints, the layout of its
+   screens); **(c) token source** — case A: the code file(s) from step 2 «(Recommended)» / the
+   tool's variables / «ще немає»;
    case B: «Зібрати з того, що знайдено в коді» (Recommended when values were found) / «Стартова
    основа» / «Лишити без токенів»; case C: «Зібрати основу разом» (Recommended) / «Лишити без
    токенів»; in B and C also «Взяти зі змінних інструмента» when the design document already holds
@@ -173,7 +176,10 @@ of them is a permission prompt on camera and a rejection headless.
       part as soon as it is decided: frontmatter `tool` + `design_file` (`""` on `code`; never
       write a legacy synonym from design-line §6 into a new canon), posture, token source, the
       component inventory (every row cites `file:line` for code, the node/URL for tool-side
-      components, or `starter set` for a starter row not drawn yet), and the conventions. Default
+      components, or `starter set` for a starter row not drawn yet), and the conventions (when the
+      foundation was not built in step 4b: read them from the code, from how its components show
+      errors, empty lists, loading and validation, each marked `derived` under `## Assumptions`;
+      no question for them). Default
       `design_file`: a tool with files on disk → the one file of that tool already under
       `docs/design/` (a kit, a teammate's file) when there is exactly one, else
       `docs/design/<project>.<ext>` (`.pen` on pencil); a cloud tool → the URL from step 3.
@@ -238,12 +244,13 @@ of them is a permission prompt on camera and a rejection headless.
       file not created in this run, `allow_writes` was `false`) → one `AskUserQuestion` per
       [`../_shared/ask-style.md`](../_shared/ask-style.md) that **shows** the proposals (count per
       group, the first names with values, and in an empty file «would draw: the foundations sheet +
-      N components») and says whose file it is: «Дозволити запис у файл» → re-dispatch
-      design-keeper with `allow_writes: true` (it re-checks the gate, adds only what is missing,
-      never overwrites) / «Лише записати пропозицію в канон» → nothing is written into the file;
-      the description says plainly that `screens` will then ask once whether it may draw on a
-      separate page «Screens · <slug>» in this file, and otherwise use markdown wireframes. No
-      question channel (headless) → no permission, the same as «ні». Either way the proposals go under the canon's
+      N components») and says whose file it is: «Лише записати пропозицію в канон
+      (Recommended)» → nothing is written into the file (it is someone else's) / «Дозволити запис у
+      файл» → re-dispatch design-keeper with `allow_writes: true` (it re-checks the gate, adds only
+      what is missing, never overwrites). The description of «Лише записати пропозицію» says
+      plainly that `screens` will then ask once whether it may draw on a separate page «Screens ·
+      <slug>» in this file, and otherwise use markdown wireframes. No question channel (headless)
+      → no permission, the same as that option. Either way the proposals go under the canon's
       `## Assumptions` as «Proposed, not written: …». A tool with no write tool skips the question
       and records the proposals the same way.
    e. **Persist.** Read the report's `saved:` line; the keeper did the `stat` / read-back. «saved
@@ -256,8 +263,9 @@ of them is a permission prompt on camera and a rejection headless.
       «library_frame empty: <the report's reason>» under `## Assumptions`), its tool and
       capabilities to «Agent access», and the permission to «Foundations write permission»: «repo
       file — written without asking» / «created in this run — written» / «allowed by the person,
-      <YYYY-MM-DD>» / «not allowed — proposals under Assumptions». `screens` and «Оновити» read
-      this line; `screens` writes the «Screens write permission» line next to it. Merge its components into the
+      <YYYY-MM-DD>» / «not allowed — proposals under Assumptions». With «not allowed», also write
+      «Screens write permission: not asked yet» (`screens` asks and rewrites it); otherwise «N/A
+      (writes allowed)». `screens` and «Оновити» read these lines. Merge its components into the
       inventory: a component present in code and in the document = one row with both anchors
       (`file:line` · node id); only in the document = a row with the node id, Notes `design-only`;
       only in code = Notes `code-only`. Every component the report lists gets a row, so `screens`
@@ -279,9 +287,14 @@ of them is a permission prompt on camera and a rejection headless.
       `src/components/ui/button.tsx`), never invented. Figma (a component set): `Variant=Outline ↔
       variant="outline"` · `Size=Large ↔ size="lg"`; pen.dev (a component per variant): `Button /
       Outline / Large ↔ variant="outline" size="lg"`. Pair values by name (`Outline` ↔
-      `outline`; `Small` / `Medium` / `Large` ↔ the code's own `sm` / `md` / `lg`); an uncertain
-      pair goes under `## Assumptions`, a design value with no prop in the code is named, not
-      mapped. When the session's official Figma server returns Code Connect for the component
+      `outline`; `Small` / `Medium` / `Large` ↔ the code's own `sm` / `md` / `lg`). **The middle
+      value with no name of its own is the code's default**: read `defaultVariants` (`Size=Medium
+      ↔ size="default"` when the code has `default` and no `md`; a component description that says
+      «Medium = default» confirms it). **Text properties too**: a component's text property (Figma
+      TEXT property: `Label`, `Name`, `Initials`, `Placeholder`) ↔ the prop or children that
+      carries that text in the code (`Label ↔ children`, `Name ↔ title`, `Initials ↔ initials`).
+      An uncertain pair goes under `## Assumptions`; a design value with no prop in the code, or
+      a prop only the code has (`variant="link"`), is named, not mapped. When the session's official Figma server returns Code Connect for the component
       (`get_code_connect_map`, or the props in a `<CodeConnectSnippet>`, design-line §8), take the
       mapping from it and write «from Code Connect» in the cell.
 
@@ -300,7 +313,8 @@ of them is a permission prompt on camera and a rejection headless.
    starter row not drawn yet), and on a design tool every component in the design-keeper report
    has a row; every row with both anchors and design variants has its «Design ↔ code props» cell
    (read from the code, or «from Code Connect»);
-   (4) no `<placeholder>` survives outside comments;
+   (4) no template `<placeholder>` survives outside comments (the frame-name pattern
+   `<slug> · SCR-NN · <state>` in §Design tool is a naming pattern, not a placeholder);
    (5) `tool` ≠ `code`: the report's target-document check said PASS; a local design file passes
    `test -s`; and either the report says `writes: none` (everything matched, or the proposals are
    under `## Assumptions`) or the write was checked — a local file changed on disk (step 5e), a URL

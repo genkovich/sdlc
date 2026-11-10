@@ -115,6 +115,11 @@ source that exists. It records which one it used (frontmatter `input:` + the han
 6. Nothing at all → ask for 3–5 plain sentences: who, what they want to do, why, how they know it
    worked. Missing intent is the only reason to stop; a missing PRD or SAD never is.
 
+**Read mode of `screens`: the frames are a source.** When `screens` reads a designer's frames
+and sources 1–5 are absent, the frames themselves are the intent: screens from the frame names,
+row labels and groups, `input: frames`, no question asking for sentences; it stops only when
+there are no frames. Every other skill keeps the ladder as above.
+
 **Degrade, don't refuse.** Sources 2–5 are **story mode**: there are no `AC-NN` ids, so the skills
 number what they find and keep its origin visible.
 
@@ -142,6 +147,7 @@ inventory and the coverage table; `ux-flows.md` §Source quotes the items (they 
 | `BR-NN` | design-spec requirement | `design-spec.md` §6 |
 | `S-N` | sentence N of the story | `story.md` / inline story |
 | `N-NN` | an additional instruction from the invocation text, next to a source 1–4 | the command line («з команди») |
+| `frame:<node id>` | a state the designer drew that no flow branch names (read mode of `screens`) | the designer's frame |
 | `W-NN` | «what can go wrong» item the user confirmed | the §4 question below |
 | `§6:<flow>` / `contract:<status>` | SAD runtime branch / API error response | `sad.md` §6, `contracts/` (backbone only) |
 | `D-NN` (`derived`) | inferred by the agent from the story, **not** confirmed by anyone | headless runs, `easy` defaults |
@@ -399,7 +405,9 @@ The Pencil tools: `get_app_state`, `execute`, `read_skill`, `get_style`, `save` 
 ## 8. Figma (optional, when the team has a designer)
 
 The canon's design file is the file URL; its file key is the path segment after `/design/` (or
-`/file/`). `library_frame` is the page (or the section on it) that holds the components. Screens
+`/file/`). `library_frame` is **the page** that holds the components, written as `<page>`, or
+`<page> / <section>` when they sit in one section of it; a page is Figma's top level, so
+components on a page's canvas are never `(top level)`. Screens
 record a node id per state. Two MCP servers exist; use whichever the session has:
 
 - **Figma Console MCP** (Southleft, not a Figma product). Writes only into files where the
@@ -431,6 +439,15 @@ Common to both:
   separate components.
 - **Foundations:** colours as variables in one collection with a `Light` and a `Dark` mode; radii,
   spacing and type sizes as number variables; type families as string variables or text styles.
+  **A type scale kept as text styles counts as present** (one text style per size, with its
+  family, size and line height): no number variables are proposed for it.
+- **Variables are grouped with `/`:** a token `--gray-0` is the variable `gray/0`, `--space-4` is
+  `space/4`; match names with `-` and `/` treated alike between a group and its step.
+- **`figma_get_variables` caches:** pass `refreshCache: true` (Console), or read the variables in
+  a read-only `figma_execute`, so a long session never compares against a stale copy.
+- **Annotations are read as the node property `annotations`**, in a read-only `figma_execute`.
+  Not `figma_get_annotations`: in a live run it created the file's four preset annotation
+  categories (`isPreset: true`), a write that read mode must not do.
 - **A Figma file is a URL, so it usually belongs to a designer.** Unless the person created it in
   this run, anything is written only with permission (§6 gate 6); without it the foundations are
   proposals in the canon, and `screens` draws only on a page «Screens · <slug>» the person allowed

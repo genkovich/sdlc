@@ -90,8 +90,8 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
    a narrowing (which story or goal), an added failure, an added screen, a constraint. A narrowing
    limits which stories get flows; the rest stay listed as out of scope by the command, not
    dropped. An item that contradicts the source (an AC, a story sentence) → one `AskUserQuestion`
-   per [`../_shared/ask-style.md`](../_shared/ask-style.md): «Лишити як у джерелі» / «Зробити як у
-   команді»; whatever is picked, record the decision under `## Assumptions` and, when the source is
+   per [`../_shared/ask-style.md`](../_shared/ask-style.md): «Лишити як у джерелі (Recommended)» /
+   «Зробити як у команді»; whatever is picked, record the decision under `## Assumptions` and, when the source is
    the PRD, add the contradiction to the handoff as a PRD gap for `/sdlc:clarify-prd`. No question
    channel → follow the source and record the contradiction the same way.
 

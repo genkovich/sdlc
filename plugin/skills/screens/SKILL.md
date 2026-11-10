@@ -84,7 +84,9 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
   `node-id`), or the words «екрани вже в документі» / «розбери екрани дизайнера».
 - (Expected) `docs/features/<slug>/ux-flows.md` — the `SCR-NN` inventory + the branches landing on
   each screen. **Absent → soft**: offer `/sdlc:ux-flows <slug>` first, or derive the inventory from
-  `design-spec.md` / the story with a **noted gap** in §Source — never a silent invention.
+  `design-spec.md` / the story with a **noted gap** in §Source — never a silent invention. **Read
+  mode needs none of them**: the designer's frames are the source (`input: frames`, no question
+  for a story), per [`./references/read-frames.md`](./references/read-frames.md) §2.
 - (Expected) `docs/design/design-system.md` — `tool`, the design file (`design_file`, else the
   legacy synonym per design-line §6), `library_frame`, «Agent access», the component inventory,
   the conventions. **Absent → `code` mode** + recommend `/sdlc:design-system`.
@@ -113,17 +115,18 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    allowed, a URL is not).
    - Allowed → draw as below.
    - Not allowed → this run writes **nothing** into the designer's file on its own. Read the
-     canon's «Screens write permission» line: «allowed — «Screens · <slug>» pages» → **page
-     mode**; «not allowed» → `code` mode, named («no permission to write into <design_file> —
-     code-mode wireframes»); not asked yet (or the person wants to change it) → interactive: one
-     `AskUserQuestion` per [`../_shared/ask-style.md`](../_shared/ask-style.md): «Намалювати
-     екрани на окремій сторінці «Screens · <slug>» у цьому файлі?» — «Так, лише на цій сторінці»
-     (the state frames and a «Drafts · <slug>» frame with new components go there; the library and
-     every other page stay untouched) / «Ні, вайрфрейми в markdown» (`code` mode, no PNG);
-     headless → `code` mode, nothing asked. Write the answer into the canon's §Design tool
-     «Screens write permission» line («allowed — «Screens · <slug>» pages, <YYYY-MM-DD>» / «not
-     allowed — code mode» / «not asked — a headless run used code mode»), so the next run reuses
-     it.
+     canon's «Screens write permission» line: «allowed — a separate Screens page per feature» →
+     **page mode**; «not allowed» → `code` mode, named («no permission to write into
+     <design_file> — code-mode wireframes»); «not asked yet», «not asked — …», no line, or the
+     person wants to change it → interactive: one `AskUserQuestion` per
+     [`../_shared/ask-style.md`](../_shared/ask-style.md): «Намалювати екрани на окремій сторінці
+     «Screens · <slug>» у цьому файлі?» — «Так, лише на цій сторінці (Recommended)» (the state
+     frames and a «Drafts · <slug>» frame with new components go there; the library and every
+     other page stay untouched, and the PNG per state stays possible) / «Ні, вайрфрейми в
+     markdown» (`code` mode, no PNG); headless → `code` mode, nothing asked. Write the answer into
+     the canon's §Design tool «Screens write permission» line («allowed — a separate Screens page
+     per feature, <YYYY-MM-DD>» / «not allowed — code mode» / «not asked — a headless run used
+     code mode»), so the next run reuses it.
    The canon's `library_frame` is empty: writes allowed → `code` mode, named («the design document
    has no library yet — run `/sdlc:design-system`»), so the document stays empty for the
    foundations run; page mode → draw, with every component in «Drafts · <slug>».
@@ -132,7 +135,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    [`../_shared/design-line.md`](../_shared/design-line.md) §3 «State vocabulary»: **check the six
    classes** (`default`, `loading`, `empty`, `error`, `success`, `validation`), each gets a row, a
    real state or one `N/A: <reason>` row; **then add the named states** from every source that lands
-   on this screen (`W-NN`, `D-NN`, `N-NN`, `BR-NN`, `AC-NN`, `§6:<flow>`, `contract:<status>`):
+   on this screen (`W-NN`, `D-NN`, `N-NN`, `BR-NN`, `AC-NN`, `§6:<flow>`, `contract:<status>`;
+   read mode also `frame:<node id>`, a state only the designer's frame names):
    `<class>-<variant>` for a second state of one class (`error-undelivered`), or a bare kebab-case
    feature name for a product state that fits no class (`ended`), each with its source token.
    An `N/A` row gets no frame and no PNG. Hover / focus / disabled are component states from the
@@ -172,8 +176,9 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
         **Frames of this feature already there?** Among the top-level frames, any whose name
         points at this feature (the slug, a screen name from `ux-flows.md`, `SCR-NN`) and whose
         node id is not in an existing `screens.md` of this slug (frames an earlier run of this
-        skill drew are not counted) → one `AskUserQuestion`: «Розібрати ці фрейми» (switch to read
-        mode) / «Малювати свої екрани» (draw mode, next to them on their own frames). No such
+        skill drew are not counted) → one `AskUserQuestion`: «Розібрати ці фрейми (Recommended)»
+        (switch to read mode; nothing is written into the file) / «Малювати свої екрани» (draw
+        mode, next to them on their own frames). No such
         frames → no question, draw as always. Headless → draw mode, and the frames found are
         listed under `## Assumptions`.
      b. **No hand edits.** Every change goes through the tool's write tools; never read or write
@@ -261,7 +266,7 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    (1) every `SCR-NN` from `ux-flows.md` has a section (or the noted-gap fallback is stated in §Source);
    (2) every screen has a row for each of the six classes, a real state or an explicit
    `N/A: <reason>` row;
-   (3) every non-default, non-`N/A` state carries a provenance token (`W`/`D`/`N`/`BR`/`AC`/`§6`/
+   (3) every non-default, non-`N/A` state carries a provenance token (`W`/`D`/`N`/`frame:`/`BR`/`AC`/`§6`/
    `contract`, or `derived` for a standard class the agent added itself), named states included;
    (4) every component name exists in the canon inventory or sits in §New components with a reason;
    every library component this run changed has a «Changed: <component> — what and why» row; in

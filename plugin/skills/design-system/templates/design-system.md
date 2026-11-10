@@ -35,8 +35,8 @@ updated_at: "<YYYY-MM-DD>"
 - **Library location:** <`design_file`, frame / page `<library_frame>` (node id) / «the in-repo components are the library»>
 - **Feature screens:** <a design tool: top-level frames `<slug> · SCR-NN · <state>` in the same document (Figma: on a page per feature) / code: inline wireframes in `docs/features/<slug>/screens.md`>
 - **Agent access:** <MCP server; capabilities used — target / read / write / save / look / export, from the design-keeper report; «none» on code>
-- **Foundations write permission:** <«repo file — written without asking» / «created in this run — written» / «allowed by the person, <YYYY-MM-DD>» / «not allowed — proposals under Assumptions; screens uses Drafts · <slug>» / «N/A (code)»> — the owner rule of design-line §6 gate 6; `screens` and «Оновити» read it
-- **Screens write permission:** <«allowed — «Screens · <slug>» pages, <YYYY-MM-DD>» / «not allowed — code mode» / «not asked — a headless run used code mode» / «N/A (writes allowed or code)»> — written by `screens` when «Foundations write permission» says «not allowed»
+- **Foundations write permission:** <«repo file — written without asking» / «created in this run — written» / «allowed by the person, <YYYY-MM-DD>» / «not allowed — proposals under Assumptions» / «N/A (code)»> — the owner rule of design-line §6 gate 6; `screens` and «Оновити» read it
+- **Screens write permission:** <«not asked yet» / «allowed — a separate Screens page per feature, <YYYY-MM-DD>» / «not allowed — code mode» / «not asked — a headless run used code mode» / «N/A (writes allowed or code)»> — design-system writes «not asked yet» with «not allowed» above; `screens` asks and rewrites it
 
 ## Token source
 

@@ -1,6 +1,6 @@
 ---
 status: draft            # draft | approved
-input: "<prd | design-spec | story | idea-brief — the input-ladder source>"
+input: "<prd | design-spec | story | idea-brief | frames (read mode, no other source) — the input-ladder source>"
 tool: "<the canon's tool (pencil | figma | another tool's name) or code — copied from docs/design/design-system.md, or code when degraded>"
 mode: draw               # draw (the agent drew the states) | read (frames drawn by the designer, read only)
 updated_at: "<YYYY-MM-DD>"
@@ -12,7 +12,7 @@ updated_at: "<YYYY-MM-DD>"
 > these states and `verify-ui` checks them; `break-tasks` / `implement-tasks` / `review-feature`
 > get this file named in their prompt (they do not read it on their own yet). Downstream uses
 > **only this manifest**, never the raw design file (`.pen`, Figma, any other tool).
-> Provenance tokens: `S-N`, `W-NN`, `N-NN` (from the command), `D-NN` (derived), `BR-NN`, `AC-NN`, `§6:<flow>`,
+> Provenance tokens: `S-N`, `W-NN`, `N-NN` (from the command), `D-NN` (derived), `frame:<node id>` (read mode), `BR-NN`, `AC-NN`, `§6:<flow>`,
 > `contract:<status>`; `derived` alone = a standard state class added by the agent.
 
 ## Source

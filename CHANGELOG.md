@@ -4,6 +4,62 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.9.1] — 2026-11-10
+
+### Fixed — after the Figma rehearsal of 4.9.0 (design-system → screens in read mode)
+
+The run on the Figma file «Threads Premium» passed both self-checks (7/7) and left the file
+unchanged but for one side effect (below). What the text got wrong:
+
+- **Read mode with no flows, story or spec is a full read.** The text sent it to the ladder's
+  «ask for 3–5 sentences». Now the designer's frames are the source: screens from the frame names,
+  row labels and groups, `input: frames` (a new value in `screens.md`), named states from frame
+  names with the new token `frame:<node id>` (not `D-NN`), no question for a story; it stops only
+  when the link holds no frames (`_shared/design-line.md` §3, `read-frames.md` §2, `screens`
+  inputs and self-check item 3).
+- **`figma_get_annotations` wrote into the file.** It created the four preset annotation
+  categories (`isPreset: true`) while read mode promised «nothing is written». Annotations are now
+  read as the node property `annotations` (`label`, `labelMarkdown`, `properties`, `categoryId`,
+  Figma plugin API) in a read-only `figma_execute`; neither that tool nor the `figma.annotations`
+  category methods are called, a category stays its `categoryId` (its name needs that API, so it
+  is asked for and the side effect named). design-line §8 says the same.
+- **Props mapping:** `Size=Medium ↔ size="default"` when the code has `default` and no `md` (read
+  `defaultVariants`); text properties (`Label`, `Name`, `Initials`, `Placeholder`) map to the prop or
+  children that carries the text; a prop only the code has is named, not mapped.
+- **A «(Recommended)» option in every question:** `design-system` step 3 (posture: the one the
+  code suggests; case A token source: the code files), step 5d («Лише записати пропозицію в
+  канон», the file is someone else's), the «Оновити» value question; `screens` (the «Screens ·
+  <slug>» page: yes; existing frames: «Розібрати ці фрейми»); `read-frames.md` (the most likely
+  screen · state pair, the later version, «Попросити дизайнера»); the `ux-flows` contradiction
+  question («Лишити як у джерелі»).
+- **The canon template no longer offers values with `<slug>`** that self-check item 4 then
+  rejected; item 4 now says the frame-name pattern is not a placeholder. On a first run with
+  «Foundations write permission: not allowed», `design-system` writes «Screens write permission:
+  not asked yet», and `screens` treats it as «ask».
+- **`library_frame` in Figma** is one thing everywhere: the page (`<page>`, or `<page> /
+  <section>`), never `(top level)` (`design-keeper` step 3 and «Known tools», design-line §8).
+- **A type scale kept as text styles counts as present** in Figma; no number variables are
+  proposed for it (design-line §8, `design-keeper` step 4).
+- **Hidden layers in a designer's frame** are not a state: listed under `## Assumptions`, and in
+  §Ask the designer when one looks like a state; nothing unhidden.
+- Cheaper ones from the same report: variable names match with `-` and `/` alike (`--gray-0` ↔
+  `gray/0`, `--space-4` ↔ `space/4`); spacing seeds every step the code uses (the 4 / 8 / 12 /
+  16 / 24 / 32 list was an example); case A conventions come from the code, marked `derived`, no
+  question; `figma_get_variables` with `refreshCache: true` (it returned a stale cache in a long
+  session).
+- Not changed: the background dispatch inside a teammate session (an artefact of a run without
+  subagents).
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing. If an earlier read-mode run left the four preset annotation
+  categories in a Figma file, they are Figma's defaults and harmless; delete them in Figma if
+  unwanted.
+- **Not run live:** these fixes. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.9.0] — 2026-11-10
 
 ### Added — `screens` read mode: the designer already drew the screens

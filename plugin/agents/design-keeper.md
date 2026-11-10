@@ -108,7 +108,9 @@ a. the frame (page, section) the dispatch names as `library_frame`, when the doc
    sit there (named but absent → say so in the report and go on to b);
 b. the top-level frame that holds the document's reusable components; if several do, the one that
    holds the most (report the others with their component counts); if the components sit on the
-   canvas themselves, in no frame, the library frame is `(top level)`;
+   canvas themselves, in no frame, the library frame is `(top level)` — except in Figma, where a
+   page is the top level: components on a page's canvas → the library frame is `<page>`, and in
+   one section of it `<page> / <section>` (design-line §8);
 c. none: the document has **zero** reusable components → only then is a top-level frame (in Figma:
    a page) named «DS · Foundations» created (step 5; the empty-document case).
 
@@ -145,10 +147,13 @@ themed light + dark when the source defines both:
 - **radii:** every radius token;
 - **typography:** font families (string variables or text styles) and the type scale (number
   variables, one per size, e.g. `--text-*` → `text-size-*`; line heights too when the source has
-  them);
+  them). **A scale the document already keeps as text styles counts as present** (Figma: one
+  text style per size with its family, size and line height): propose no number variables for
+  it;
 - **spacing:** the project's spacing tokens; when the source has none but the code uses Tailwind
-  (or another framework) defaults, seed the base steps the code actually uses (e.g. 4, 8, 12, 16,
-  24, 32 px as `space-*`) and say in the report that they came from the framework defaults.
+  (or another framework) defaults, seed **every** step the code actually uses (find them in the
+  code: 4, 8, 12, 16, 24, 32 px are only an example, 6, 10, 14 or 20 count when the code uses
+  them) as `space-*`, and say in the report that they came from the framework defaults.
 
 A group the source does not have at all is listed in the report as «not in the token source»,
 never invented. Read what exists → diff the document's variables against the token source, every
@@ -156,7 +161,9 @@ theme separately, and sort each variable into one of four lists:
 
 - **new in the code** — the source has the token, the document has no variable for it → add it;
 - **same** — the same name (under the mapping you seed with: CSS `--primary` → `primary`,
-  `--text-*` → `text-size-*`) and the same value in every theme → nothing to do;
+  `--text-*` → `text-size-*`; a `-` between a group and its step may be `/` in the tool, so
+  `--gray-0` ↔ `gray/0` and `--space-4` ↔ `space/4`) and the same value in every theme → nothing
+  to do;
 - **changed in the code** — the same name, another value in at least one theme → see «Values
   that changed in the code» below;
 - **in the document, not in the code** — a variable with no token of that name in the source:
@@ -392,11 +399,13 @@ a document that is not open («wrong .pen file»); pass the `uri` wherever a too
 `/file/`). Figma saves by itself. A Figma file is a URL: unless the person created it in this run,
 `allow_writes` is the person's answer, and without it you only propose.
 
+- **library frame in Figma:** the page (`<page>`, or `<page> / <section>`), never `(top level)`;
 - **Figma Console MCP:** gate = `figma_get_status` (`probe: true`) + `figma_list_open_files`: the
   canon's file key is connected through the Desktop Bridge plugin and is the active target, or pass
   its `fileKey` on every call. STOP action «open `<URL>` in Figma Desktop and run the Desktop
   Bridge plugin in it (Plugins → Development)». Read: `figma_search_components` (node ids are per
-  session: search again every session), `figma_get_variables`, `figma_get_styles`. Write:
+  session: search again every session), `figma_get_variables` (with `refreshCache: true`: it
+  caches, and a long session otherwise compares against a stale copy), `figma_get_styles`. Write:
   `figma_execute` (plugin-API JavaScript; a component set = `figma.combineAsVariants`),
   `figma_setup_design_tokens` / `figma_batch_create_variables` for variables with `Light` / `Dark`
   modes; a theme card of the foundations sheet gets the colour collection's mode set on its frame.

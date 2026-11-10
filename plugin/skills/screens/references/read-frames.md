@@ -29,28 +29,44 @@
   canon» and the handoff recommends `/sdlc:design-system`.
 - **Read through the tool's read tools only** (design-line §6 «Capabilities»): Figma Console:
   `figma_get_status` / `figma_list_open_files` (the file must have Desktop Bridge running for
-  runtime reads), `figma_execute` with read-only plugin-API code, `figma_get_annotations`,
-  `figma_capture_screenshot`; the official Figma MCP: `get_metadata`, `get_design_context`,
+  runtime reads), `figma_execute` with read-only plugin-API code (annotations too, §4),
+  `figma_capture_screenshot`, `figma_get_variables` with `refreshCache: true` (in a long session
+  it returns a stale cache otherwise); the official Figma MCP: `get_metadata`, `get_design_context`,
   `get_screenshot`, `get_code_connect_map`; pen.dev: a read-only `execute`. Property names come
-  from the tool's guide or from an existing node, never from a probe node.
+  from the tool's guide or from an existing node, never from a probe node. **Not**
+  `figma_get_annotations`: in a live run it created the file's four preset annotation categories
+  (`isPreset: true`), a write.
 
 ## 2. Frames → screens and states
 
 1. List every frame under the given node: name, node id, size, and its tree (instances with their
    main component, text, hidden layers).
-2. Map each frame to a screen (`SCR-NN` from `ux-flows.md`; no flows → from the story or the
-   design spec, with a noted gap in §Source) and to a state (the six classes and the named states
-   of `_shared/design-line.md` §3), by its name («Chat · Error», «SCR-02 empty»), by what it shows
+2. Map each frame to a screen and to a state (the six classes and the named states of
+   `_shared/design-line.md` §3), by its name («Chat · Error», «SCR-02 empty»), by what it shows
    (an `EmptyState` instance → `empty`, a disabled Send with an inline message → `validation`)
-   and by the branches landing on the screen.
+   and by the branches landing on the screen. The screens come from the first source that exists:
+   `ux-flows.md` (`SCR-NN`), the story, the design spec, else **the frames themselves**.
+   **No flows, no story, no spec is a full read, not a degraded one** (a Figma lesson has no
+   flows): number the screens `SCR-NN` from the frames' names, the labels of the rows or
+   sections on the page and how the frames are grouped; frontmatter `input: frames`; no question
+   asking for 3–5 sentences. A state that only a frame name gives (`ended`, `empty-no-topic`) is a
+   named state with the source `frame:<node id>`, not a `D-NN`. Stop only when the link holds no
+   frames at all.
 3. **Ambiguous frames are asked about in one batch**: one `AskUserQuestion` (up to 4 questions,
    one per frame, each frame's name and a one-line description of what it shows, the options =
-   the likely screen · state pairs + «Other»). More than 4 → a second batch. Headless → pick the
-   most likely pair, record it under `## Assumptions` with the reason.
+   the likely screen · state pairs, the most likely first as «(Recommended)», + «Other»). More
+   than 4 → a second batch. Headless → pick the most likely pair, record it under
+   `## Assumptions` with the reason.
 4. A frame that maps to no screen of this feature (another feature, a moodboard, a component
    sheet) is listed in §Source as «not a screen of <slug>», never forced into a state.
-5. Two frames for the same screen · state (two versions) → one question which one is current;
-   headless → the one placed later / named «final» / «v2», recorded under `## Assumptions`.
+5. Two frames for the same screen · state (two versions) → one question which one is current
+   (the one placed later / named «final» / «v2» first, «(Recommended)»); headless → that one,
+   recorded under `## Assumptions`.
+6. **Hidden layers in a designer's frame** (switched off, zero opacity) are not a state: never
+   count a frame as `error` because a hidden error banner sits in it. List them under
+   `## Assumptions` (frame, layer name); when a hidden layer looks like a state of its own (an
+   error banner, an empty message), also add «is <layer> a separate state?» to §Ask the designer.
+   Nothing is unhidden or deleted: read mode writes nothing.
 
 ## 3. Coverage — every class, every screen
 
@@ -64,8 +80,8 @@ with one of three statuses:
 
 The missing states go into `screens.md` §Ask the designer: one line each, what to draw and why
 (the branch token: `W-01`, `D-02`, `AC-03`). Then one question (interactive): «Попросити
-дизайнера» (only the list, nothing drawn) / «Домалювати відсутні стани на сторінці «Screens ·
-<slug>»» → §5. Headless → only the list.
+дизайнера (Recommended)» (only the list, nothing drawn; the designer's file stays theirs) /
+«Домалювати відсутні стани на сторінці «Screens · <slug>»» → §5. Headless → only the list.
 
 ## 4. Components and behaviour
 
@@ -90,9 +106,15 @@ Then mark what is not a clean instance:
 **Behaviour: only what the tool really gives.** Pop-ups, transitions and animations are not in a
 static frame. Read, where the session's tool has it:
 
-- **annotations** on the frames and their nodes (Figma Console: `figma_get_annotations`);
+- **annotations** on the frames and their nodes, read as the node property `annotations` in a
+  read-only `figma_execute` (each has `label`, `labelMarkdown`, `properties`, `categoryId`; Figma
+  plugin API). Do not call `figma_get_annotations` or the `figma.annotations` category methods:
+  the Console tool created the file's preset categories in a live run, and the category API is
+  not documented as write-free. Report a category by its `categoryId`; its name needs that API,
+  so ask the person first and name the side effect, or leave the id;
 - **prototype reactions** of the nodes (Figma: a node's `reactions`: the trigger, e.g. on click,
   and the action, e.g. open an overlay, navigate to a frame, with its transition and duration);
+- on pen.dev and another tool: its notes or comments on nodes, when its read tools return them;
 - **Code Connect instructions**, when the official Figma server put them into a node's context
   (`<CodeConnectSnippet>`; design-line §8). Which annotations the official server returns is not
   documented: use them if they come, promise nothing.
