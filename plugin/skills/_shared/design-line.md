@@ -361,8 +361,10 @@ mode and write the degradation into `screens.md` §Source and the handoff («<to
 
 The Pencil tools: `get_app_state`, `execute`, `read_skill`, `get_style`, `save` (newer servers),
 `browser`, prefixed per session (e.g. `mcp__pencil__execute`). The design file is a local `.pen`.
-Every `execute` carries a `description` (3–8 words starting with a verb): pen.dev shows it in the
-history.
+Every `execute` and `save` call carries the document (the parameter the tool's schema names:
+`uri` = `file:///<absolute path>`, or `filePath` = the absolute path), the snippet in `input`
+(never `code`), and a `description` (3–8 words starting with a verb, shown in pen.dev's history).
+No call goes without the document, even when the server would fall back to the active one.
 
 1. **Never edit `.pen` JSON by hand.** The file is JSON on disk, but it is changed only through the
    pen.dev app, its MCP, or its CLI: no `Read`/`Edit`/`Write`, no `sed`, no `python`, no
@@ -370,8 +372,9 @@ history.
 2. **Open-document gate before every write.** Older servers write into whatever document is
    active in the app; newer ones take the document's `uri` and refuse a document that is not open
    («wrong .pen file»). Either way, call `get_app_state` first; continue only when the canon's
-   design file is the active document, and pass its `uri` (`file://<absolute path>`) wherever a
-   tool asks for one. Anything else (another file, no file, app closed) →
+   design file is the active document, and pass it in **every** `execute` and `save` call (`uri` =
+   `file:///<absolute path>`, or `filePath`, whichever the schema names), not only where a call
+   would fail without it. Anything else (another file, no file, app closed) →
    STOP and ask the user to open the `.pen` in pen.dev (macOS: `open <path>`); never write into a
    foreign document, never create probe nodes.
 3. **Persist, then check the disk.** MCP edits live in the app's memory until the document is

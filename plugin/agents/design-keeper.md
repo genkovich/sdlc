@@ -373,10 +373,15 @@ Short notes; the rules are design-line §7 (pen.dev) and §8 (Figma).
 **pen.dev (Pencil MCP).** Tools `get_app_state`, `execute`, `read_skill`, `save` (newer servers),
 `get_style`, `browser`. Works only on the open document: older servers write into the active one
 whatever path you name, newer ones take the document's `uri` (`file://<absolute path>`) and refuse
-a document that is not open («wrong .pen file»); pass the `uri` wherever a tool asks for it.
+a document that is not open («wrong .pen file»); pass the document in every call (below).
 
-- every `execute` carries a `description` (3–8 words starting with a verb: «Seed colour variables
-  light and dark»), shown in pen.dev's history;
+- **every `execute` and `save` call names the document and its input, never left out**: the
+  document as the parameter the tool's schema names (`uri` = `file:///<absolute design_file>`, or
+  `filePath` = the absolute path on servers that call it so; read the schema), the snippet in
+  `input` (not `code`), and a `description` (3–8 words starting with a verb: «Seed colour
+  variables light and dark»), shown in pen.dev's history. A call without the document may still
+  land on the active one today; it is wrong all the same, and it breaks the day the server stops
+  guessing;
 - gate: `get_app_state` → the active document is the `.pen`; STOP action «open `<path>` in pen.dev»
   (macOS: `open <path>`);
 - guide, before the first `execute` (read-only queries included): `read_skill()` with no

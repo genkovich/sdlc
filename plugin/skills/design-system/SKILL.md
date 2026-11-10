@@ -332,8 +332,9 @@ of them is a permission prompt on camera and a rejection headless.
    under `## Assumptions`) or the write was checked — a local file changed on disk (step 5e), a URL
    has the keeper's read-back in its `saved:` line; no «DS · Directions» frame is left in the
    document; on «Оновити», a changed value was written only per the owner rule (a repo path, or a
-   URL after the person's yes), «Last sync with the document» matches the keeper's report, and
-   every changed colour with a text pair has its contrast in the handoff (both themes);
+   URL after the person's yes), «Last sync with the document» matches the keeper's report, every
+   changed colour with a text pair has its contrast in the handoff (both themes), and the handoff
+   has the line «contrast: N pairs checked, M below AA» (N = 0 when no colour changed);
    (6) step 4b ran → `## Sources` lists every reference (read or unread) and `## Assumptions` every
    decision with its source tag (`answer` / `ref:N` / `derived`); interactive: the tokens file
    exists (`test -s`; `docs/design/tokens.json` parses with `python3 -m json.tool`), holds both

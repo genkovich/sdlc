@@ -257,7 +257,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
 
      **pen.dev** (`tool: pencil`, design-line §7):
      - a: `get_app_state` → the active document must be the canon's `.pen`; pass its `uri`
-       (`file://<absolute path>`) wherever a tool asks for one. Guide:
+       (`file:///<absolute path>`, or `filePath`, whichever the schema names) in **every**
+       `execute` and `save` call, the snippet in `input`. Guide:
        `read_skill({ path: "execute.md" })` once before drawing.
      - b–c: every change goes through `execute`; frames with `clip: true`; components are `ref`
        instances, a `NEW:` or `code-only` component is created with `reusable: true`; each variant

@@ -4,6 +4,31 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.4] — 2026-11-11
+
+### Fixed — after the lesson 5.5 recheck on 4.10.3 (pen.dev)
+
+The contrast check worked (white on `#22C55E` = 2.28:1, as WCAG gives it), without Bash and
+without a permission prompt. Two small holes:
+
+- **The summary line was missing.** The handoff had the pairs but not «contrast: N pairs checked,
+  M below AA». `design-system` self-check item 5 now requires that line on «Оновити» (N = 0 when no
+  colour changed).
+- **`execute` without the document.** `design-keeper` sent all six `execute` calls without `uri`
+  (the first one with the key `code` instead of `input`); the server fell back to the active
+  document. Now every `execute` and `save` call carries the document in the parameter the tool's
+  schema names (`uri` = `file:///<absolute design_file>`, or `filePath` where the server calls it
+  so), the snippet in `input`, and its `description`; no call goes without them
+  (`design-keeper` «Known tools», `_shared/design-line.md` §7 and rule 2).
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing.
+- **Not run live:** these fixes. `claude plugin validate` passes for the plugin and the
+  marketplace.
+
 ## [4.10.3] — 2026-11-11
 
 ### Fixed — after the lesson 5.5 rehearsal on 4.10.2 (pen.dev, «Оновити»)
