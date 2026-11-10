@@ -37,18 +37,21 @@ Verify: `claude /plugin list` shows `sdlc`; `/sdlc:interview` (or any other slas
 Works in a repo with no PRD and no SAD (the course uses it in module 5, before the backbone): the
 input is a 3–5 sentence user story. With a PRD and a SAD present (module 6+) the same skills run in
 full mode and plug into the backbone (`ux-flows` after `clarify-prd`, `screens` after `api-forge`).
-Shared rules, file layout and the pen.dev gates: [`skills/_shared/design-line.md`](skills/_shared/design-line.md).
+Shared rules, file layout and the design-tool gates (the same for every tool, then pen.dev, Figma,
+any other): [`skills/_shared/design-line.md`](skills/_shared/design-line.md).
 
 | Step | Command | Writes |
 |---:|---|---|
-| 1 (once per repo) | `/sdlc:design-system` | `docs/design/design-system.md` (+ the `.pen` document on pen.dev) |
+| 1 (once per repo) | `/sdlc:design-system` | `docs/design/design-system.md` (+ the design document reconciled through its MCP: `.pen` on pen.dev, a Figma file, …; no tokens yet or an empty project → a short interview with references and 2–3 directions, then the tokens in the project's theme file or `docs/design/tokens.json` and a starter component set) |
 | 2 | `/sdlc:ux-flows <slug> <story>` | `docs/features/<slug>/story.md` + `ux-flows.md` (flows, `SCR-NN` inventory, «what can go wrong» branches) |
 | 3 | `/sdlc:prepare-design-spec <slug>` | `docs/features/<slug>/design-spec.md` (spec + Definition of Done) |
 | 4 | `/sdlc:screens <slug>` | `docs/features/<slug>/screens.md` (screens × states × components) + `screens/SCR-NN-<state>.png` |
 | 5 | build the screens, then `/sdlc:verify-ui <slug>` | `docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>.md` + screenshots |
 
-Tools: pen.dev (Pencil MCP), Figma (optional), or `code` mode (markdown wireframes, always
-available, the fallback when the MCP is missing).
+Tools: any design tool whose MCP the session has (pen.dev through the Pencil MCP, Figma through
+Figma Console or the official Figma MCP, others), or `code` mode (markdown wireframes, always
+available, the fallback when the MCP is missing). One agent, `sdlc:design-keeper`, reconciles the
+library in every tool.
 
 Install: `/plugin marketplace add genkovich/sdlc` + `/plugin install sdlc@sdlc` (see Install below).
 Already have an older version (e.g. 4.5.1)? In a terminal, then restart `claude`:
@@ -95,10 +98,10 @@ playwright-cli install-browser chrome   # only if open says: Browser "chrome" is
 | [`fix-term`](skills/fix-term/SKILL.md) | `/sdlc:fix-term` | `CONTEXT.md` glossary (+ multi-context `CONTEXT-MAP.md`) |
 | [`decide-adr`](skills/decide-adr/SKILL.md) 🚪 | `/sdlc:decide-adr` | standalone `adr/NNNN-*.md` (blast-radius worthiness gate, Proposed → Accepted) |
 | [`roadmap`](skills/roadmap/SKILL.md) | `/sdlc:roadmap` | `docs/roadmap.md` (Now / Next / Later / Shipped tables) |
-| [`design-system`](skills/design-system/SKILL.md) | `/sdlc:design-system` | `docs/design/design-system.md` — tool, posture, tokens, component inventory (+ the `.pen` component library via `sdlc:pen-keeper`) |
+| [`design-system`](skills/design-system/SKILL.md) | `/sdlc:design-system` | `docs/design/design-system.md` — tool, posture, tokens, component inventory (+ the design document's component library via `sdlc:design-keeper`, any tool); builds the foundation with you when the project has no tokens |
 | [`ux-flows`](skills/ux-flows/SKILL.md) | `/sdlc:ux-flows` | `docs/features/<slug>/ux-flows.md` (+ `story.md`) — works from a short story without a PRD |
 | [`prepare-design-spec`](skills/prepare-design-spec/SKILL.md) | `/sdlc:prepare-design-spec` | `docs/features/<slug>/design-spec.md` |
-| [`screens`](skills/screens/SKILL.md) | `/sdlc:screens` | `docs/features/<slug>/screens.md` + `screens/SCR-NN-<state>.png` (pen.dev / Figma) or inline wireframes (code) |
+| [`screens`](skills/screens/SKILL.md) | `/sdlc:screens` | `docs/features/<slug>/screens.md` + `screens/SCR-NN-<state>.png` (any design tool that can export) or inline wireframes (code) |
 | [`verify-ui`](skills/verify-ui/SKILL.md) | `/sdlc:verify-ui` | per-criterion live browser verdict + screenshot evidence in `_review/verify-ui-<date>.md` |
 | [`user-documentation`](skills/user-documentation/SKILL.md) | `/sdlc:user-documentation` | end-user flow docs + linked User Guide index from a live app (screenshots, optional screencasts) |
 
@@ -119,7 +122,7 @@ playwright-cli install-browser chrome   # only if open says: Browser "chrome" is
 | `sdlc:refactor` | REFACTOR — tidy while green, isolated (sonnet) | implement-tasks |
 | `sdlc:reviewer` | Final feature review (opus) | review-feature |
 | `sdlc:doc-flow` | Per-flow user-doc walk + write (sonnet) | user-documentation |
-| `sdlc:pen-keeper` | Seed the pen.dev document from the design canon after the active-document check; recognizes an existing component library, never duplicates it (sonnet) | design-system |
+| `sdlc:design-keeper` | Reconcile the design document with the canon in any design tool with an MCP: target-document check, permission by the file's owner (a repo file written freely, a URL file only after a yes), foundations and one foundations-sheet layout for every tool, recognizes an existing component library and never duplicates it (sonnet) | design-system |
 
 ## Shared mechanisms
 
@@ -130,7 +133,7 @@ playwright-cli install-browser chrome   # only if open says: Browser "chrome" is
 | `agent-roster.md` | Model/effort/agents policy for all 12 agents |
 | `ask-style.md` | AskUserQuestion formatting conventions |
 | `critic.md` | Critic-phase protocol (clean-context adversarial review) |
-| `design-line.md` | Design line: order, file layout, input ladder without a PRD, provenance tokens, pen.dev / Figma / code rules |
+| `design-line.md` | Design line: order, file layout, input ladder without a PRD, provenance tokens, gates for any design tool + pen.dev / Figma / other / code rules |
 | `diagram-presentation.md` | Mermaid diagram rendering and presentation rules |
 | `handoff.md` | Stage-handoff block template (every skill ends with one) |
 | `interview-depth.md` | Depth-dial (1–5) for the ideation interview |
@@ -179,10 +182,10 @@ Per-skill specifics (templates + key references):
 | `fix-term` | `templates/CONTEXT.md` (lazy bootstrap for the per-feature glossary) |
 | `classify-size` | no template — writes a 1-line `.size` file |
 | `roadmap` | `templates/roadmap.md` (Now/Next/Later/Shipped tables) |
-| `design-system` | `templates/design-system.md` (the canon); dispatches `sdlc:pen-keeper` on pen.dev |
+| `design-system` | `templates/design-system.md` (the canon, with `## Sources`); `references/foundation.md` (no tokens yet: value scan, Socratic interview, directions, starter foundation with AA contrast, token writing, starter component set, headless); dispatches `sdlc:design-keeper` on any design tool |
 | `ux-flows` | `templates/{ux-flows,story}.md`; story mode without a PRD |
 | `prepare-design-spec` | `templates/design-spec.md`; repository-aware design-entry contract |
-| `screens` | `templates/screens.md` (the manifest); pen.dev export + `test -s` gate |
+| `screens` | `templates/screens.md` (the manifest); design-tool export + `test -s` gate (a named gap when the tool cannot export) |
 | `user-documentation` | `templates/{flow-doc,user-guide-index}.md`; `references/{style-guide,determinism,flow-inventory}.md`; `scripts/{validate-docs.py,replay-screencast.sh}`; dispatches `sdlc:doc-flow` per flow |
 
 ## DB exception

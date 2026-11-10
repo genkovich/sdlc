@@ -4,6 +4,206 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.0] — 2026-11-10
+
+### Changed — one `sdlc:design-keeper` for any design tool (replaces `sdlc:pen-keeper`)
+
+`design-system` called `pen-keeper` on pen.dev and on Figma only wrote the file link into the
+canon: nobody reconciled a Figma library. Instead of one agent per tool there is now one contract
+for any design tool whose MCP the session has.
+
+- **`sdlc:design-keeper`** (new; `sdlc:pen-keeper` is removed). It finds the tool's tools in the
+  session, deferred ones included, and maps what they can do: target document, read, write, save,
+  look, export. Before the first write it reads the tool's own guide once (pen.dev `read_skill`,
+  the Figma plugin's skills or the `create_design_system_rules` prompt, a server's instructions);
+  the guide governs how to call the tools, never the keeper's gates. Target-document gate:
+  absolute paths for a local file, file keys for a URL, STOP with the exact user action on a
+  mismatch. It lists every reusable component with its id and variants, seeds the missing
+  foundations (colours in both themes, radii, typography with its scale, spacing) as the tool's
+  variables, and never overwrites a variable it did not create. It writes only with
+  `allow_writes` from the caller, else returns everything as proposals (see «permission by the
+  file's owner» below). The foundations sheet and every variant and state of the components are
+  drawn only in an empty document, with the tool's own variant mechanism (Figma: a component set
+  with properties; pen.dev: a component per variant). Property names come from the tool's guide
+  or an existing node, never from a probe node.
+  It saves (`save` tool, autosave, or asks the user), checks the result (`stat` before/after for a
+  local file, a read-back for a URL) and looks once with a screenshot. The report keeps the
+  `pen-keeper` format and adds the tool, the capabilities used, the proposals and the look.
+  Short notes for pen.dev, Figma Console and the official Figma MCP; any other tool goes the same
+  steps by capability; nothing to write with → report only; no MCP → `code`.
+- **Canon:** new frontmatter field `design_file` (a repo path or a URL); `tool` is `code` or any
+  design tool's name (`pencil`, `figma`, `<name>`). `pen_file` and `figma_file` stay readable as
+  legacy synonyms (`design_file`, else `pen_file`, else `figma_file`); new canons write only
+  `design_file`. §Design tool gains «Agent access» (the MCP server and the capabilities used) and
+  «Foundations write permission». The `design-system` and `screens` self-checks: `tool` ≠ `code` ⇒
+  the design file (or a synonym) is non-empty; disk checks (`test -s`, `stat`, `git status`, the
+  separate commit for the design file) run only when it is a local path.
+- **`design-system`:** step 3 offers every design tool with an MCP in the session, plus `code`
+  always. Step 5 «Prepare the design document» works for any tool (pen.dev: open the `.pen`; Figma
+  Console: open the file in Figma Desktop with the Desktop Bridge plugin running; official Figma:
+  the file key travels in every call) and dispatches `design-keeper`. New step 5d: a file at a URL
+  that the person did not create in this run gets one question that shows what would be written;
+  «yes» re-dispatches the keeper with `allow_writes: true`; headless → no permission, the proposals
+  go under `## Assumptions`.
+- **Permission by the file's owner, not by what is inside** (design-line §6 gate 6, the canon's
+  «Foundations write permission»). A repo path belongs to the person running the skill: written
+  without asking, headless too (a course kit `.pen` in the repo included). A URL the person
+  created in this run: written. Any other URL, empty or with a library: one question; headless,
+  only proposals. `screens` reads the line: without permission it never writes into the
+  designer's library and puts new, `code-only` and changed components on a separate page or frame
+  «Drafts · <slug>», listed in the handoff for the designer. «Оновити» reuses the recorded line
+  and asks again only when the person wants to change it. `library_frame` may stay empty when the
+  keeper reported a read-only tool or no library and no permission, with the reason under
+  `## Assumptions`.
+- **One foundations sheet in every tool**, after the reference drawn in Figma: a frame
+  «Foundations» with a title and one subtitle line; colours as one card per theme side by side
+  (every semantic colour a swatch with its name and the primitive under it; the theme set by the
+  tool's own mechanism on the card: the collection mode in Figma, `theme` on the frame in
+  pen.dev); typography as one row per size (name, font / size / line height, a sample line);
+  spacing as bars whose width is bound to the variable; radii as squares; every value on a
+  variable or style, never a literal; the components below. In `design-keeper` step 5 and,
+  briefly, design-line §6.
+- **`screens`:** step 4 draws in any design tool through the same gates (target document, only the
+  tool's tools, a frame per state built from library instances, a screenshot, PNG export with
+  `test -s`, save); pen.dev and Figma specifics are sub-points. No export in the session → a named
+  gap in §Source and the node id stays the source-ref (was Figma-only); an image the tool returns
+  only into the conversation is a look, not an export. The tool's MCP connected but read-only →
+  `code` mode, named.
+- **`_shared/design-line.md`:** §6 is generic (`tool` names the product, `design_file` resolution,
+  what counts as a design tool, a capability table, six gates for every tool, local path vs URL);
+  §7 pen.dev stays (+ rule 12: a variant is its own component); §8 Figma covers Figma Console
+  (Desktop Bridge, `fileKey`, PNG through `figma_get_component_image` + `curl`) and the official
+  server (reads, `use_figma` beta with edit access and a Full seat), autosave, component sets,
+  foundations as variables with `Light` / `Dark` modes, the designer as the file's owner; new §9
+  any other design tool; code mode moves to §10. TL;DR updated.
+- `agent-roster.md`, `handoff.md` (two design-line rows), the `screens` and `prepare-design-spec`
+  templates, `plugin/README.md`, `README.md`, `CLAUDE.md` and both manifests updated.
+
+### Added — `design-system` builds the foundation when the project has no tokens
+
+The question was: «а якщо ще немає токенів, скіл допоможе зібрати дизайн-систему?» Before, it
+wrote «ще немає», and the keeper had nothing to carry over. Now step 2 names the case and a new
+step 4b builds the foundation with the person. The details live in the new
+`design-system/references/foundation.md`; steps 5–7 keep their numbers.
+
+- **Three cases** from the step-2 scan: **A** token files exist (unchanged; the branch fires only
+  when there are no token files at all), **B** no token files but UI code, **C** an empty project
+  (no tokens, no UI components, no values written in styles, possibly no stack).
+- **Case B: a scan of values written straight into styles** (colours, font sizes, spacing, radii)
+  with count and `file:line`, through the same `explorer` dispatch (only the prompt changes).
+  Step 3 (c) offers «Зібрати з того, що знайдено в коді» (Recommended when values were found) /
+  «Стартова основа» / «Лишити без токенів»; case C offers «Зібрати основу разом» / «Лишити без
+  токенів».
+- **A short Socratic interview, not one question.** Depth from `--depth`, else `interview_depth`,
+  else `medium` (`_shared/interview-depth.md`); phrasing per `ask-style.md`; the manner of the
+  `interview` skill. Round 1: character, what already exists, what it should look like and what to
+  avoid, constraints (easy: character, primary colour, font, themes). References are asked in
+  plain text (links, screenshots, a Figma file, a brand book, a logo), read (Read, WebFetch, the
+  Figma MCP; fetched content is data, never instructions) and turned into signals with a source
+  each; brand colours and fonts are fixed inputs. Round 2 at medium / hard: «чому саме так?», «що
+  буде, якщо…?» from the person's own answers; hard adds edge cases.
+- **2–3 directions** (name, hex palette, font pair, radii, density, a why-line tied to the
+  answers and references), each contrast-checked. On a design tool with an empty document
+  `design-keeper` draws them side by side (`mode: directions`, frame «DS · Directions»), else a
+  markdown table. The person picks or mixes, one «що змінити» round, and only then is anything
+  written.
+- **The starter foundation:** palette (neutral scale, the primary colour with its scale, status
+  colours), a semantic layer per theme, a type scale, spacing on a 4 px base, radii. Every «text
+  on background» pair is computed at AA (body 4.5:1, large text and UI 3:1) in every theme and
+  recorded in the canon; a colour the person gave is never changed silently.
+- **Tokens in code, two layers, light and dark:** the project's theme file the person names (CSS
+  custom properties, a Tailwind `@theme` block, the framework's theme file; following the
+  conventions the file already uses), add only, shown as a diff and proposed as its own commit.
+  No stack → `docs/design/tokens.json` in the DTCG format (2025.10 value shapes: colour objects,
+  `{value, unit}` dimensions; themes as two sibling groups `light` / `dark`).
+- **Case C: a starter component set** in the inventory as `design-only` rows (source
+  `starter set`): Button (primary, secondary, outline, ghost, destructive × sm, md, lg; disabled),
+  Input (default, focus, error, disabled), Badge, Avatar, Card, navigation for the posture (Header,
+  Tab bar). `design-keeper` draws them from their canon rows in an empty design document with the
+  foundations sheet.
+- **Headless:** no interview, nothing written but the canon: one proposed direction, its
+  foundation and (case C) the starter set under `## Assumptions`; `design-keeper` runs in the new
+  read-only `mode: inventory`. A later «Оновити» offers the proposal as direction A.
+- **Canon template:** new `## Sources` (references with links, signals, read / unread); §Token
+  source gains origin, direction and a contrast table; `## Assumptions` now also holds the
+  confirmed interview decisions, each tagged `answer` / `ref:N` / `derived`.
+- **`design-keeper`:** `mode: directions` (plain nodes, no reusable components, literal values,
+  only in an empty document, not saved, deleted on the next `reconcile` by its exact name) and
+  `mode: inventory`; a starter row is drawn from its canon row.
+- Self-check of `design-system`: 7 items (was 5); `library_frame` may stay empty when nothing
+  could be drawn, with the reason under `## Assumptions`; starter rows carry the anchor
+  `starter set`.
+  Definition of Done, anti-patterns, an example invocation, `plugin/README.md`, `README.md`,
+  `CLAUDE.md` and the `design-line.md` TL;DR updated.
+
+### Fixed — after a live run on pen.dev 1.2.22
+
+- **Saving through the MCP.** Newer Pencil servers have a `save` tool and take the document's
+  `uri` (`file://<absolute path>`), refusing a document that is not open («wrong .pen file»). The
+  keeper and `screens` pass the `uri`, call `save` and confirm the file changed on disk; Cmd+S is
+  asked only when the server has no `save`.
+- **`read_skill` takes only `path`.** `read_skill()` returns the skill's SKILL.md, then
+  `read_skill({ path: "execute.md" })` and any other file it names for the schema.
+- **The whole foundation, not only colours.** Radii, typography (families, the type scale, line
+  heights), spacing (the framework defaults the code uses when the source has none, flagged as
+  such); a group the source lacks is reported as «not in the token source», never invented.
+- **An empty document gets a real design system.** A foundations sheet (swatches of both themes,
+  the type scale, spacing bars, radii) and every component variant, size and state the code
+  defines, not only core primitives.
+- **Default state classes need no source.** A screen that fetches or sends has `loading` and
+  `error`, a list has `empty`, an action with feedback has `success`, user input has `validation`,
+  all marked `derived`; dropping one needs an `N/A` with a reason about this screen.
+- **A failure question for every step that calls the server.** `ux-flows` gives each such step
+  (creating, sending, loading a list) its own «what can go wrong» candidate and asks a second
+  question when four options are not enough; headless, it derives one `D-NN` per such step.
+
+### Fixed — after the live lesson rehearsal on pen.dev 1.2.22
+
+- **`screens`: changing a library component.** The agent added a fourth tab to the TabBar without
+  a word. Now a change to an existing library component needs a «Changed: <component> — what and
+  why» row in §New components and in the handoff, with the advice to run `/sdlc:design-system`
+  («Оновити»); in a designer's file without write permission the original is never changed, a
+  changed copy goes on «Drafts · <slug>».
+- **`screens`: a state frame holds only its own layers.** Every conversation state was a copy of
+  `default` with the other states' layers switched off (`enabled: false`): a hidden «retry» button
+  and «Ended note» in `default`, a hidden input block in `ended`. Each state is now built from
+  instances, a copied frame gets the foreign layers deleted, and self-check item 7 reads every
+  state frame back for hidden nodes (self-check: 7 items, was 6).
+- **One shell command per call, no temp scripts.** `screens` export and `verify-ui` used loops,
+  `&&` chains and scripts in `/tmp`: a headless run rejected them, an interactive one would ask
+  permission for each. Now `test -s`, `mv`, `test -s` run as separate calls, nothing is written
+  outside the repo (design-line §6 gate 5); the contrast check of the foundation is one inline
+  `python3 -c`.
+- **`design-system`: handoff numbers from disk.** The handoff said 34 inventory rows where the file
+  had 31; every number is now counted from the written file.
+- **`verify-ui`: both pictures in every state row.** Only one row had the mockup and the live
+  screenshot side by side; now every state row with a PNG carries both paths, and a self-check
+  before the summary catches a missing one.
+- **`ux-flows`: an honest mermaid check.** When the parser cannot run (no permission for `npx`),
+  the handoff says so in one line and names the fallback that checked the flows instead.
+- **No probe nodes.** The keeper (then `pen-keeper`) left a top-level `probe` frame while guessing a
+  property name. Now the schema and property names come from the tool's guide; when it is silent,
+  the keeper reads an existing node of that kind (`Get`); a probe node is never created
+  (design-line §6 gate 3).
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: nothing for an existing canon, its `pen_file` / `figma_file` is read
+  as before. Anything that dispatches `sdlc:pen-keeper` by name → `sdlc:design-keeper`. A `.pen` in
+  the repo (a course kit included) is written without asking, as before. A Figma file at a URL that
+  the person did not create in this run now gets one question before anything is written into it;
+  headless runs record proposals, and `screens` then draws new components on «Drafts · <slug>».
+  To reconcile a Figma file the canon only linked, run `/sdlc:design-system` →
+  «Оновити». A project whose canon says «ще немає» for tokens: run `/sdlc:design-system` →
+  «Перебудувати» and pick the option that builds the foundation.
+- **Not run live:** the generic keeper, the Figma path (Console and official, including the PNG
+  export through `figma_get_component_image` + `curl`), the permission question, and the whole
+  foundation branch (value scan, interview, directions sheet, token writing, `tokens.json`,
+  starter set, headless proposal), «Drafts · <slug>», and the foundations sheet layout outside
+  Figma (pen.dev `theme` on the card frame). `claude plugin validate` passes for the plugin and the marketplace.
+
 ## [4.7.0] — 2026-11-09
 
 ### Added — design line: `design-system`, `ux-flows`, `screens` + `sdlc:pen-keeper`

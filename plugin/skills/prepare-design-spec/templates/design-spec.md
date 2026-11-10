@@ -104,10 +104,10 @@ the `docs/design/design-system.md` inventory — they are not separate screen fr
 ## 13. Design references
 
 - Current UI evidence: <screenshot or route>
-- Design canon: `docs/design/design-system.md` (tool: <pencil | figma | code>)
+- Design canon: `docs/design/design-system.md` (tool: <the canon's tool name | code>)
 - Screen manifest: `docs/features/<slug>/screens.md` (fill after `/sdlc:screens`)
 - Approved frame URLs / node IDs and PNGs: <from screens.md — `docs/features/<slug>/screens/SCR-NN-<state>.png`>
-- Repo-local design file: <`pen_file` from the canon when tool is pencil>
+- Design file: <the canon's `design_file` (repo path or URL) when tool ≠ code>
 
 ## 14. Open decisions
 

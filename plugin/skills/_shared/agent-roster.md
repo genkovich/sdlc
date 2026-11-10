@@ -21,7 +21,7 @@ Model is chosen by the **kind of work**, not by taste — judgment gets the stro
 | `researcher` | competitive / adjacent-solution research (ideation) | `sonnet` | `medium` | Read, Grep, Glob, WebSearch, WebFetch |
 | `strategist` | generate the 3 strategic approaches (judgment) | `opus` | `high` | Read, Grep, Glob |
 | `analyst` | multi-perspective review of approaches (judgment) | `opus` | `high` | Read, Grep, Glob |
-| `pen-keeper` | reconcile the pen.dev document with the design canon (execution, MCP writes) | `sonnet` | `medium` | inherits the session's tools (Pencil MCP prefixes vary); uses only `get_app_state` / `read_skill` / `execute` + Read/Grep/Glob + `stat`/`test -s` |
+| `design-keeper` | reconcile the design document in any design tool with an MCP (pen.dev, Figma, others) with the design canon (execution, MCP writes) | `sonnet` | `medium` | inherits the session's tools (design-tool MCP names and prefixes vary per tool and per session); uses only the matching tool's MCP + Read/Grep/Glob + `stat`/`test -s` |
 
 Rationale: judgment quality (review, critique, ambiguity, strategy, multi-perspective synthesis) is where a stronger model pays off; execution (write code/tests to a clear spec) is well served by a balanced model and escalates only when it gets stuck; a read-only scan is cheap. The **ideation trio** (`write-prd` step 3, gated by the depth dial) follows the same logic: `researcher` is gathering-and-citing work (balanced model + web tools), while `strategist` and `analyst` are judgment (generating real alternatives, synthesizing across lenses) and get the strongest model. (Treat model-by-role as a sound principle — the headline "stronger orchestrator + cheaper workers wins by X%" claim from the multi-agent literature did not survive verification, so we lean on role-fit, not a magic ratio.)
 
@@ -29,7 +29,7 @@ Rationale: judgment quality (review, critique, ambiguity, strategy, multi-perspe
 
 These agents are **plugin-namespaced**. Spawn each with `subagent_type: "sdlc:<name>"` — the id Claude Code registers and shows in the available-agents list — **not** the bare name and **not** an `sdlc-…` prefix:
 
-`sdlc:explorer` · `sdlc:test-author` · `sdlc:implementer` · `sdlc:refactor` · `sdlc:reviewer` · `sdlc:critic` · `sdlc:devils-advocate` · `sdlc:researcher` · `sdlc:strategist` · `sdlc:analyst` · `sdlc:doc-flow` · `sdlc:pen-keeper`
+`sdlc:explorer` · `sdlc:test-author` · `sdlc:implementer` · `sdlc:refactor` · `sdlc:reviewer` · `sdlc:critic` · `sdlc:devils-advocate` · `sdlc:researcher` · `sdlc:strategist` · `sdlc:analyst` · `sdlc:doc-flow` · `sdlc:design-keeper`
 
 So when a skill says «dispatch the `explorer` agent», the call is `subagent_type: "sdlc:explorer"`. If the namespaced agent isn't available at runtime, fall back to the general-purpose (or `Explore`) agent the skill names, passing the same prompt.
 

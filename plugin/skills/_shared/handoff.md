@@ -93,10 +93,10 @@ Rules for filling it:
 | `fix-term` | `CONTEXT.md` | resume — e.g. `/sdlc:architecture-design <slug>` |
 | `decide-adr` | `adr/NNNN-<title>.md` | resume — `/sdlc:break-tasks <slug>` or `/sdlc:plan-tests <slug>` |
 | `roadmap` | `docs/roadmap.md` | resume your backbone stage |
-| `design-system` | `docs/design/design-system.md` (+ the `.pen` on pencil) | resume — `/sdlc:ux-flows <slug>` |
+| `design-system` | `docs/design/design-system.md` (+ the design file when it is a repo path and changed; + the tokens file when it built the foundation) | resume — `/sdlc:ux-flows <slug>` |
 | `ux-flows` | `docs/features/<slug>/ux-flows.md` (+ `story.md` when the story came inline) | `/sdlc:prepare-design-spec <slug>` ↳ backbone without `sad.md`: `/sdlc:architecture-design <slug>` |
 | `prepare-design-spec` | `docs/features/<slug>/design-spec.md` | `/sdlc:screens <slug>` |
-| `screens` | `screens.md` + `screens/SCR-NN-<state>.png` (+ the `.pen` when saved) | build the screens, then `/sdlc:verify-ui <slug>` · backbone: `/sdlc:break-tasks <slug>` with `screens.md` named in the prompt |
+| `screens` | `screens.md` + `screens/SCR-NN-<state>.png` (+ the design file when it is a repo path and was saved) | build the screens, then `/sdlc:verify-ui <slug>` · backbone: `/sdlc:break-tasks <slug>` with `screens.md` named in the prompt |
 | `verify-ui` | `_review/verify-ui-<YYYY-MM-DD>.md` + its screenshots | PASS: `/sdlc:review-feature <slug>` in the backbone · design line without a PRD: done, commit the feature · FAIL or SKIP: back to code / `/sdlc:implement-tasks <slug>` (no `/clear`) |
 
 ## Discipline

@@ -85,15 +85,19 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
    missed). One `AskUserQuestion`, `multiSelect: true`, built per
    [`../_shared/design-line.md`](../_shared/design-line.md) §4: the drafted happy path in one
    sentence as context, up to 4 failures most likely **for this story** as options, «Other» for
-   the rest. Each picked item becomes `W-NN` (source: the user's answer) and gets a branch. In the
+   the rest; every step that calls the server gets its own failure candidate, and when they do
+   not fit into 4 options a second question follows. Each picked item becomes `W-NN` (source: the user's answer) and gets a branch. In the
    same call, only if the canon is absent or the story implies a different platform, add a second
-   question to confirm the posture. **No question channel** (headless / `claude -p`) → derive the
-   2–4 most likely failures yourself as `D-NN`, and continue per §5 of the same file.
+   question to confirm the posture. **No question channel** (headless / `claude -p`) → derive
+   one failure per server-calling step plus the story's likely ones yourself as `D-NN`, and continue per §5 of the same file.
 
 4. **Write + confirm each flow — prose, never raw mermaid.** Bootstrap
    [`./templates/ux-flows.md`](./templates/ux-flows.md) → `docs/features/<slug>/ux-flows.md` on the
    first flow; write each flow as soon as it is drafted. Validate it parses per
-   [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md), then describe it in plain words —
+   [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md). When the real parser could not run
+   (no `mmdc`, no permission for `npx`), say so in the handoff in one line and name what checked it
+   instead («mermaid: `npx` not permitted — structural lint per mermaid-check.md»); never report a
+   parse that did not run. Then describe it in plain words —
    the happy path and **every** branch. `medium`/`hard`: one `AskUserQuestion` per flow with the
    4-state actions («Прийняти» / «Виправити» / «Винести у відкрите питання» / «Викинути»); on
    «Виправити» regenerate that one flow (one round, second answer final). `easy` or no question
@@ -113,7 +117,7 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
    flow or marked out of scope;
    (2) every SCR id used in a flow exists in the inventory, and every inventory row appears in ≥1 flow;
    (3) every §5 AC / every `W-NN` appears in the coverage table with a flow/branch or an explicit N/A;
-   (4) every mermaid block parses;
+   (4) every mermaid block parses (by the parser, or by the fallback the handoff names);
    (5) every branch and coverage row has a provenance token, and every `D-NN` / `derived` item is
    listed under `## Assumptions`.
    Fix and re-check at most 2 cycles; surface anything unresolved — never silently.
@@ -122,7 +126,8 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
    this run created it). Unresolved self-check item → no commit, say why. Then emit the
    **stage-handoff block** per [`../_shared/handoff.md`](../_shared/handoff.md) — *What I did*
    (mode + input source, N flows, N screens, N `W` / N `D` branches, N assumptions,
-   «self-check: 5/5 pass», the proposed commit; + «`docs/design/design-system.md` absent — run
+   «self-check: 5/5 pass», how the mermaid was checked (the parser, or the named fallback), the
+   proposed commit; + «`docs/design/design-system.md` absent — run
    `/sdlc:design-system`» when it was) + *Review* (`docs/features/<slug>/ux-flows.md`) + *Run next*:
    `/clear`, then `/sdlc:prepare-design-spec <slug>`; in full mode with no `sad.md` yet,
    `↳ or /sdlc:architecture-design <slug>` with `docs/features/<slug>/ux-flows.md` named in the

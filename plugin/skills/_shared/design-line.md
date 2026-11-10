@@ -1,10 +1,10 @@
 # Design line — order, file layout, input ladder, and design-tool rules
 
 > **Reference-only.** Not a skill. The design-line skills (`design-system`, `ux-flows`,
-> `prepare-design-spec`, `screens`), the `pen-keeper` agent and `verify-ui` read this file for
+> `prepare-design-spec`, `screens`), the `design-keeper` agent and `verify-ui` read this file for
 > where their artifacts live, where a feature's intent comes from when there is no PRD yet, and the
-> hard rules for drawing in pen.dev (Pencil MCP), Figma, or plain markdown. Each skill keeps a
-> one-line pointer and its own delta; the rules live **only** here.
+> hard rules for drawing in a design tool through its MCP (pen.dev, Figma, any other) or in plain
+> markdown. Each skill keeps a one-line pointer and its own delta; the rules live **only** here.
 
 ## TL;DR (короткий вступ українською)
 
@@ -20,9 +20,27 @@
   піти не так», а стани без джерела в AC позначаємо як виведені з історії. Є PRD і SAD (модуль 6+)
   → поведінка повна. Деградація, не відмова.
 - **Канон дизайну репо-рівня** лежить у `docs/design/`, усе фічеве лежить у `docs/features/<slug>/`.
-- **pen.dev:** `.pen` руками не правимо; перед записом перевіряємо активний документ; після
-  змін Cmd+S; перед `git checkout` зберегти й закрити; PNG кожного стану експортуємо і
-  перевіряємо `test -s`, бо експорт може тихо не створити файл або лишити його порожнім.
+- **Інструмент будь-який, у якого є MCP у сесії.** У каноні `tool` = `pencil` (pen.dev), `figma`
+  або назва іншого інструмента; документ дизайну лежить у полі `design_file` (шлях у репо або URL).
+  Старі поля `pen_file` і `figma_file` теж читаються. Бібліотеку звіряє один агент `design-keeper`
+  для будь-якого інструмента: сам знаходить tools інструмента, читає його гайд і йде тими самими
+  кроками.
+- **Перед записом перевіряємо, що відкритий саме файл з канону**, інакше стоп. Дозвіл писати
+  визначає власник файла. Файл у репо належить тому, хто запускає скіл: пишемо без питання, і в
+  headless теж. Файл за URL (Figma тощо), який не створили в цьому прогоні: одне питання, а без
+  відповіді лише пропозиції. Без дозволу `screens` не чіпає бібліотеку дизайнера і кладе нові
+  компоненти на «Drafts · <slug>». Аркуш основ і компоненти малюємо тільки в порожньому файлі, і
+  аркуш однаковий у кожному інструменті.
+- **pen.dev:** `.pen` руками не правимо; після змін зберегти (`save` з `uri` або Cmd+S); перед
+  `git checkout` зберегти й закрити; PNG кожного стану експортуємо і перевіряємо `test -s`, бо
+  експорт може тихо не створити файл або лишити його порожнім.
+- **Figma:** зберігається сама. Для Figma Console у відкритому файлі має працювати плагін Desktop
+  Bridge. PNG буде, коли якийсь tool пише файл або дає посилання на нього; інакше прогалина в
+  §Source, а id вузлів лишаються.
+- **Нема токенів або проєкт порожній** → `design-system` збирає основу разом з людиною: коротке
+  сократичне інтервʼю, референси, 2-3 напрямки на вибір, потім токени двома шарами (світла і темна
+  тема, контраст AA пораховано) у файл теми проєкту або `docs/design/tokens.json`, і стартовий
+  набір компонентів. Без каналу питань лише пропозиція в каноні.
 - **code-mode доступний завжди**: нема MCP → markdown-вайрфрейми і названа деградація.
 
 ---
@@ -31,7 +49,7 @@
 
 | Step | Skill | Runs | Reads | Writes |
 |---|---|---|---|---|
-| 1 | `design-system` | once per repo (refresh when the foundation changes) | the code's tokens + components; `docs/architecture-map.md` if present | `docs/design/design-system.md` (+ `pen_file` on pencil) |
+| 1 | `design-system` | once per repo (refresh when the foundation changes) | the code's tokens + components; `docs/architecture-map.md` if present | `docs/design/design-system.md` (+ the design document through its tool, `tool` ≠ `code`; + the tokens in the project's theme file or `docs/design/tokens.json` when it built the foundation) |
 | 2 | `ux-flows` | per UI feature | the input ladder (§3) + the canon | `docs/features/<slug>/ux-flows.md` (+ `story.md` when the story came inline) |
 | 3 | `prepare-design-spec` | per UI feature | the input ladder + `ux-flows.md` + the canon + the repo | `docs/features/<slug>/design-spec.md` |
 | 4 | `screens` | per UI feature | `ux-flows.md` + `design-spec.md` + the canon (+ `sad.md` §6, contracts when present) | `docs/features/<slug>/screens.md` + `docs/features/<slug>/screens/*.png` |
@@ -57,12 +75,13 @@ exist and names the missing ones in its handoff.
 
 ```text
 docs/design/design-system.md                     # canon: tool, posture, tokens, component inventory
-docs/design/<name>.pen                           # pencil only: the one design document (components + screens)
+docs/design/tokens.json                          # only when design-system built the foundation in a project with no stack (DTCG)
+docs/design/<name>.<ext>                         # a tool with files on disk (pencil: .pen): the one design document (components + screens); a cloud tool (figma) keeps only its URL in the canon
 docs/features/<slug>/story.md                    # the short user story (when there is no PRD)
 docs/features/<slug>/ux-flows.md                 # flows + screen inventory (SCR-NN) + coverage
 docs/features/<slug>/design-spec.md              # spec (BR-NN) + embedded Definition of Done (DOD-NN)
 docs/features/<slug>/screens.md                  # manifest: screens × states × components
-docs/features/<slug>/screens/SCR-NN-<state>.png  # pencil/figma only: one PNG per state
+docs/features/<slug>/screens/SCR-NN-<state>.png  # tool ≠ code, when the tool can export: one PNG per state
 docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>.md   # live browser verdict
 docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>/     # its screenshots
 ```
@@ -109,7 +128,7 @@ become requirements. When a user later confirms a `D-NN`, it is renumbered as th
 The six classes below are **checked for every screen**: each gets a row, either a real state or one
 `N/A: <reason>` row. On top of them a screen may have **named states** that come from flow
 branches (see the list under the table). The same id names the row in `design-spec.md` §8, the row
-in `screens.md`, the pen.dev frame (`<slug> · SCR-NN · <state>`), the PNG (`SCR-NN-<state>.png`)
+in `screens.md`, the design-tool frame (`<slug> · SCR-NN · <state>`), the PNG (`SCR-NN-<state>.png`)
 and the `verify-ui` verdict row.
 
 | Class | Meaning | Older names it replaces |
@@ -131,6 +150,13 @@ and the `verify-ui` verdict row.
   its own frame, PNG and verdict row under the same id. A bare name never reuses a class name.
 - **Hover / focus / disabled are component states**, not screen states. They come from the
   components in `docs/design/design-system.md` («States it supports») and get no screen frame.
+- **Default reading of the classes, no source needed (`derived`):** a screen that fetches data or
+  sends an action has `loading` and `error` (the network can be slow or fail even when nobody
+  named it); a screen that shows a list or a history has `empty`; a screen with an action that
+  finishes with feedback has `success`; a screen with user input has `validation` unless the
+  rejection is only a disabled control. These are real states with the token `derived`; dropping
+  one needs an `N/A` with a concrete reason about this screen (`loading · N/A: the modal opens with
+  data already on screen`), never «no source».
 - A class that does not apply to a screen gets one `N/A: <reason>` row, never silence. An `N/A` row
   has **no frame, no PNG and no verdict row**: it records that the class was checked
   (`validation · N/A: the disabled Send button is a component state`).
@@ -144,7 +170,9 @@ mode `ux-flows` asks for them explicitly after it has drafted the happy path:
   context = the drafted happy path in one sentence; up to 4 options = the most likely failures
   **for this story** (pick from: no data yet / empty, slow or failed network, the other person or
   object is gone or blocked, input rejected, no permission or not signed in, duplicate or
-  rate-limited action). The free-text «Other» answer adds more.
+  rate-limited action). Every step that calls the server gets a failure candidate of its own
+  (creating, sending, loading a list); when there are more candidates than 4 options, ask a second
+  question rather than dropping them. The free-text «Other» answer adds more.
 - Each chosen item becomes `W-NN` (Confirmed by the user) and gets a branch in a flow.
 - At `hard` depth in full mode (PRD present) the same question runs once for failures the ACs
   missed; any `W-NN` there is also flagged as a PRD gap for `/sdlc:clarify-prd`.
@@ -157,38 +185,134 @@ non-interactive), the skill **does not stop and does not invent answers silently
 failure as `D-NN`, writes them into the artifact's `## Assumptions` section, and says
 «no question channel — N assumptions recorded» in the handoff.
 
-## 6. Tool modes — `pencil` / `figma` / `code`
+## 6. Tool modes — any design tool with an MCP, or `code`
 
 The tool is chosen **once** in `docs/design/design-system.md` frontmatter `tool:`; no feature skill
 re-asks it. Never store the choice in `.claude/sdlc.local.md` (per-developer, gitignored).
 
+**`tool` names the product, not the MCP server.** `pencil` = pen.dev, `figma` = Figma (whichever
+Figma server the session has, §8), any other lowercase product name = that tool (§9), `code` = no
+design tool. Canons written before 4.8 keep `pencil` / `figma` and stay valid.
+
+**The canon's design document.** Frontmatter `design_file`: a repo path for a tool that keeps
+files on disk (`docs/design/app.pen`), the file URL for a cloud tool
+(`https://www.figma.com/design/<fileKey>/<name>`). Everywhere a skill or agent reads «the canon's
+design file», it resolves it in this order: `design_file`, else the legacy `pen_file`, else the
+legacy `figma_file` (canons written by sdlc 4.7). New canons write only `design_file`.
+`library_frame` = the frame, page or section that holds the reusable components. It stays `""`
+when the keeper reported that nothing could be drawn (a read-only tool, an empty document without
+write permission, a read-only `inventory` run); the canon then says why in `## Assumptions`.
+`screens` with an empty `library_frame`: writes allowed → `code` mode, named («the design document
+has no library yet — run `/sdlc:design-system`»), so the document stays empty for the
+foundations run; writes not allowed → it draws on «Drafts · <slug>» (gate 6).
+
 | Mode | Screens live in | Per-state source-ref | PNG per state |
 |---|---|---|---|
-| `pencil` | the canon's `pen_file` (one document holds the components and the screens) | node id | required (§7 export gate) |
-| `figma` | the canon's `figma_file` | node id | required when the Figma MCP can export; else named gap |
+| a design tool (`pencil`, `figma`, `<name>`) | the canon's design file (one document holds the library and the screens) | node id | required when the session can export (gate 5 below); else a named gap in `screens.md` §Source |
 | `code` | inline markdown wireframes in `screens.md` | «wireframe below» | none — the built screen + the `verify-ui` screenshot are the visual evidence |
 
+**What counts as a design tool.** An MCP server in this session whose tools can read a design
+document's nodes (frames, components, variables). Find it by listing the session's tools, deferred
+ones included (load a deferred tool's schema before calling it). A browser, a docs server or a
+screenshot service is not a design tool. The tool prefix differs per session (`mcp__pencil__…`,
+a plugin prefix, `mcp__figma-console__…`), so match by the tool names, never by a fixed prefix.
+
+**Capabilities** — what to look for in any design tool; §7–§9 name them per tool:
+
+| Capability | pen.dev (§7) | Figma (§8) | another tool (§9) |
+|---|---|---|---|
+| target document | `get_app_state`: the active document; tools take its `uri` | Console: `figma_get_status`, `figma_list_open_files`; official: the file key in every call | its «current document» tool, else the id it takes per call |
+| its own guide for agents | `read_skill()`, then `read_skill({ path })` | the Figma plugin's skills, the `create_design_system_rules` prompt; Console: the server's instructions | whatever it ships |
+| read nodes / components / variables | a read-only `execute` | Console: `figma_search_components`, `figma_get_variables`, `figma_get_styles`; official: `get_metadata`, `get_variable_defs`, `search_design_system` | its read tools |
+| write | `execute` | Console: `figma_execute` and the variable tools; official: `use_figma` (beta) | its write tools; none → report only |
+| save | `save` with the `uri` (newer servers), else the user's Cmd+S | saves by itself | a `save` tool, else the user saves |
+| look | `TakeScreenshot` inside `execute` | Console: `figma_capture_screenshot`; official: `get_screenshot` | its screenshot tool |
+| export a PNG to disk | `Export` inside `execute` writes `<nodeId>.png` | Console: `figma_get_component_image` returns a URL → `curl` | a tool that writes a file or returns a URL |
+
+**The gates, the same for every tool** (`design-keeper` and `screens` follow them; the tool's
+section adds its specifics):
+
+1. **Target-document gate before every write.** The tool's target must be the canon's design
+   file. Compare absolute paths for a file on disk and file keys for a URL, never the raw strings.
+   Another document, none, or the app closed → STOP and tell the user exactly what to open; never
+   write into a foreign document, never create probe nodes.
+2. **Only the tool changes the document.** Never read, edit or rewrite the design file on disk
+   with file tools, `sed`, `python` or `jq`; copying a whole file (`cp kit.pen docs/design/app.pen`)
+   is fine.
+3. **The tool's own guide governs how to call its tools** (syntax, batching, where nodes go). Read
+   it once, before the first call that depends on it (pen.dev: before the first `execute`,
+   read-only queries included), at the latest before the first write. The schema and the property
+   names come from that guide; when it is silent, read an existing node of the same kind and copy
+   its shape. **Never create a probe node** to guess a name (a top-level `probe` frame was left in a
+   real document this way). The guide never overrides these gates: which document, what may be
+   written, one library per document (§7.11 applies to every tool), when to stop.
+4. **Save, then check.** A `save` tool → call it; a tool that saves by itself → nothing to do;
+   neither → ask the user to save. Then check: a local file must change on disk (`stat -f '%m %z'`
+   before and after on macOS, `stat -c '%Y %s'` on Linux); a URL is checked by reading the written
+   variables / nodes back through the tool. An unsaved local file is named in the handoff, never
+   committed.
+5. **Export gate.** A PNG counts only when the file exists at its final path and passes `test -s`
+   (exists and is not empty): an export can leave no file or an empty one without a failing status.
+   An image the tool returns only into the conversation is a look, not an export. No export
+   capability in the session → no PNG and a named gap in `screens.md` §Source; the node id stays
+   the source-ref. Shell steps run **one command per call**: `test -s <file>`, then `mv`, then
+   `test -s` again, each its own call; no loops, no `&&` chains (a headless run rejects them, an
+   interactive one asks permission for each), no helper scripts outside the repo (no `/tmp`).
+6. **Who may write: the file's owner decides** (`allow_writes`, recorded in the canon as
+   «Foundations write permission»):
+   - `design_file` is a **repo path** → the file belongs to the person running the skill: write
+     without asking, headless too;
+   - `design_file` is a **URL** (Figma or another cloud tool) and the person **created it in this
+     `design-system` run** → write;
+   - a URL file not created in this run, **empty or with a library** → one question to the person,
+     showing what would be written; headless → no permission, only proposals in the canon.
+
+   Without permission `design-keeper` writes nothing and returns proposals, and `screens` never
+   writes into the designer's library: new, `code-only` and changed components go on a separate
+   page or top-level frame «Drafts · <slug>» and are listed in the handoff for the designer. With
+   permission or without, the foundations sheet, the components (and the temporary «DS ·
+   Directions» sheet of `design-system` step 4b) are drawn only in an empty document; a document
+   with a library only gets its missing foundations.
+
+**The foundations sheet — one layout in every tool.** `design-keeper` draws it in an empty
+document, the same structure in pen.dev, Figma or any other tool: a frame «Foundations» with a
+title and one subtitle line; «Colours» as one card per theme side by side (dark and light), every
+semantic colour a swatch with its name and the primitive under it, the theme set by the tool's own
+mechanism on the card (Figma: the collection mode; pen.dev: `theme` on the card frame);
+«Typography» as one row per size of the scale (name, font / size / line height, a sample line);
+«Spacing» as bars with name and value, each bar's width bound to its variable; «Radii» as squares
+with name and value. Every value is bound to a variable or style, never a literal. The components
+go below it. The detail lives in `design-keeper` step 5.
+
+**Local path vs URL.** Every disk step (`test -s <file>`, `stat` before/after,
+`git status --porcelain -- <file>`, a separate commit for the design file) applies only when the
+design file is a local path. A URL has nothing in the repo to check or commit.
+
 **Degrade, don't block.** The chosen tool's MCP is not connected in this session → run `code`
-mode and write the degradation into `screens.md` §Source and the handoff («pencil MCP unavailable —
-code-mode wireframes»). Detect the tools by probing what the session actually has; the Pencil
-tools are `get_app_state`, `execute`, `read_skill`, `get_style`, `browser` (prefixed per the
-session, e.g. `mcp__pencil__execute`).
+mode and write the degradation into `screens.md` §Source and the handoff («<tool> MCP unavailable
+— code-mode wireframes»).
 
 ## 7. pen.dev (Pencil MCP) — hard rules
+
+The Pencil tools: `get_app_state`, `execute`, `read_skill`, `get_style`, `save` (newer servers),
+`browser`, prefixed per session (e.g. `mcp__pencil__execute`). The design file is a local `.pen`.
 
 1. **Never edit `.pen` JSON by hand.** The file is JSON on disk, but it is changed only through the
    pen.dev app, its MCP, or its CLI: no `Read`/`Edit`/`Write`, no `sed`, no `python`, no
    `json.dumps` on a `.pen`. Copying a whole file (`cp kit.pen docs/design/app.pen`) is fine.
-2. **Active-document gate before every write.** The MCP ignores file paths and writes into
-   whatever document is active in the app. Call `get_app_state` first; continue only when the
-   active document is the canon's `pen_file`. Anything else (another file, no file, app closed) →
-   STOP and ask the user to open `pen_file` in pen.dev; never write into a foreign document,
-   never create probe nodes.
-3. **Persist = the user's Cmd+S.** MCP edits live in the app's memory. After drawing, ask for
-   Cmd+S, then confirm the file on disk changed (`stat -f '%m %z' <pen_file>` before/after on macOS,
-   `stat -c '%Y %s'` on Linux). An unsaved `.pen` is named in the handoff, never committed.
+2. **Open-document gate before every write.** Older servers write into whatever document is
+   active in the app; newer ones take the document's `uri` and refuse a document that is not open
+   («wrong .pen file»). Either way, call `get_app_state` first; continue only when the canon's
+   design file is the active document, and pass its `uri` (`file://<absolute path>`) wherever a
+   tool asks for one. Anything else (another file, no file, app closed) →
+   STOP and ask the user to open the `.pen` in pen.dev (macOS: `open <path>`); never write into a
+   foreign document, never create probe nodes.
+3. **Persist, then check the disk.** MCP edits live in the app's memory until the document is
+   saved. When the server offers a `save` tool, call it with the document's `uri`; otherwise ask
+   the user for Cmd+S. Then confirm the file on disk changed (`stat -f '%m %z' <path>` before/after
+   on macOS, `stat -c '%Y %s'` on Linux). An unsaved `.pen` is named in the handoff, never committed.
 4. **Before `git checkout` / `pull` / `rebase`: save and close the `.pen`.** An open document
-   survives the branch switch in memory and the next Cmd+S writes the old branch's design over
+   survives the branch switch in memory and the next save writes the old branch's design over
    the new one.
 5. **Conflicts are resolved in the app.** Keep both versions, open one as the base, re-apply the
    other's changes in pen.dev. Never merge `.pen` JSON by hand.
@@ -201,27 +325,75 @@ session, e.g. `mcp__pencil__execute`).
    writes one file per node, named by the node id: `<dir>/<nodeId>.png`. An export can fail
    without a failing status, leaving no file or an empty one, so for **every** node:
    `test -s <dir>/<nodeId>.png` → `mv` to `SCR-NN-<state>.png` → `test -s` again (`-s` = exists
-   and is not empty). A failed check fails the gate; the screen is not done.
+   and is not empty), one command per call (§6 gate 5). A failed check fails the gate; the screen
+   is not done.
 9. **Variable sync overwrites.** Syncing variables from CSS overwrites same-named variables in the
-   document (a dark-theme colour was lost this way); keep a copy of `pen_file` before a sync.
+   document (a dark-theme colour was lost this way); keep a copy of the `.pen` before a sync.
 10. **The PNGs are the review surface.** A real `.pen` is megabytes of JSON with random ids; nobody
     reviews its diff in a PR. Put the exported PNGs in the PR instead.
 11. **One component library per document.** A document that already has reusable components (a
     course kit, a teammate's file) already has its library, whatever its frame is called
     («Components · Chat»): it is recognized, never duplicated. «DS · Foundations» is created only
-    in a document with no reusable components at all, and only there does `pen-keeper` draw
-    primitives. In a document with a library, a component that exists only in code (`code-only`
-    in the canon) is drawn by `screens` the first time a screen needs it. The procedure lives in
-    `pen-keeper`; the canon records the frame as `library_frame`.
+    in a document with no reusable components at all, and only there does `design-keeper` draw
+    the foundations sheet and the components. In a document with a library, a component that
+    exists only in code (`code-only` in the canon) is drawn by `screens` the first time a screen
+    needs it (into the library frame, or on «Drafts · <slug>» without write permission, §6 gate 6). The procedure lives in `design-keeper`; the canon records the frame as
+    `library_frame`. The same rule holds in every tool.
+12. **A variant is its own component.** pen.dev has no variant sets: each variant, size and state
+    is a separate reusable component named `<Component> / <Variant> / <Size or state>`.
 
 ## 8. Figma (optional, when the team has a designer)
 
-The canon's `figma_file` is the file URL; screens record a node id per state. Writing outside your
-drafts needs a Full seat; the Figma MCP's write tools are beta. Without an export-capable Figma
-tool in the session, name the missing PNGs as a gap in `screens.md` §Source — the node ids remain
-the source-ref.
+The canon's design file is the file URL; its file key is the path segment after `/design/` (or
+`/file/`). `library_frame` is the page (or the section on it) that holds the components. Screens
+record a node id per state. Two MCP servers exist; use whichever the session has:
 
-## 9. Code mode
+- **Figma Console MCP** (Southleft, not a Figma product). Writes only into files where the
+  **Desktop Bridge** plugin runs in Figma Desktop (Plugins → Development → import the manifest that
+  `npx figma-console-mcp@latest --print-path` prints, then run it in the file). `figma_get_status`
+  (with `probe: true`) and `figma_list_open_files` tell which files are connected and which one is
+  the active target; with several connected, pass `fileKey` on every call (`figma_execute` takes
+  one). `figma_execute` runs plugin-API JavaScript in the file; variables also through
+  `figma_setup_design_tokens` / `figma_batch_create_variables`; components through
+  `figma_search_components` (node ids are per session: search again in every session).
+  Look: `figma_capture_screenshot`. PNG to disk: `figma_get_component_image` returns an image URL
+  (it goes through the REST API, so it needs the token the server was started with) → `curl -sSfL
+  -o <path> <url>` → `test -s`. REST renders the cloud state, which can lag behind what the plugin
+  just drew (`figma_capture_screenshot` shows the live state): export after the look; no URL or a
+  failed `curl` → that state is the named gap. Its server instructions are its guide.
+- **Official Figma MCP.** Reading works on any plan: `get_metadata`, `get_variable_defs`,
+  `get_design_context`, `get_screenshot`; `search_design_system` and `get_libraries` on the remote
+  server only. Writing (`use_figma`) is **beta**, remote only, and needs edit access to the file and
+  a **Full** seat outside the user's own drafts (a Dev seat writes only in its drafts). Read calls
+  are limited per seat (View / Collab: 20 a month), so read in batches. Its guide: the Figma
+  plugin's skills (`figma-use` before `use_figma`, `figma-generate-library` for a library) and the
+  `create_design_system_rules` prompt. `get_screenshot` is a look; a PNG on disk needs another tool
+  in the session, else a named gap.
+
+Common to both:
+
+- **Figma saves by itself.** Nothing to ask; the check is a read-back of what was written.
+- **Variants are a component set** with variant properties (`Variant`, `Size`, `State`), not
+  separate components.
+- **Foundations:** colours as variables in one collection with a `Light` and a `Dark` mode; radii,
+  spacing and type sizes as number variables; type families as string variables or text styles.
+- **A Figma file is a URL, so it usually belongs to a designer.** Unless the person created it in
+  this run, anything is written only with permission (§6 gate 6); without it the foundations are
+  proposals in the canon and `screens` draws new components on «Drafts · <slug>» (a page).
+- No export tool in the session → name the missing PNGs as a gap in `screens.md` §Source; the node
+  ids remain the source-ref.
+
+## 9. Any other design tool
+
+The same §6 steps, by capability: find the tool's target-document, read, write, save, look and
+export tools; read its guide once; pass the target-document gate; write only what the rules allow.
+The canon's `tool` is the product's lowercase name and `design_file` its path or URL. The tool has
+nothing to write with → `design-keeper` only recognizes and reports (missing foundations become
+proposals). No export → a named gap. No MCP for it in the session → `code` mode. The keeper's
+report names the tools it used, and `design-system` records them in the canon so `screens` starts
+from the same ones.
+
+## 10. Code mode
 
 Always available, needs no MCP. `screens.md` carries one ASCII wireframe per state that needs a
 distinct layout. The manifest table is the same contract in every mode: `verify-ui` reads it, and
