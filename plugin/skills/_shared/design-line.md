@@ -92,6 +92,11 @@ docs/features/<slug>/_review/verify-ui-<YYYY-MM-DD>/     # its screenshots
 Repo-level canon goes under `docs/design/`; everything feature-specific goes under
 `docs/features/<slug>/`, like every other SDLC artifact. Never invent a third location.
 
+**Templates are read and written, never copied with `cp`.** A skill's template lives in the
+plugin's folder; Claude Code treats the plugin cache as a sensitive path, so `cp` from it stops
+the run for a permission prompt (and is refused headless). Read the template with Read, write the
+artifact with Write.
+
 ## 3. The input ladder — where a feature's intent comes from
 
 Every design-line skill resolves the feature's intent once, top-down, and uses the **first**
@@ -277,8 +282,10 @@ section adds its specifics):
    An image the tool returns only into the conversation is a look, not an export. No export
    capability in the session → no PNG and a named gap in `screens.md` §Source; the node id stays
    the source-ref. Shell steps run **one command per call**: `test -s <file>`, then `mv`, then
-   `test -s` again, each its own call; no loops, no `&&` chains (a headless run rejects them, an
-   interactive one asks permission for each), no helper scripts outside the repo (no `/tmp`).
+   `test -s` again, each its own call; no loops, no `&&` chains, no `$(…)` substitutions or pipes
+   (a headless run rejects them, an interactive one asks permission for each), no helper scripts
+   outside the repo (no `/tmp`). Counting for a self-check or a handoff goes through Read and Grep
+   (its count mode), never a composed command.
 6. **Who may write: the file's owner decides** (`allow_writes`, recorded in the canon as
    «Foundations write permission»):
    - `design_file` is a **repo path** → the file belongs to the person running the skill: write

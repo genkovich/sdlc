@@ -122,7 +122,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
    derive, record in `## Assumptions`, proceed.
 
 3. **Write the manifest progressively.** At the first screen, bootstrap
-   [`./templates/screens.md`](./templates/screens.md) → `docs/features/<slug>/screens.md`
+   [`./templates/screens.md`](./templates/screens.md) → `docs/features/<slug>/screens.md` (Read the
+   template, Write the file; never `cp` from the plugin's folder)
    (frontmatter `tool` from the canon, `input:` per the ladder, §Source). Write each `### SCR-NN`
    section as soon as that screen is confirmed and drawn.
 
@@ -215,7 +216,8 @@ states match the ACs; `verify-ui` later checks the built screens against this ma
        export tool in the session, else the named gap.
      - f: Figma saves by itself; read the frames back.
 
-5. **Structural self-check** — re-read `screens.md` **from disk** and verify **7 items**:
+5. **Structural self-check** — re-read `screens.md` **from disk** and verify **7 items**, counting
+   with Read / Grep or one plain command per call (no `$(…)`, pipes or `&&`):
    (1) every `SCR-NN` from `ux-flows.md` has a section (or the noted-gap fallback is stated in §Source);
    (2) every screen has a row for each of the six classes, a real state or an explicit
    `N/A: <reason>` row;

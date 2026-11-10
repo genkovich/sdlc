@@ -115,7 +115,7 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
 
 4. **Write + confirm each flow — prose, never raw mermaid.** Bootstrap
    [`./templates/ux-flows.md`](./templates/ux-flows.md) → `docs/features/<slug>/ux-flows.md` on the
-   first flow; write each flow as soon as it is drafted. Validate it parses per
+   first flow (Read the template, Write the file; never `cp` from the plugin's folder); write each flow as soon as it is drafted. Validate it parses per
    [`../_shared/mermaid-check.md`](../_shared/mermaid-check.md). When the real parser could not run
    (no `mmdc`, no permission for `npx`), say so in the handoff in one line and name what checked it
    instead («mermaid: `npx` not permitted — structural lint per mermaid-check.md»); never report a
@@ -135,7 +135,8 @@ each flow matches a real user story; the Tech Lead flags flows that imply archit
    token per [`../_shared/design-line.md`](../_shared/design-line.md) §3. Stamp frontmatter
    `input:` (`prd` / `design-spec` / `story` / `idea-brief`) and `updated_at`.
 
-6. **Structural self-check** — re-read the file **from disk** and verify **5 items**:
+6. **Structural self-check** — re-read the file **from disk** and verify **5 items** (count with
+   Read / Grep, never a composed `$(…)` command):
    (1) every UI-touching §4 user story (full mode) or every story sentence (story mode) is shown by a
    flow or marked out of scope;
    (2) every SCR id used in a flow exists in the inventory, and every inventory row appears in ≥1 flow;

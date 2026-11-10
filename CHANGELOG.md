@@ -4,6 +4,56 @@ All notable changes to the `sdlc/` toolkit and `sdlc` Claude Code plugin.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.2] — 2026-11-10
+
+### Fixed — after the lesson 1 rerun on 4.8.0 (pen.dev)
+
+The rerun drew the foundations sheet and the components, saved through `save`, read the guide
+with `read_skill({ path })` and left no probe nodes. What it still got wrong:
+
+- **Invisible spacing bars.** In pen.dev a width bound to `$space-*` came out `width: 0`. Where a
+  tool cannot bind a size to a variable, `design-keeper` sets the number read from the variable's
+  value (`GetVariables()`), the label still naming the variable. The look step now also reads every
+  node's size back: each element of the sheet and every component must have a non-zero width and
+  height, because a screenshot does not show a 0-width bar.
+- **Tokens the product does not use on the sheet.** shadcn's default `chart-*` and `sidebar-*`
+  groups were drawn although no product code uses them. A token group no file of the product's
+  code references (Grep over the source, without the token file, dependencies and generated
+  output) stays as variables but is left off the sheet; the report lists it as «in the tokens, not
+  used by the product».
+- **Half of the inventory drawn.** Card, Dialog, Tabs, Switch, Textarea, Progress and Separator
+  stayed `code-only`; Button had `disabled` in two variants only and no `focus` / `invalid`
+  although the code styles `focus-visible` and `aria-invalid`; sizes like `icon-lg` / `icon-xl`
+  were missing. Now, in an empty document, the keeper draws every inventory row (`code-only` only
+  means no node yet): every variant × size in the default state, and every state the code styles
+  (read from its `disabled:` / `focus-visible:` / `aria-invalid:` / `aria-selected:` /
+  `data-[state=…]:` / `hover:` classes) as one row per variant in the code's default size, so a
+  Button is 6 × 3 + 6 × states, not the full product. Before the report it compares what is drawn
+  with the inventory and names everything not drawn, with its reason.
+- **Components in the dark theme only.** With two themes, the components are defined once and
+  their instances shown in both: two theme cards side by side, set like the colour cards (or a
+  second row in a frame with the other theme).
+- **Keeper report numbers from the document.** It said 53 components where 49 were drawn; every
+  number in the report is now counted from the document after the last write.
+- **`cp` of the canon template from the plugin cache** stopped the run with a «sensitive file»
+  permission prompt. `design-system` reads the template with Read and writes the canon with Write;
+  `screens` and `ux-flows` bootstrap their templates the same way (design-line §2).
+- **Self-checks counted rows with composed Bash** (`$(…)`), which was rejected and would show
+  permission prompts on camera. Counting goes through Read and Grep (count mode) or one plain
+  command per call; design-line §6 gate 5 adds `$(…)` and pipes to the forbidden shapes, and the
+  `design-system`, `screens` and `ux-flows` self-checks say how to count.
+
+### Update notes
+
+- How to update: `claude plugin marketplace update sdlc`, `claude plugin update sdlc@sdlc`, then
+  restart `claude`.
+- What to do after updating: an empty pen.dev document drawn by 4.8.0 / 4.8.1 has the old sheet
+  and a partial inventory; to redraw it, start from an empty document again (the keeper never
+  redraws into a document that already has a library).
+- **Not run live:** these fixes (the size fallback and the bounds check, the unused-group filter,
+  the full inventory, both themes for components). `claude plugin validate` passes for the plugin
+  and the marketplace.
+
 ## [4.8.1] — 2026-11-10
 
 ### Added — `ux-flows` reads a PRD and the command text together

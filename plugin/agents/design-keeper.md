@@ -161,8 +161,15 @@ asks the person.
 
 Case c only, and only with `allow_writes: true`. Create the library frame «DS · Foundations» (in
 Figma: a page). At its top draw the **foundations sheet**, so a person sees the design system, not
-only its components. **One layout for every tool** (design-line §6), top to bottom, each section a
-heading and a card:
+only its components.
+
+**Only what the product uses goes on the sheet.** A token group (the names sharing a prefix, such
+as shadcn's default `chart-*` or `sidebar-*`) that no file of the product's code references —
+Grep the source tree for its names (`--chart-1`, `bg-sidebar`, …), leaving out the token file
+itself, dependencies and generated output — is left **off the sheet**; its variables stay seeded.
+The report lists it as «in the tokens, not used by the product».
+
+**One layout for every tool** (design-line §6), top to bottom, each section a heading and a card:
 
 1. A frame «Foundations» with the title «Foundations» and one subtitle line (what the sheet holds
    and that every value is bound to the file's variables and styles).
@@ -176,25 +183,48 @@ heading and a card:
    the left the name (`text/16`) with the font, weight and size / line height under it (`Inter
    Regular 16/24`), on the right one sample line set in that style.
 4. **Spacing** — one row per step: the name and value (`space/8 · 8`) and a bar whose width is
-   bound to that spacing variable.
+   bound to that spacing variable. Where the tool cannot bind a size to a variable (pen.dev: a
+   width bound to `$space-*` came out `width: 0`, the bars were invisible), set the width as the
+   number read from that variable's value (`GetVariables()`); the label still names the variable.
 5. **Radii** — one square per radius, its corner radius bound to the variable, the name and value
    under it (`radius/md · 14`).
 
 Every fill, size, gap, radius and text style on the sheet is bound to a variable or style, **never
-a literal**. Section headings and the sample line use the project's language.
+a literal** — the one exception is a size the tool cannot bind (above), which is the variable's
+own value. Section headings and the sample line use the project's language.
 
-Below it draw the components from the canon inventory, complete: every variant and size the code
-defines (for example each `cva` variant × size of `Button`, each `Badge` variant), and the states
-the code styles for it (disabled, invalid / error, selected, focus). A `design-only` starter row
-(source `starter set`, no code yet) is drawn from its canon row: exactly the variants and states
-its «States it supports» cell lists. Use the tool's **own variant mechanism**: Figma → one component set per component with variant properties (`Variant`, `Size`,
+Below it draw **the whole canon inventory**: every row. `code-only` only means no node exists
+yet, so in an empty document every code row is drawn here (a Card, a Dialog or a Switch is a
+component like a Button), not left for `screens`. Read every component's file for its variant
+and size maps (e.g. a `cva` `variants` block: every size, `icon-lg`, `icon-xl` included, and its
+`defaultVariants`) and every state its classes style (`disabled:`, `focus-visible:`,
+`aria-invalid:`, `aria-selected:`, `data-[state=…]:`, `hover:`). Draw, **not the full product**:
+
+- **variants × sizes in the default state** — one grid per component;
+- **the states per variant, in the code's default size** — one row per variant with every state
+  the code styles (hover, focus, disabled, invalid, selected …), drawn for every variant, not for
+  two of them.
+
+For a Button with 6 variants, 3 sizes and 4 states that is 6 × 3 + 6 × 4 components, not
+6 × 3 × 4. A `design-only` starter row (source `starter set`, no code yet) is drawn from its canon row:
+exactly the variants and states its «States it supports» cell lists. Use the tool's **own variant
+mechanism**: Figma → one component set per component with variant properties (`Variant`, `Size`,
 `State`); pen.dev, which has no variant sets → each variant as its own reusable component named
 `<Component> / <Variant> / <Size or state>`; another tool → whatever it offers, else the pen.dev
 naming. Group each component in one row or grid with a label, lay them out with the tool's
 auto-layout, bind every colour, radius, size and gap to the seeded variables (never literals), and
-name every node. The components go **below** the foundations sheet in the same library frame. The
-sheet is the design system a person reviews: nothing the code (or a starter row) has is left out,
-nothing beyond them is invented.
+name every node. The components go **below** the foundations sheet in the same library frame.
+
+**Both themes for the components too.** With two themes, each component is defined once (bound
+to the semantic variables) and shown in both: its instances laid out in two theme cards side by
+side, the theme set on each card the same way as the colour cards (Figma: the collection mode;
+pen.dev: `theme` on the card frame), or a second row of instances in a frame with the other theme.
+
+**Check against the inventory before the report.** For every inventory row, compare what was
+drawn with what its code defines (every variant × size in default, every state per variant in the
+default size). Anything not drawn is named in the
+report with its reason; «drew most of it» is not done. The sheet is the design system a person
+reviews: nothing the code (or a starter row) has is left out, nothing beyond them is invented.
 
 In a document that already has a library (cases a and b) **draw nothing**, `allow_writes` or not:
 leave its frames and components untouched. A component that exists only in code is the caller's
@@ -220,8 +250,10 @@ collection, the created frame and its components) through the tool.
 ## 8. Look once
 
 When you created anything: one screenshot of the library frame through the tool's look capability,
-and check the frame is not collapsed, clipped or overlapping other content. A visible defect gets
-one fix and one more look; whatever is still wrong goes in the report.
+and check the frame is not collapsed, clipped or overlapping other content. **Then read the sizes
+back**, because a screenshot hides a 0-width bar: every node of the sheet and every component has
+a non-zero width and height (its bounds, read through the tool). A visible defect or a zero size
+gets one fix and one more look; whatever is still wrong goes in the report.
 
 ## Mode `directions` — the comparison sheet
 
@@ -243,7 +275,9 @@ foundations seen side by side. Steps 1–3 as usual, then:
 
 ## Report (your return value)
 
-One short markdown block:
+One short markdown block. **Every number in it is counted from the document after the last
+write** (read the nodes back), never from what you meant to draw: a report once said 53 components
+where 49 were drawn.
 
 - tool: `<tool>` through `<MCP server>`; capabilities used: target `<tool name>` · read `<…>` ·
   write `<… | none>` · save `<save | autosave | user>` · look `<…>` · export `<… | none>`; guide
@@ -266,10 +300,13 @@ One short markdown block:
   writes them into the inventory)
 - drafts: every component in a «Drafts · <slug>» frame (on a «Screens · <slug>» page), `<name> —
   <node id> — Drafts · <slug>` (or «none»)
+- sheet: token groups shown / «in the tokens, not used by the product»: <groups>
+- not drawn: every inventory row, variant, size or state the code defines that is not in the
+  document, with its reason (or «none»)
 - font check: OK / failing fonts
 - saved: «saved via `save`, stat `<before>` → `<after>`» / «saves by itself, read back: <what>» /
   «NOT saved: the user must save (pen.dev: Cmd+S), stat before `<value>`» / «no writes»
-- look: OK / what is still wrong
+- look: OK / what is still wrong; sizes read back: every node non-zero / the zero-size ones
 - **user actions required** — what only the user can do (open the right file, run Desktop Bridge,
   save when the tool cannot); a local file, always: «save and close the file before `git checkout`
   / `pull`».
@@ -300,6 +337,8 @@ a document that is not open («wrong .pen file»); pass the `uri` wherever a too
 - property names: from `execute.md` and the schema files it names; silent → `Get` an existing node
   of that kind; never a probe frame;
 - fonts: all Google fonts are available; a custom font must be at its relative path in the repo;
+- sizes: a width or height bound to a `$space-*` variable can come out `0`; set it as the number
+  from `GetVariables()` and read every node's bounds back with `Get`;
 - look: end the creating `execute` with `TakeScreenshot([libraryFrameId])` and check `Get` with
   `ctx.problems`;
 - save: `save` with the `uri`; no `save` tool → Cmd+S by the user;

@@ -133,9 +133,11 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    `## Assumptions` per [`../_shared/design-line.md`](../_shared/design-line.md) §5.
 
 4. **Write the canon, building the foundation first when there is none.**
-   a. **The canon, section by section.** Copy
-      [`./templates/design-system.md`](./templates/design-system.md) to
-      `docs/design/design-system.md` (`mkdir -p docs/design`) right after step 3, then write each
+   a. **The canon, section by section.** Read
+      [`./templates/design-system.md`](./templates/design-system.md) with Read and write it with
+      Write to `docs/design/design-system.md` right after step 3 (never `cp` from the plugin's
+      folder: Claude Code treats the plugin cache as a sensitive path and stops for a permission
+      prompt; Write creates `docs/design/` itself), then write each
       part as soon as it is decided: frontmatter `tool` + `design_file` (`""` on `code`; never
       write a legacy synonym from design-line §6 into a new canon), posture, token source, the
       component inventory (every row cites `file:line` for code, the node/URL for tool-side
@@ -240,7 +242,10 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
       library frame the first time a screen needs it (without write permission only in «Drafts ·
       <slug>» on a «Screens · <slug>» page the person allowed).
 
-6. **Structural self-check** — re-read the file **from disk** and verify **7 items**:
+6. **Structural self-check** — re-read the file **from disk** and verify **7 items**. Count and
+   check with Read and Grep (Grep's count mode for rows), or one plain command per call
+   (`test -s <file>`); never a composed Bash command with `$(…)`, pipes or `&&`, which is rejected
+   headless and stops an interactive run for a permission prompt:
    (1) `tool` is `code` or a lowercase design-tool name (`pencil`, `figma`, `<name>`), never empty;
    (2) the tool ↔ file fields agree — `tool` ≠ `code` ⇒ the design file (`design_file`, else a
    legacy synonym per design-line §6) is non-empty, and `library_frame` is non-empty unless the
@@ -274,7 +279,8 @@ Whoever owns the product's look: designer, frontend lead, or the solo developer.
    separate one for that file with its diff (`design-system: tokens in <file>`). Unresolved
    self-check item → propose no commit and say why. **Every number in the handoff is counted from
    disk after the last write** (inventory rows, components, variables, references: count the rows
-   in the file as written, never from memory: a handoff once said 34 rows where the file had 31).
+   in the file as written with Read or Grep, never from memory: a handoff once said 34 rows where
+   the file had 31); the keeper's numbers come from its read-back of the document.
    Then emit the **stage-handoff block** per
    [`../_shared/handoff.md`](../_shared/handoff.md), utility variant — *What I did* (tool, posture,
    inventory size, the foundation's origin and the chosen direction, foundations written /
